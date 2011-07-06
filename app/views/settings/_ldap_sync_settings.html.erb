@@ -1,0 +1,30 @@
+<% AuthSourceLdap.all.each do |ldap| -%>
+<fieldset class="collapsible">
+  <legend onclick="toggleFieldset(this);"><%= ldap.name %></legend>
+  <div>
+    <p>
+      <label><%= l(:ldap_domain_label_active)%></label>
+      <%= check_box_tag "settings[#{ldap.name}][active]", 'yes', (@settings[ldap.name][:active] if @settings[ldap.name]) %>
+    </p>
+
+    <p>
+      <label><%= l(:ldap_domain_label_groups_base_dn) %> <span class="required">*</span></label>
+      <%= text_field_tag "settings[#{ldap.name}][groups_base_dn]", (@settings[ldap.name][:groups_base_dn] if @settings[ldap.name]), :size => 60 %>
+    </p>
+
+    <p>
+      <label><%= l(:ldap_domain_label_attr_groupname) %> <span class="required">*</span></label>
+      <%= text_field_tag "settings[#{ldap.name}][attr_groupname]", (@settings[ldap.name][:attr_groupname] if @settings[ldap.name]), :size => 15 %>
+    </p>
+
+    <p>
+      <label><%= l(:ldap_domain_label_groupname_filter) %></label>
+      <%= text_field_tag "settings[#{ldap.name}][groupname_filter]", (@settings[ldap.name][:groupname_filter] if @settings[ldap.name]), :size => 15 %>
+    </p>
+    <p>
+      <label><%= l(:ldap_domain_label_domain_group) %></label>
+      <%= text_field_tag "settings[#{ldap.name}][domain_group]", (@settings[ldap.name][:domain_group] if @settings[ldap.name]), :size => 15 %>
+    </p>
+  </div>
+</fieldset>
+<%- end %>

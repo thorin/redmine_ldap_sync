@@ -1,0 +1,6 @@
+en:
+  ldap_domain_label_active: "Active"
+  ldap_domain_label_groups_base_dn: "Groups base DN"
+  ldap_domain_label_attr_groupname: "Group name"
+  ldap_domain_label_groupname_filter: "Group regex filter" 
+  ldap_domain_label_domain_group: "Domain group" 
