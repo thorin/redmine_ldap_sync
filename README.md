@@ -1,5 +1,5 @@
-Redmin Ldap Sync
-================
+Redmine Ldap Sync
+=================
 
 This plugins extends redmine's ldap authentication to perform group synchronization.
 In addition it provides a rake task to perform full user group synchronization.
