@@ -17,10 +17,13 @@ Redmine::Plugin.register :redmine_ldap_sync do
 end
 
 Dispatcher.to_prepare :redmine_ldap_sync do
+  require_dependency 'principal'
+  require_dependency 'user'
+
   unless AuthSourceLdap.include? RedmineLdapSync::RedmineExt::AuthSourceLdapPatch
     AuthSourceLdap.send(:include, RedmineLdapSync::RedmineExt::AuthSourceLdapPatch)
   end
-  unless User.include? RedmineLdapSync::RedmineExt::UserPatch
+  unless User.included_modules.include? RedmineLdapSync::RedmineExt::UserPatch
     User.send(:include, RedmineLdapSync::RedmineExt::UserPatch)
   end
 end
