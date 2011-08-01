@@ -73,10 +73,10 @@ module RedmineLdapSync
                             :filter => user_filter,
                             :attributes => [self.attr_login, attr_enabled],
                             :return_result => false) do |entry|
-              if entry[attr_enabled][0].to_i & 2 == 0
-                users[:enabled] << entry[self.attr_login][0]
-              else
+              if entry[attr_enabled][0].to_i & 2 != 0
                 users[:disabled] << entry[self.attr_login][0]
+              else
+                users[:enabled] << entry[self.attr_login][0]
               end
             end
 
