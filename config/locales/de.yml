@@ -1,0 +1,6 @@
+de:
+ ldap_domain_label_active: "Aktiv"
+ ldap_domain_label_groups_base_dn: "Gruppen DN"
+ ldap_domain_label_attr_groupname: "Gruppenname"
+ ldap_domain_label_groupname_filter: "Gruppen RexExpressiom"
+ ldap_domain_label_domain_group: "Domain group"
