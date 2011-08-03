@@ -30,33 +30,35 @@ Open Administration > Plugins and on the plugin configuration page you'll be
 able to set for each LDAP authentication.
 
 **LDAP settings:**
+
 + _Active_ - Enable/Disable user/group synchronization for this LDAP
- authentication.
+  authentication.
 + _Group base DN_ - The path to where the groups located. Eg,
- `ou=people,dc=smokeyjoe,dc=com`.
+  `ou=people,dc=smokeyjoe,dc=com`.
 + _Group name attribute_ - The ldap attribute from where to fetch the group's
- name. Eg, `sAMAccountName`.
+  name. Eg, `sAMAccountName`.
 + _Members attribute_ - The ldap attribute from where to fetch the group's
- members. Eg, `member`.
+  members. Eg, `member`.
 + _Groups objectclass_ - The groups object class.
 + _Users objectclass_ - The users object class.
 + _Group name pattern_ - (optional) An RegExp that should match up with the name
- of the groups that should be imported. Eg, `\.team$`.
+  of the groups that should be imported. Eg, `\.team$`.
 + _Group search filter_ - (optional) An LDAP search filter to be applied
- whenever search for groups.
+  whenever search for groups.
 
 **Synchronization Actions:**
+
 + _Users must be members of_ - (optional) A group to wich the users must belong
- to to have access enabled to redmine.
+  to to have access enabled to redmine.
 + _Add users to group_ - (optional) A group to wich all the users created from
- this LDAP authentication will added upon creation. The group should not exist
+  this LDAP authentication will added upon creation. The group should not exist
  on LDAP.
 + _Create new groups_ - If enabled, groups that don't already exist on redmine
- will be created.
+  will be created.
 + _Sync users attributes_ - If enabled, the selected attributes will
- synchronized both on the rake tasks and after every login.
+  synchronized both on the rake tasks and after every login.
 + _Attributes to be synced_ - The attributes to be synchronized: "First name",
- "Last name" and/or "Email"
+  "Last name" and/or "Email"
 
 ### Full user/group synchronization with rake
 
