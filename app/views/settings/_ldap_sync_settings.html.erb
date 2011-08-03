@@ -1,30 +1,44 @@
-<% AuthSourceLdap.all.each do |ldap| -%>
-<fieldset class="collapsible">
+<% AuthSourceLdap.all.each_with_index do |ldap, i| -%>
+<fieldset class="collapsible #{ 'collapsed' if i > 0 }">
   <legend onclick="toggleFieldset(this);"><%= ldap.name %></legend>
-  <div>
-    <p>
-      <label><%= l(:ldap_domain_label_active)%></label>
-      <%= check_box_tag "settings[#{ldap.name}][active]", 'yes', (@settings[ldap.name][:active] if @settings[ldap.name]) %>
-    </p>
+  <div <%= 'style="display:none"' if i > 0 %>>
 
-    <p>
-      <label><%= l(:ldap_domain_label_groups_base_dn) %> <span class="required">*</span></label>
-      <%= text_field_tag "settings[#{ldap.name}][groups_base_dn]", (@settings[ldap.name][:groups_base_dn] if @settings[ldap.name]), :size => 60 %>
-    </p>
+    <p><%= ldap_check_box ldap.name, 'active' %></p>
 
-    <p>
-      <label><%= l(:ldap_domain_label_attr_groupname) %> <span class="required">*</span></label>
-      <%= text_field_tag "settings[#{ldap.name}][attr_groupname]", (@settings[ldap.name][:attr_groupname] if @settings[ldap.name]), :size => 15 %>
-    </p>
+    <fieldset class="collapsible">
+      <legend onclick="toggleFieldset(this);"><%=l :text_ldap_settings %></legend>
+      <div>
+        <p><%= ldap_text_field ldap.name, 'groups_base_dn', :required => true, :size => 50 %></p>
 
-    <p>
-      <label><%= l(:ldap_domain_label_groupname_filter) %></label>
-      <%= text_field_tag "settings[#{ldap.name}][groupname_filter]", (@settings[ldap.name][:groupname_filter] if @settings[ldap.name]), :size => 15 %>
-    </p>
-    <p>
-      <label><%= l(:ldap_domain_label_domain_group) %></label>
-      <%= text_field_tag "settings[#{ldap.name}][domain_group]", (@settings[ldap.name][:domain_group] if @settings[ldap.name]), :size => 15 %>
-    </p>
+        <p><%= ldap_text_field ldap.name, 'attr_groupname', :required => true, :size => 15 %></p>
+
+        <p><%= ldap_text_field ldap.name, 'attr_member', :default => 'member', :required => true, :size => 15 %></p>
+
+        <p><%= ldap_text_field ldap.name, 'class_user', :default => 'user', :required => true, :size => 15 %></p>
+
+        <p><%= ldap_text_field ldap.name, 'class_group', :default => 'group', :required => true, :size => 15 %></p>
+
+        <p><%= ldap_text_field ldap.name, 'groupname_pattern', :size => 15 %></p>
+
+        <p><%= ldap_text_field ldap.name, 'group_search_filter', :size => 50 %></p>
+      </div>
+    </fieldset>
+
+    <fieldset class="collapsible collapsed">
+      <legend onclick="toggleFieldset(this);"><%=l :text_synchronization_actions %></legend>
+      <div style="display: none;">
+        <p><%= ldap_text_field ldap.name, 'must_be_member_of' %></p>
+
+        <p><%= ldap_text_field ldap.name, 'add_to_group', :size => 15 %></p>
+
+        <p><%= ldap_check_box ldap.name, 'create_groups', :default => true %></p>
+
+        <p><%= ldap_check_box ldap.name, 'sync_user_attributes' %></p>
+
+        <p><%= ldap_multiselect ldap.name, 'attributes_to_sync', ['firstname', 'lastname', 'mail'], :size => 15 %></p>
+      </div>
+    </fieldset>
+
   </div>
 </fieldset>
 <%- end %>

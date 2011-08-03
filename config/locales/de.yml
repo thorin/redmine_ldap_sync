@@ -1,6 +1,23 @@
 de:
- ldap_domain_label_active: "Aktiv"
- ldap_domain_label_groups_base_dn: "Gruppen DN"
- ldap_domain_label_attr_groupname: "Gruppenname"
- ldap_domain_label_groupname_filter: "Gruppen RexExpressiom"
- ldap_domain_label_domain_group: "Domain group"
+  field_redmine_ldap_sync_active: "Aktiv"
+  field_redmine_ldap_sync_groups_base_dn: "Gruppen DN"
+  field_redmine_ldap_sync_attr_groupname: "Gruppenname"
+  field_redmine_ldap_sync_attr_member: "Members attribute" 
+  field_redmine_ldap_sync_class_group: "Groups objectclass"
+  field_redmine_ldap_sync_class_user: "Users objectclass"
+
+  field_redmine_ldap_sync_groupname_pattern: "Gruppen RexExpressiom"
+  field_redmine_ldap_sync_group_search_filter: "Group search filter"
+
+  field_redmine_ldap_sync_must_be_member_of: "Users must be members of"
+  field_redmine_ldap_sync_add_to_group: "Add users to group"
+  field_redmine_ldap_sync_create_groups: "Create new groups"
+  field_redmine_ldap_sync_sync_user_attributes: "Sync users attributes"
+  field_redmine_ldap_sync_attributes_to_sync: "Attributes to be synced"
+
+  field_redmine_ldap_sync_firstname: "First name"
+  field_redmine_ldap_sync_lastname: "Last name"
+  field_redmine_ldap_sync_mail: "Email"
+
+  text_ldap_settings: "LDAP settings"
+  text_synchronization_actions: "Synchronization actions"

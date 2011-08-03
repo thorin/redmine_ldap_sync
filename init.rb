@@ -9,7 +9,7 @@ Redmine::Plugin.register :redmine_ldap_sync do
   author_url 'mailto:Ricardo Santos <ricardo.santos@vilt-group.com>?subject=redmine_ldap_sync'
   description 'Syncs users and groups with ldap'
   url 'https://github.com/thorin/redmine_ldap_sync'
-  version '1.0.0'
+  version '1.1.0'
   requires_redmine :version_or_higher => '1.1.0'
 
   
@@ -23,10 +23,10 @@ Dispatcher.to_prepare :redmine_ldap_sync do
   unless AuthSourceLdap.include? RedmineLdapSync::RedmineExt::AuthSourceLdapPatch
     AuthSourceLdap.send(:include, RedmineLdapSync::RedmineExt::AuthSourceLdapPatch)
   end
-  unless User.included_modules.include? RedmineLdapSync::RedmineExt::UserPatch
+  unless SettingsHelper.include? RedmineLdapSync::RedmineExt::SettingsHelperPatch
+    SettingsHelper.send(:include, RedmineLdapSync::RedmineExt::SettingsHelperPatch)
+  end
+  unless User.include? RedmineLdapSync::RedmineExt::UserPatch
     User.send(:include, RedmineLdapSync::RedmineExt::UserPatch)
   end
 end
-
-# Hooks
-require 'redmine_ldap_sync/redmine_hooks'

@@ -5,21 +5,6 @@ module RedmineLdapSync
         base.class_eval do
 
           public
-          def member_of?(login, group)
-            ldap_con = initialize_ldap_con(self.account, self.account_password)
-            login_filter = Net::LDAP::Filter.eq( self.attr_login, login )
-            user_filter = Net::LDAP::Filter.eq( 'objectClass', 'user' )
-
-            ldap_con.search(:base => self.base_dn,
-                       :filter => user_filter & login_filter,
-                       :attributes => ['memberof'],
-                       :return_result => false) do |entry|
-              return entry['memberof'].include? group
-            end
-
-          end
-
-
           def sync_groups(user)
             return unless ldapsync_active?
 
@@ -27,9 +12,13 @@ module RedmineLdapSync
             changes[:added].each do |groupname|
               next if user.groups.detect { |g| g.to_s == groupname }
 
-              group = Group.find_by_lastname(groupname)
-              group = Group.create(:lastname => groupname, :auth_source_id => self.id) unless group
-              group.users << user
+              group = if create_groups?
+                Group.find_or_create_by_lastname(groupname, :auth_source_id => self.id)
+              else
+                Group.find_by_lastname(groupname)
+              end
+
+              group.users << user if group
             end
 
             changes[:deleted].each do |groupname|
@@ -43,29 +32,49 @@ module RedmineLdapSync
             return unless ldapsync_active?
 
             ldap_users[:disabled].each do |login|
-              user = User.find_by_login(login)
+              user = User.find_by_login_and_auth_source_id(login, self.id)
 
               user.lock! if user
             end
-            ldap_users[:enabled].each do |login|
-              user = User.find_by_login(login)
 
-              unless user
-                attrs = get_user_dn(login)    
-                user = User.create(attrs.except(:dn)) do |user|
-                  user.login = login
-                  user.language = Setting.default_language
-                end
+            groupname = settings[:must_be_member_of]
+
+            ldap_users[:enabled].each do |login|
+              user_is_fresh = false
+              user = User.find_or_create_by_login(login) do |user|
+                user.attributes = get_user_dn(login).except(:dn)
+                user.language = Setting.default_language
+                user_is_fresh = true
               end
               
-              sync_groups(user)
+              if user.auth_source_id == self.id
+                sync_groups(user)
+                sync_user_attributes(user) unless user_is_fresh
+                user.lock! if groupname.present? && !user.groups.exists?(:lastname => groupname)
+              end            
             end
+          end
+          
+          def sync_user_attributes(user)
+            return unless sync_user_attributes?
+            
+            attrs = get_user_dn(user.login)
+            user.update_attributes(attrs.slice(*settings[:attributes_to_sync].map(&:intern)))
+          end
+
+          def lock_unless_member_of(user)
+            groupname = settings && settings[:must_be_member_of]
+            user.lock! if groupname.present? && !user.groups.exists?(:lastname => groupname)
+          end
+
+          def add_to_group
+            settings[:add_to_group]
           end
 
           protected
           def ldap_users
             ldap_con = initialize_ldap_con(self.account, self.account_password)
-            user_filter = Net::LDAP::Filter.eq( 'objectClass', 'user' )
+            user_filter = Net::LDAP::Filter.eq( 'objectClass', settings[:class_user] )
             attr_enabled = 'userAccountControl'
             users = {:enabled => [], :disabled => []}
             
@@ -73,7 +82,7 @@ module RedmineLdapSync
                             :filter => user_filter,
                             :attributes => [self.attr_login, attr_enabled],
                             :return_result => false) do |entry|
-              if entry[attr_enabled][0].to_i & 2 != 0
+              if entry[attr_enabled] && entry[attr_enabled][0].to_i & 2 != 0
                 users[:disabled] << entry[self.attr_login][0]
               else
                 users[:enabled] << entry[self.attr_login][0]
@@ -88,41 +97,44 @@ module RedmineLdapSync
             changes = { :added => [], :deleted => [] }
 
             ldap_con = initialize_ldap_con(self.account, self.account_password)
-            login_filter = Net::LDAP::Filter.eq( self.attr_login, user.login )
-            user_filter = Net::LDAP::Filter.eq( 'objectClass', 'user' )
-            group_filter = Net::LDAP::Filter.eq( 'objectClass', 'group' )
-            attr_groupname = Setting.plugin_redmine_ldap_sync[self.name][:attr_groupname]
-            groupname_filter = /#{Setting.plugin_redmine_ldap_sync[self.name][:groupname_filter]}/
-            groups_base_dn = Setting.plugin_redmine_ldap_sync[self.name][:groups_base_dn]
+            group_filter = Net::LDAP::Filter.eq( 'objectClass', settings[:class_group] )
+            group_filter &= Net::LDAP::Filter.construct( settings[:group_search_filter] ) if settings[:group_search_filter].present?
+            groupname_pattern = /#{settings[:groupname_pattern]}/
+            groups_base_dn = settings[:groups_base_dn]
+            attr_groupname = settings[:attr_groupname]
+            attr_member = settings[:attr_member]
 
             # Faster, but requires all groups to be added to redmine with sync_groups
             #changes[:deleted] = user.groups.reject{|g| g.auth_source_id != self.id}.map(&:to_s) if user.groups
             ldap_con.open do |ldap|
-              user_groups = user.groups.select {|g| groupname_filter =~ g.to_s}
+              user_groups = user.groups.select {|g| groupname_pattern =~ g.to_s}
               names_filter = user_groups.map {|g| Net::LDAP::Filter.eq( attr_groupname, g.to_s )}.reduce(:|)
               ldap.search(:base => groups_base_dn,
                           :filter => group_filter & names_filter,
-                          :attributes => [attr_groupname],
+                          :attributes => [ attr_groupname ],
                           :return_result => false) do |entry|
                 changes[:deleted] << entry[attr_groupname][0]
               end if names_filter
 
-              groups = []
+              user_dn = nil
+              user_filter = Net::LDAP::Filter.eq( 'objectClass', settings[:class_user] )
+              login_filter = Net::LDAP::Filter.eq( self.attr_login, user.login )
               ldap.search(:base => self.base_dn,
                           :filter => user_filter & login_filter,
-                          :attributes => ['memberof'],
+                          :attributes => ['dn'],
                           :return_result => false) do |entry|
-                groups = entry['memberof'].select {|g| g.end_with?(groups_base_dn)}
+                user_dn = entry['dn'][0]
               end
 
-              names_filter = groups.map{|g| Net::LDAP::Filter.eq( 'distinguishedName', g )}.reduce(:|)
+              groups = []
+              member_filter = Net::LDAP::Filter.eq( attr_member, user_dn )
               ldap.search(:base => groups_base_dn,
-                          :filter => group_filter & names_filter,
-                          :attributes => [attr_groupname],
+                          :filter => group_filter & member_filter,
+                          :attributes => [ attr_groupname ],
                           :return_result => false) do |entry|
                 group = entry[attr_groupname][0]
-                changes[:added] << group if groupname_filter =~ group
-              end if names_filter
+                changes[:added] << group if groupname_pattern =~ group
+              end if user_dn
             end
 
             changes[:deleted].reject! {|g| changes[:added].include?(g)}
@@ -131,7 +143,21 @@ module RedmineLdapSync
           end
           
           def ldapsync_active?
-            Setting.plugin_redmine_ldap_sync[self.name].present? && Setting.plugin_redmine_ldap_sync[self.name][:active]
+            settings && settings[:active]
+          end
+
+          def sync_user_attributes?
+            ldapsync_active? && settings[:sync_user_attributes]
+          end
+
+          def create_groups?
+            settings && settings[:create_groups]
+          end
+          
+          def settings
+            return @settings if @settings
+
+            @settings = Setting.plugin_redmine_ldap_sync[self.name]
           end
         end
       end

@@ -1,6 +1,23 @@
 es:
-  ldap_domain_label_active: "Activo"
-  ldap_domain_label_groups_base_dn: "Base DN de grupos"
-  ldap_domain_label_attr_groupname: "Nombre del grupo"
-  ldap_domain_label_groupname_filter: "Filtro regex de grupos"
-  ldap_domain_label_domain_group: "Grupo del dominio"
+  field_redmine_ldap_sync_active: "Activo"
+  field_redmine_ldap_sync_groups_base_dn: "Base DN de grupos"
+  field_redmine_ldap_sync_attr_groupname: "Nombre del grupo"
+  field_redmine_ldap_sync_attr_member: "Membros del grupo" 
+  field_redmine_ldap_sync_class_group: "Objectclass de grupos"
+  field_redmine_ldap_sync_class_user: "Objectclass de usuarios"
+
+  field_redmine_ldap_sync_groupname_pattern: "Filtro regex de grupos"
+  field_redmine_ldap_sync_group_search_filter: "Filtro de búsqueda de grupos"
+
+  field_redmine_ldap_sync_must_be_member_of: "Usuarios deben ser miembros de"
+  field_redmine_ldap_sync_add_to_group: "Añadir usuarios al grupo"
+  field_redmine_ldap_sync_create_groups: "Crear nuevos grupos"
+  field_redmine_ldap_sync_sync_user_attributes: "Sincronizar usuarios"
+  field_redmine_ldap_sync_attributes_to_sync: "Atributos que se sincronizan"
+
+  field_redmine_ldap_sync_firstname: "Nombre"
+  field_redmine_ldap_sync_lastname: "Apellido"
+  field_redmine_ldap_sync_mail: "Correo electrónico"
+
+  text_ldap_settings: "Configuración de LDAP"
+  text_synchronization_actions: "Acciones de sincronización"

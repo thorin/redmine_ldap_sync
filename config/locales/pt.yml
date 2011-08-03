@@ -1,6 +1,23 @@
 pt:
-  ldap_domain_label_active: "Activo"
-  ldap_domain_label_groups_base_dn: "Base DN de grupos"
-  ldap_domain_label_attr_groupname: "Nome do grupo"
-  ldap_domain_label_groupname_filter: "Filtro regex de grupos"
-  ldap_domain_label_domain_group: "Grupo do dominio"
+  field_redmine_ldap_sync_active: "Activo"
+  field_redmine_ldap_sync_groups_base_dn: "Base DN dos grupos"
+  field_redmine_ldap_sync_attr_groupname: "Campo nome do grupo"
+  field_redmine_ldap_sync_attr_member: "Campo membros do grupo" 
+  field_redmine_ldap_sync_class_group: "Objectclass de grupos"
+  field_redmine_ldap_sync_class_user: "Objectclass de utilizadores"
+
+  field_redmine_ldap_sync_groupname_pattern: "Filtro regex de grupos"
+  field_redmine_ldap_sync_group_search_filter: "Filtro de pesquisa de grupos"
+
+  field_redmine_ldap_sync_must_be_member_of: "Devem ser membros de"
+  field_redmine_ldap_sync_add_to_group: "Adicionar ao grupo"
+  field_redmine_ldap_sync_create_groups: "Criar novos grupos"
+  field_redmine_ldap_sync_sync_user_attributes: "Actualizar dados"
+  field_redmine_ldap_sync_attributes_to_sync: "Campos a actualizar"
+
+  field_redmine_ldap_sync_firstname: "Nome"
+  field_redmine_ldap_sync_lastname: "Apelido"
+  field_redmine_ldap_sync_mail: "Email"
+
+  text_ldap_settings: "Configuração LDAP"
+  text_synchronization_actions: "Acções de sincronização"
