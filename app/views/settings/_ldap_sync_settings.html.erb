@@ -33,6 +33,8 @@
 
         <p><%= ldap_check_box ldap.name, 'create_groups', :default => true %></p>
 
+        <p><%= ldap_check_box ldap.name, 'create_users', :default => true %></p>
+
         <p><%= ldap_check_box ldap.name, 'sync_user_attributes' %></p>
 
         <p><%= ldap_multiselect ldap.name, 'attributes_to_sync', ['firstname', 'lastname', 'mail'], :size => 15 %></p>

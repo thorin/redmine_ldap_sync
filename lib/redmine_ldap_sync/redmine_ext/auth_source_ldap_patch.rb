@@ -8,6 +8,10 @@ module RedmineLdapSync
           def sync_groups(user)
             return unless ldapsync_active?
 
+            if add_to_group && !user.groups.detect { |g| g.to_s == add_to_group }
+              user.add_to_auth_source_group
+            end
+                 
             changes = groups_changes(user)
             changes[:added].each do |groupname|
               next if user.groups.detect { |g| g.to_s == groupname }
@@ -38,16 +42,20 @@ module RedmineLdapSync
             end
 
             groupname = settings[:must_be_member_of]
-
+            
             ldap_users[:enabled].each do |login|
               user_is_fresh = false
-              user = User.find_or_create_by_login(login) do |user|
-                user.attributes = get_user_dn(login).except(:dn)
-                user.language = Setting.default_language
-                user_is_fresh = true
+              user = if create_users?
+                User.find_or_create_by_login(login) do |user|
+                  user.attributes = get_user_dn(login).except(:dn)
+                  user.language = Setting.default_language
+                  user_is_fresh = true
+                end
+              else
+                User.find_by_login(login)
               end
-              
-              if user.auth_source_id == self.id
+            
+              if user && user.auth_source_id == self.id
                 sync_groups(user)
                 sync_user_attributes(user) unless user_is_fresh
                 user.lock! if groupname.present? && !user.groups.exists?(:lastname => groupname)
@@ -154,6 +162,10 @@ module RedmineLdapSync
             settings && settings[:create_groups]
           end
           
+          def create_users?
+            settings && settings[:create_users]
+          end
+		  
           def settings
             return @settings if @settings
 

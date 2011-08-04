@@ -11,6 +11,7 @@ class ChangeSettingsName < ActiveRecord::Migration
         settings[:add_to_group] = settings.delete(:domain_group)
         settings[:groupname_pattern] = settings.delete(:groupname_filter)
         settings[:create_groups] = true
+        settings[:create_users] = true
         settings[:sync_user_attributes] = false
         settings[:attr_member] = 'member'
         settings[:class_group] = 'group'
