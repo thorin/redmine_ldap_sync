@@ -12,6 +12,7 @@ es:
   field_redmine_ldap_sync_must_be_member_of: "Usuarios deben ser miembros de"
   field_redmine_ldap_sync_add_to_group: "Añadir usuarios al grupo"
   field_redmine_ldap_sync_create_groups: "Crear nuevos grupos"
+  field_redmine_ldap_sync_create_users: "Crear nuevos usuarios"
   field_redmine_ldap_sync_sync_user_attributes: "Sincronizar usuarios"
   field_redmine_ldap_sync_attributes_to_sync: "Atributos que se sincronizan"
 
