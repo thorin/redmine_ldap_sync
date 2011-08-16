@@ -55,6 +55,8 @@ able to set for each LDAP authentication.
  on LDAP.
 + _Create new groups_ - If enabled, groups that don't already exist on redmine
   will be created.
++ _Create new users_ - If enabled, users that don't already exist on redmine
+  will be created when running the rake task.
 + _Sync users attributes_ - If enabled, the selected attributes will
   synchronized both on the rake tasks and after every login.
 + _Attributes to be synced_ - The attributes to be synchronized: "First name",
