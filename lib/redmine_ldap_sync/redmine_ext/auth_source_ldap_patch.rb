@@ -38,24 +38,21 @@ module RedmineLdapSync
             ldap_users[:disabled].each do |login|
               user = User.find_by_login_and_auth_source_id(login, self.id)
 
-              user.lock! if user
+              user.lock! if user.present?
             end
 
             groupname = settings[:must_be_member_of]
             
             ldap_users[:enabled].each do |login|
               user_is_fresh = false
-              user = if create_users?
-                User.find_or_create_by_login(login) do |user|
-                  user.attributes = get_user_dn(login).except(:dn)
-                  user.language = Setting.default_language
-                  user_is_fresh = true
-                end
-              else
-                User.find_by_login(login)
-              end
-            
-              if user && user.auth_source_id == self.id
+              user = User.find_by_login(login)
+              user = User.create do |u|
+                u.login = login
+                u.attributes = get_user_dn(login).except(:dn)
+                u.language = Setting.default_language
+                user_is_fresh = true
+              end if user.nil? && create_users?
+              if user.present? && user.valid? && user.auth_source_id == self.id
                 sync_groups(user)
                 sync_user_attributes(user) unless user_is_fresh
                 user.lock! if groupname.present? && !user.groups.exists?(:lastname => groupname)
@@ -81,6 +78,8 @@ module RedmineLdapSync
 
           protected
           def ldap_users
+            return @ldap_users if @ldap_users
+
             ldap_con = initialize_ldap_con(self.account, self.account_password)
             user_filter = Net::LDAP::Filter.eq( 'objectClass', settings[:class_user] )
             attr_enabled = 'userAccountControl'
@@ -97,7 +96,7 @@ module RedmineLdapSync
               end
             end
 
-            users
+            @ldap_users = users
           end
 
           def groups_changes(user)
