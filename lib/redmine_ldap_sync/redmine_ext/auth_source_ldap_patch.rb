@@ -108,6 +108,7 @@ module RedmineLdapSync
             group_filter &= Net::LDAP::Filter.construct( settings[:group_search_filter] ) if settings[:group_search_filter].present?
             groupname_pattern = /#{settings[:groupname_pattern]}/
             groups_base_dn = settings[:groups_base_dn]
+			attr_user_memberid = settings[:attr_user_memberid]
             attr_groupname = settings[:attr_groupname]
             attr_member = settings[:attr_member]
 
@@ -128,9 +129,9 @@ module RedmineLdapSync
               login_filter = Net::LDAP::Filter.eq( self.attr_login, user.login )
               ldap.search(:base => self.base_dn,
                           :filter => user_filter & login_filter,
-                          :attributes => ['dn'],
+                          :attributes => [attr_user_memberid],
                           :return_result => false) do |entry|
-                user_dn = entry['dn'][0]
+                user_dn = entry[attr_user_memberid][0]
               end
 
               groups = []

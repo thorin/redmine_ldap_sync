@@ -15,6 +15,7 @@ class ChangeSettingsName < ActiveRecord::Migration
         settings[:sync_user_attributes] = false
         settings[:attr_member] = 'member'
         settings[:class_group] = 'group'
+		settings[:attr_user_memberid] = 'dn'
         settings[:class_user] = 'user'
         Setting.plugin_redmine_ldap_sync = all_settings
       end if settings

@@ -13,6 +13,8 @@
         <p><%= ldap_text_field ldap.name, 'attr_groupname', :required => true, :size => 15 %></p>
 
         <p><%= ldap_text_field ldap.name, 'attr_member', :default => 'member', :required => true, :size => 15 %></p>
+        
+        <p><%= ldap_text_field ldap.name, 'attr_user_memberid', :default => 'dn', :required => true, :size => 15 %></p>
 
         <p><%= ldap_text_field ldap.name, 'class_user', :default => 'user', :required => true, :size => 15 %></p>
 
