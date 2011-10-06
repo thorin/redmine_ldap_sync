@@ -3,6 +3,7 @@ de:
   field_redmine_ldap_sync_groups_base_dn: "Gruppen DN"
   field_redmine_ldap_sync_attr_groupname: "Gruppenname"
   field_redmine_ldap_sync_attr_member: "Gruppenteilnehmerattribute"
+  field_redmine_ldap_sync_attr_user_memberid: "Memberid attribute (user)"
   field_redmine_ldap_sync_class_group: "Gruppenobjektklasse"
   field_redmine_ldap_sync_class_user: "Benutzerobjektklasse"
 
@@ -12,6 +13,7 @@ de:
   field_redmine_ldap_sync_must_be_member_of: "Benutzer müssen Gruppenteilnehmer sein"
   field_redmine_ldap_sync_add_to_group: "Benutzer zur Gruppe hinzufügen"
   field_redmine_ldap_sync_create_groups: "Neue Gruppe erstellen"
+  field_redmine_ldap_sync_create_users: "Create new users"
   field_redmine_ldap_sync_sync_user_attributes: "Benutzerattribute syncronisieren"
   field_redmine_ldap_sync_attributes_to_sync: "Benutzerattribute für die Synronisation"
 
