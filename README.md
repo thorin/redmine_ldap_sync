@@ -40,7 +40,7 @@ able to set for each LDAP authentication.
 + _Members attribute (group)_ - The ldap attribute from where to fetch the group's
   members. Eg, `member`.
 + _Memberid attribute (user)_ - The ldap attribute from where to fetch the user's
-  memberid. This attribute will be crossed with the groups' members. Eg, `dn`.
+  memberid. This attribute will be used to cross with groups' members. Eg, `dn`.
 + _Groups objectclass_ - The groups object class.
 + _Users objectclass_ - The users object class.
 + _Group name pattern_ - (optional) An RegExp that should match up with the name

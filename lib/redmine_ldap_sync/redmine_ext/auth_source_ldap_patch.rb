@@ -55,8 +55,13 @@ module RedmineLdapSync
               if user.present? && user.valid? && user.auth_source_id == self.id
                 sync_groups(user)
                 sync_user_attributes(user) unless user_is_fresh
-                user.lock! if groupname.present? && !user.groups.exists?(:lastname => groupname)
-              end            
+
+                if user.groups.exists?(:lastname => groupname)
+                  user.activate! if user.locked?
+                else
+                  user.lock! if user.active?
+                end if groupname.present?
+              end
             end
           end
           
