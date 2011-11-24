@@ -1,7 +1,7 @@
 Redmine Ldap Sync
 =================
 
-This plugins extends redmine's ldap authentication to perform group 
+This plugins extends redmine's ldap authentication to perform group
 synchronization.
 In addition it provides a rake task to perform full user group synchronization.
 
@@ -11,6 +11,7 @@ The following should be noted:
 other directories.
 * It detects and disables users that have been marked as disabled on LDAP (see
  [MS KB Article 305144][uacf] for more details).
+* It detects and disables users that have been removed from LDAP.
 * An user will only be removed from groups that exist on LDAP. This means that
  both ldap and non-ldap groups can coexist.
 * Deleted groups on LDAP will not be deleted on redmine.
@@ -18,7 +19,7 @@ other directories.
 Installation
 ------------
 
-Follow the plugin installation procedure described at 
+Follow the plugin installation procedure described at
 http://www.redmine.org/wiki/redmine/Plugins
 
 Usage
@@ -26,7 +27,7 @@ Usage
 
 ### Configuration
 
-Open Administration > Plugins and on the plugin configuration page you'll be 
+Open Administration > Plugins and on the plugin configuration page you'll be
 able to set for each LDAP authentication.
 
 **LDAP settings:**
@@ -74,7 +75,7 @@ To do the full user synchronization execute the following:
 An alternative is to do it periodically with a cron task:
 
     # Synchronize users with ldap @ every 60 minutes
-    35 *            * * *   root /usr/bin/rake -f /opt/redmine/Rakefile --silent redmine:plugins:redmine_ldap_sync:sync_users RAILS_ENV=production
+    35 *            * * *   root /usr/bin/rake -f /opt/redmine/Rakefile --silent redmine:plugins:redmine_ldap_sync:sync_users RAILS_ENV=production 2>&- 1>&-
 
 LDAP Compatibility
 ------------------

@@ -11,7 +11,7 @@ module RedmineLdapSync
             if add_to_group && !user.groups.detect { |g| g.to_s == add_to_group }
               user.add_to_auth_source_group
             end
-                 
+
             changes = groups_changes(user)
             changes[:added].each do |groupname|
               next if user.groups.detect { |g| g.to_s == groupname }
@@ -38,11 +38,14 @@ module RedmineLdapSync
             ldap_users[:disabled].each do |login|
               user = User.find_by_login_and_auth_source_id(login, self.id)
 
-              user.lock! if user.present?
+              if user.present? && user.active?
+                user.lock!
+                puts "-- Locked user '#{user.login}'"
+              end
             end
 
             groupname = settings[:must_be_member_of]
-            
+
             ldap_users[:enabled].each do |login|
               user_is_fresh = false
               user = User.find_by_login(login)
@@ -52,22 +55,38 @@ module RedmineLdapSync
                 u.language = Setting.default_language
                 user_is_fresh = true
               end if user.nil? && create_users?
-              if user.present? && user.valid? && user.auth_source_id == self.id
-                sync_groups(user)
-                sync_user_attributes(user) unless user_is_fresh
 
-                if user.groups.exists?(:lastname => groupname)
-                  user.activate! if user.locked?
-                else
-                  user.lock! if user.active?
-                end if groupname.present?
+              next if user.nil?
+              if user.auth_source_id != self.id
+                puts "-- Skipping user '#{user.login}': it already exists on a different auth_source"
+                next
               end
+              if !user.valid?
+                puts "-- Could not create user '#{user.login}': \"#{user.errors.full_messages.join('", "')}\""
+                next
+              end
+
+              puts "-- Creating user '#{user.login}'..." if user_is_fresh
+              puts "-- Updating user '#{user.login}'..." if !user_is_fresh
+
+              sync_groups(user)
+              sync_user_attributes(user) unless user_is_fresh
+
+              if user.groups.exists?(:lastname => groupname)
+                if user.locked?
+                  user.activate!
+                  puts "   -> activated: the user is a member of group '#{groupname}'"
+                end
+              elsif user.active?
+                user.lock!
+                puts "   -> locked: the user is not a member of group '#{groupname}'"
+              end if groupname.present?
             end
           end
-          
+
           def sync_user_attributes(user)
             return unless sync_user_attributes?
-            
+
             attrs = get_user_dn(user.login)
             user.update_attributes(attrs.slice(*settings[:attributes_to_sync].map(&:intern)))
           end
@@ -89,7 +108,7 @@ module RedmineLdapSync
             user_filter = Net::LDAP::Filter.eq( 'objectClass', settings[:class_user] )
             attr_enabled = 'userAccountControl'
             users = {:enabled => [], :disabled => []}
-            
+
             ldap_con.search(:base => self.base_dn,
                             :filter => user_filter,
                             :attributes => [self.attr_login, attr_enabled],
@@ -100,6 +119,8 @@ module RedmineLdapSync
                 users[:enabled] << entry[self.attr_login][0]
               end
             end
+
+            users[:disabled] += self.users.active.collect(&:login) - users.values.flatten
 
             @ldap_users = users
           end
@@ -117,8 +138,6 @@ module RedmineLdapSync
             attr_groupname = settings[:attr_groupname]
             attr_member = settings[:attr_member]
 
-            # Faster, but requires all groups to be added to redmine with sync_groups
-            #changes[:deleted] = user.groups.reject{|g| g.auth_source_id != self.id}.map(&:to_s) if user.groups
             ldap_con.open do |ldap|
               user_groups = user.groups.select {|g| groupname_pattern =~ g.to_s}
               names_filter = user_groups.map {|g| Net::LDAP::Filter.eq( attr_groupname, g.to_s )}.reduce(:|)
@@ -150,11 +169,11 @@ module RedmineLdapSync
               end if user_dn
             end
 
-            changes[:deleted].reject! {|g| changes[:added].include?(g)}
+            changes[:deleted] -= changes[:added]
 
             changes
           end
-          
+
           def ldapsync_active?
             settings && settings[:active]
           end
@@ -166,11 +185,11 @@ module RedmineLdapSync
           def create_groups?
             settings && settings[:create_groups]
           end
-          
+
           def create_users?
             settings && settings[:create_users]
           end
-		  
+
           def settings
             return @settings if @settings
 
