@@ -2,9 +2,13 @@ pt:
   field_redmine_ldap_sync_active: "Activo"
   field_redmine_ldap_sync_groups_base_dn: "Base DN dos grupos"
   field_redmine_ldap_sync_attr_groupname: "Campo nome do grupo"
-  field_redmine_ldap_sync_attr_member: "Campo membros do grupo" 
-  field_redmine_ldap_sync_class_group: "Objectclass de grupos"
+  field_redmine_ldap_sync_group_membership: "Relação grupo-membro"
+  field_redmine_ldap_sync_attr_member: "Campo membros (grupo)"
+  field_redmine_ldap_sync_attr_user_memberid: "Campo memberid (utilizador)"
+  field_redmine_ldap_sync_attr_user_groups: "Campo grupos (utilizador)"
+  field_redmine_ldap_sync_attr_groupid: "Campo groupid (grupo)"
   field_redmine_ldap_sync_class_user: "Objectclass de utilizadores"
+  field_redmine_ldap_sync_class_group: "Objectclass de grupos"
 
   field_redmine_ldap_sync_groupname_pattern: "Filtro regex de grupos"
   field_redmine_ldap_sync_group_search_filter: "Filtro de pesquisa de grupos"
@@ -22,3 +26,6 @@ pt:
 
   text_ldap_settings: "Configuração LDAP"
   text_synchronization_actions: "Acções de sincronização"
+
+  option_redmine_ldap_sync_group_membership_on_groups: "No grupo"
+  option_redmine_ldap_sync_group_membership_on_members: "No utilizador"

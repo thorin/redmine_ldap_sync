@@ -14,8 +14,6 @@ module RedmineLdapSync
 
             changes = groups_changes(user)
             changes[:added].each do |groupname|
-              next if user.groups.detect { |g| g.to_s == groupname }
-
               group = if create_groups?
                 Group.find_or_create_by_lastname(groupname, :auth_source_id => self.id)
               else
@@ -30,6 +28,8 @@ module RedmineLdapSync
 
               group.users.delete(user)
             end
+
+            changes
           end
 
           def sync_users
@@ -69,7 +69,16 @@ module RedmineLdapSync
               puts "-- Creating user '#{user.login}'..." if user_is_fresh
               puts "-- Updating user '#{user.login}'..." if !user_is_fresh
 
-              sync_groups(user)
+              groups = sync_groups(user)
+              if groups[:added].present? || groups[:deleted].present?
+                a = groups[:added].size; d = groups[:deleted].size
+                print "   -> "
+                print "#{pluralize(a, 'group')} added" if a > 0
+                print " and " if a > 0 && d > 0
+                print "#{pluralize(d, a == 0 ? 'group' : nil)} deleted" if d > 0
+                puts
+              end
+
               sync_user_attributes(user) unless user_is_fresh
 
               if user.groups.exists?(:lastname => groupname)
@@ -130,48 +139,81 @@ module RedmineLdapSync
             changes = { :added => [], :deleted => [] }
 
             ldap_con = initialize_ldap_con(self.account, self.account_password)
-            group_filter = Net::LDAP::Filter.eq( 'objectClass', settings[:class_group] )
-            group_filter &= Net::LDAP::Filter.construct( settings[:group_search_filter] ) if settings[:group_search_filter].present?
-            groupname_pattern = /#{settings[:groupname_pattern]}/
-            groups_base_dn = settings[:groups_base_dn]
-            attr_user_memberid = settings[:attr_user_memberid]
-            attr_groupname = settings[:attr_groupname]
-            attr_member = settings[:attr_member]
-
             ldap_con.open do |ldap|
-              user_groups = user.groups.select {|g| groupname_pattern =~ g.to_s}
-              names_filter = user_groups.map {|g| Net::LDAP::Filter.eq( attr_groupname, g.to_s )}.reduce(:|)
-              ldap.search(:base => groups_base_dn,
-                          :filter => group_filter & names_filter,
-                          :attributes => [ attr_groupname ],
-                          :return_result => false) do |entry|
+              groupname_pattern   = /#{settings[:groupname_pattern]}/
+              attr_groupname      = settings[:attr_groupname]
+
+              # Find which of the user's current groups are in ldap
+              user_groups   = user.groups.select {|g| groupname_pattern =~ g.to_s}
+              names_filter  = user_groups.map {|g| Net::LDAP::Filter.eq( attr_groupname, g.to_s )}.reduce(:|)
+              find_all_groups(ldap, names_filter, [ attr_groupname ]) do |entry|
                 changes[:deleted] << entry[attr_groupname][0]
               end if names_filter
 
-              user_dn = user.login
-              user_filter = Net::LDAP::Filter.eq( 'objectClass', settings[:class_user] )
-              login_filter = Net::LDAP::Filter.eq( self.attr_login, user.login )
-              ldap.search(:base => self.base_dn,
-                          :filter => user_filter & login_filter,
-                          :attributes => [ attr_user_memberid ],
-                          :return_result => false) do |entry|
-                user_dn = entry[attr_user_memberid][0]
-              end unless attr_user_memberid == self.attr_login
+              case settings[:group_membership]
+              when 'on_groups'
+                attr_member         = settings[:attr_member]
+                attr_user_memberid  = settings[:attr_user_memberid]
 
-              groups = []
-              member_filter = Net::LDAP::Filter.eq( attr_member, user_dn )
-              ldap.search(:base => groups_base_dn,
-                          :filter => group_filter & member_filter,
-                          :attributes => [ attr_groupname ],
-                          :return_result => false) do |entry|
-                group = entry[attr_groupname][0]
-                changes[:added] << group if groupname_pattern =~ group
-              end if user_dn
+                # Find user's memberid
+                user_dn = user.login
+                find_user(ldap, user.login, [attr_user_memberid]) do |entry|
+                  user_dn = entry[attr_user_memberid][0]
+                end unless attr_user_memberid == self.attr_login
+
+                # Find the groups which the user belongs to
+                member_filter = Net::LDAP::Filter.eq( attr_member, user_dn )
+                find_all_groups(ldap, member_filter, [attr_groupname]) do |entry|
+                  group = entry[attr_groupname][0]
+                  changes[:added] << group if groupname_pattern =~ group
+                end if user_dn
+
+              else # 'on_members'
+                groups_base_dn    = settings[:groups_base_dn]
+                attr_user_groups  = settings[:attr_user_groups]
+                attr_groupid      = settings[:attr_groupid]
+
+                groups  = []
+                find_user(ldap, user.login, [attr_user_groups]) do |entry|
+                  groups = entry[attr_user_groups].select {|g| g.end_with?(groups_base_dn)}
+                end
+
+                names_filter = groups.map{|g| Net::LDAP::Filter.eq( attr_groupid, g )}.reduce(:|)
+                find_all_groups(ldap, names_filter, [attr_groupname]) do |entry|
+                  group = entry[attr_groupname][0]
+                  changes[:added] << group if groupname_pattern =~ group
+                end if names_filter
+              end
             end
 
             changes[:deleted] -= changes[:added]
+            changes[:added]   -= user.groups.collect(&:lastname)
 
             changes
+          end
+
+          def find_all_groups(ldap, extra_filter, attrs, &block)
+            group_filter = Net::LDAP::Filter.eq( 'objectClass', settings[:class_group] )
+            group_filter &= Net::LDAP::Filter.construct( settings[:group_search_filter] ) if settings[:group_search_filter].present?
+            groups_base_dn = settings[:groups_base_dn]
+
+            ldap.search(:base => groups_base_dn,
+                        :filter => group_filter & extra_filter,
+                        :attributes => attrs,
+                        :return_result => false) do |entry|
+              yield entry
+            end
+          end
+
+          def find_user(ldap, login, attrs, &block)
+            user_filter = Net::LDAP::Filter.eq( 'objectClass', settings[:class_user] )
+            login_filter = Net::LDAP::Filter.eq( self.attr_login, login )
+            ldap.search(:base => self.base_dn,
+                        :filter => user_filter & login_filter,
+                        :attributes => attrs,
+                        :return_result => false) do |entry|
+              yield entry
+            end
           end
 
           def ldapsync_active?
@@ -188,6 +230,10 @@ module RedmineLdapSync
 
           def create_users?
             settings && settings[:create_users]
+          end
+
+          def pluralize(n, word)
+            return word.present? ? "#{n} #{word}#{'s' if n != 1}" : n.to_s
           end
 
           def settings
