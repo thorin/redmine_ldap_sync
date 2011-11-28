@@ -26,7 +26,7 @@
                                       :onkeyup => "show_options(this, #{i})" %></p>
 
         <div id="on_groups<%= i %>" style="display:none;">
-          <p><%= ldap_text_field ldap.name, 'attr_member', :default => 'member', :required => false, :size => 15 %></p>
+          <p><%= ldap_text_field ldap.name, 'attr_member', :default => 'member', :required => true, :size => 15 %></p>
 
           <p><%= ldap_text_field ldap.name, 'attr_user_memberid', :default => 'dn', :required => true, :size => 15 %></p>
         </div>
