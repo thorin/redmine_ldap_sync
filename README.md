@@ -36,12 +36,27 @@ able to set for each LDAP authentication.
   authentication.
 + _Group base DN_ - The path to where the groups located. Eg,
   `ou=people,dc=smokeyjoe,dc=com`.
-+ _Group name attribute (group)_ - The ldap attribute from where to fetch the group's
-  name. Eg, `sAMAccountName`.
-+ _Members attribute (group)_ - The ldap attribute from where to fetch the group's
-  members. Eg, `member`.
-+ _Memberid attribute (user)_ - The ldap attribute from where to fetch the user's
-  memberid. This attribute will be used to cross with groups' members. Eg, `dn`.
++ _Group name attribute (group)_ - The ldap attribute from where to fetch the
+  group's name. Eg, `sAMAccountName`.
++ _Group membership_ - Specifies how to determine the user's group membership.
+  The possible values are:
+  - **On the group class**: membership determined from the list of users
+    contained on the group.
+  - **On the user class**: membership determined from the list of groups
+    contained on the user.
++ _Members attribute (group)_ - The ldap attribute from where to fetch the
+  group's members. Visible if the group membership is __on the group class__.
+  Eg, `member`.
++ _Memberid attribute (user)_ - The ldap attribute from where to fetch the
+  user's memberid. This attribute will be used to cross with groups' members.
+  Visible if the group membership is __on the group class__. Eg, `dn`.
++ _Groups attribute (user)_ - The ldap attribute from where to fetch the user's
+  groups. Visible if the group membership is __on the user class__. Eg,
+  `memberof`.
++ _Groupid attribute (group)_ - The ldap attribute from where to fetch the
+  group's groupid. This attribute will be used to cross with users' groups.
+  Visible if the group membership is __on the user class__. Eg,
+  `distinguishedName`.
 + _Groups objectclass_ - The groups object class.
 + _Users objectclass_ - The users object class.
 + _Group name pattern_ - (optional) An RegExp that should match up with the name
