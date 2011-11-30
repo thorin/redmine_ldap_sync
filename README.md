@@ -95,10 +95,24 @@ An alternative is to do it periodically with a cron task:
 LDAP Compatibility
 ------------------
 ### Active Directory
-+ _Group name attribute_ = sAMAccountName
-+ _Members attribute_ = member
++ _Group name attribute (group)_ = sAMAccountName
++ _Group membership_ = on the group class | {on the user class}
++ _Members attribute (group)_ = member
++ _Memberid attribute (user)_ = dn
++ _Groups attribute (user)_ = ---   | {memberof}
++ _Groupid attribute (group)_ = --- | {distinguishedName}
 + _Groups objectclass_ = group
 + _Users objectclass_ = user
+
+### OpenDS
++ _Group name attribute (group)_ = cn
++ _Group membership_ = on the user class
++ _Members attribute (group)_ = isMemberOf
++ _Memberid attribute (user)_ = entryDN
++ _Groups attribute (user)_ = ---
++ _Groupid attribute (group)_ = ---
++ _Groups objectclass_ = person
++ _Users objectclass_ = groupOfUniqueNames
 
 ### eDirectory / Open LDAP
 + _Group name attribute_ = cn / ??
