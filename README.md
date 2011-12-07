@@ -109,10 +109,16 @@ LDAP Compatibility
 + _Group membership_ = on the user class
 + _Members attribute (group)_ = isMemberOf
 + _Memberid attribute (user)_ = entryDN
-+ _Groups attribute (user)_ = ---
-+ _Groupid attribute (group)_ = ---
 + _Groups objectclass_ = person
 + _Users objectclass_ = groupOfUniqueNames
+
+### Lotus Notes LDAP (tested against Lotus Notes 8.5.2)
++ _Group membership_ = on the group class
++ _Group name attribute (group)_ = cn
++ _Members attribute (group)_ = member
++ _Memberid attribute (user)_ = dn
++ _Groups objectclass_ = dominoGroup
++ _Users objectclass_ = dominoPerson
 
 ### eDirectory / Open LDAP
 + _Group name attribute_ = cn / ??
