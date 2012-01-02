@@ -107,7 +107,7 @@ LDAP Compatibility
 ### OpenDS
 + _Group name attribute (group)_ = cn
 + _Group membership_ = on the user class
-+ _Members attribute (group)_ = isMemberOf
++ _Groups attribute (user)_ = isMemberOf
 + _Memberid attribute (user)_ = entryDN
 + _Groups objectclass_ = person
 + _Users objectclass_ = groupOfUniqueNames
