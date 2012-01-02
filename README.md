@@ -109,8 +109,8 @@ LDAP Compatibility
 + _Group membership_ = on the user class
 + _Groups attribute (user)_ = isMemberOf
 + _Memberid attribute (user)_ = entryDN
-+ _Groups objectclass_ = person
-+ _Users objectclass_ = groupOfUniqueNames
++ _Groups objectclass_ = groupOfUniqueNames
++ _Users objectclass_ = person
 
 ### Lotus Notes LDAP (tested against Lotus Notes 8.5.2)
 + _Group membership_ = on the group class
