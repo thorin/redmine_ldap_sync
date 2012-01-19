@@ -47,7 +47,7 @@ module RedmineLdapSync
 
             changes[:added].each do |groupname|
               group = Group.find_by_lastname(groupname)
-              if group.present?
+              if group.nil?
                 if create_groups?
                   if settings[:dry_run].blank?
                     logger.debug "==>dynamic group creation '#{groupname}' for #{user.login}" if logger && logger.debug?
