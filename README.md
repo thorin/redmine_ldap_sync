@@ -81,6 +81,7 @@ able to set for each LDAP authentication.
   "Last name" and/or "Email"
 
 **Cache:**
+
 + Some informations are cached (default 120 seconds)
   You can set the cache duration with the __cache_duration=__ method
   * dynamic group members
