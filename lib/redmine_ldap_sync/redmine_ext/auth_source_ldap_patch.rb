@@ -51,7 +51,10 @@ module RedmineLdapSync
                 if create_groups?
                   if settings[:dry_run].blank?
                     logger.debug "==>dynamic group creation '#{groupname}' for #{user.login}" if logger && logger.debug?
-                    group = Group.create_by_lastname(groupname, :auth_source_id => self.id)
+                    group = Group.new
+                    group.lastname = groupname
+                    group.auth_source_id = self.id
+                    group.save
                   else
                     logger.debug "==>dry-run : NO dynamic group creation '#{groupname}' for #{user.login}" if logger && logger.debug?
                   end
