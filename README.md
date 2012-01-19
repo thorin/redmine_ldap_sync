@@ -82,8 +82,9 @@ able to set for each LDAP authentication.
 
 **Cache:**
 
-+ Some informations are cached (default 120 seconds)
-  You can set the cache duration with the __cache_duration=__ method
++ Some informations are cached (default 120 seconds), you can set the cache duration
+  with the __cache_duration=__ method
+
   * dynamic group members
 
 ### Full user/group synchronization with rake
