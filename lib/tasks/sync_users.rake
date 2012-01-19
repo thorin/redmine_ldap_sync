@@ -5,7 +5,13 @@ namespace :redmine do
       task :sync_users => :environment do
         AuthSourceLdap.all.each do |as|
           puts "Synchronizing AuthSource #{as.name}..."
-          as.sync_users
+
+          _dry_run = ENV['dry_run'].present?
+          if _dry_run
+            puts "\n!!! Dry-run execution !!!\n"
+          end
+
+          as.sync_users(_dry_run)
         end
       end
     end
