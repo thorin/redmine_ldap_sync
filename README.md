@@ -80,6 +80,11 @@ able to set for each LDAP authentication.
 + _Attributes to be synced_ - The attributes to be synchronized: "First name",
   "Last name" and/or "Email"
 
+**Cache:**
++ Some informations are cached (default 120 seconds)
+  You can set the cache duration with the __cache_duration=__ method
+  * dynamic group members
+
 ### Full user/group synchronization with rake
 
 To do the full user synchronization execute the following:
