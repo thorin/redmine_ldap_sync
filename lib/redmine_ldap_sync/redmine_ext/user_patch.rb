@@ -3,12 +3,12 @@ module RedmineLdapSync
     module UserPatch
       def self.included(base)
         base.class_eval do
-          after_create :add_to_auth_source_group
+          after_create :add_to_fixed_group
           
-          def add_to_auth_source_group
+          def add_to_fixed_group
             return unless auth_source && auth_source.auth_method_name == 'LDAP'
 
-            groupname = auth_source.add_to_group
+            groupname = auth_source.fixed_group
             return unless groupname.present?
 
             group = Group.find_or_create_by_lastname(groupname)

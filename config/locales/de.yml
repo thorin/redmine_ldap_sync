@@ -4,6 +4,7 @@ de:
   field_redmine_ldap_sync_attr_groupname: "Gruppenname"
   field_redmine_ldap_sync_group_membership: "Group membership"
   field_redmine_ldap_sync_attr_member: "Gruppenteilnehmerattribute"
+  field_redmine_ldap_sync_attr_member_group: "Members group attribute (group)"
   field_redmine_ldap_sync_attr_user_memberid: "Memberid attribute (user)"
   field_redmine_ldap_sync_attr_user_groups: "Groups attribute (user)"
   field_redmine_ldap_sync_attr_groupid: "Groupid attribute (group)"
@@ -13,8 +14,10 @@ de:
   field_redmine_ldap_sync_groupname_pattern: "Regular Expression für den Gruppenfilter"
   field_redmine_ldap_sync_group_search_filter: "Gruppensuchfilfer"
 
-  field_redmine_ldap_sync_must_be_member_of: "Benutzer müssen Gruppenteilnehmer sein"
-  field_redmine_ldap_sync_add_to_group: "Benutzer zur Gruppe hinzufügen"
+  field_redmine_ldap_sync_nested_groups: "Enable nested groups"
+
+  field_redmine_ldap_sync_required_group: "Benutzer müssen Gruppenteilnehmer sein"
+  field_redmine_ldap_sync_fixed_group: "Benutzer zur Gruppe hinzufügen"
   field_redmine_ldap_sync_create_groups: "Neue Gruppe erstellen"
   field_redmine_ldap_sync_create_users: "Create new users"
   field_redmine_ldap_sync_sync_user_attributes: "Benutzerattribute syncronisieren"

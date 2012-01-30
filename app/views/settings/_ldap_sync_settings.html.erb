@@ -52,9 +52,9 @@
     <fieldset class="collapsible collapsed">
       <legend onclick="toggleFieldset(this);"><%=l :text_synchronization_actions %></legend>
       <div style="display: none;">
-        <p><%= ldap_text_field ldap.name, 'must_be_member_of' %></p>
+        <p><%= ldap_text_field ldap.name, 'required_group' %></p>
 
-        <p><%= ldap_text_field ldap.name, 'add_to_group', :size => 15 %></p>
+        <p><%= ldap_text_field ldap.name, 'fixed_group', :size => 15 %></p>
 
         <p><%= ldap_check_box ldap.name, 'create_groups', :default => true %></p>
 
