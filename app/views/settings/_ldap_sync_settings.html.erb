@@ -1,16 +1,18 @@
-<%= javascript_tag "function show_options(elem, i) {
-    $($F(elem) + i).show();
-    if ($F(elem) == 'on_groups') {
-      $('on_members' + i).hide();
-    } else {
-      $('on_groups' + i).hide();
-    }
-  }"
+<%= stylesheet_link_tag 'redmine_ldap_sync.css', :plugin => 'redmine_ldap_sync' %>
+<%= javascript_tag "function show_options(elem, prefix, i) {
+    if ($F(elem) != '') $(prefix + $F(elem) + i).show();
+    $A(elem.options).each(function (option) {
+      if (option.value != '' && $F(elem) != option.value) {
+        $(prefix + option.value + i).hide();
+      }
+    });
+  }
+"
 %>
 <% AuthSourceLdap.all.each_with_index do |ldap, i| -%>
-<fieldset class="collapsible <%= 'collapsed' if i > 0 %>">
+<fieldset class="collapsible <%= 'collapsed' unless ldap.ldapsync_active? %>">
   <legend onclick="toggleFieldset(this);"><%= ldap.name %></legend>
-  <div <%= 'style="display:none"' if i > 0 %>>
+  <div <%= 'style="display:none"' unless ldap.ldapsync_active? %>>
 
     <p><%= ldap_check_box ldap.name, 'active' %></p>
 
@@ -19,26 +21,6 @@
       <div>
         <p><%= ldap_text_field ldap.name, 'groups_base_dn', :required => true, :size => 50 %></p>
 
-        <p><%= ldap_text_field ldap.name, 'attr_groupname', :required => true, :size => 15 %></p>
-
-        <p><%= ldap_select ldap.name, 'group_membership', [:on_groups, :on_members], :default => :on_groups,
-                                      :onchange => "show_options(this, #{i})",
-                                      :onkeyup => "show_options(this, #{i})" %></p>
-
-        <div id="on_groups<%= i %>" style="display:none;">
-          <p><%= ldap_text_field ldap.name, 'attr_member', :default => 'member', :required => true, :size => 15 %></p>
-
-          <p><%= ldap_text_field ldap.name, 'attr_user_memberid', :default => 'dn', :required => true, :size => 15 %></p>
-        </div>
-
-        <div id="on_members<%= i %>" style="display:none;">
-          <p><%= ldap_text_field ldap.name, 'attr_user_groups', :default => 'memberof', :required => true, :size => 15 %></p>
-
-          <p><%= ldap_text_field ldap.name, 'attr_groupid', :default => 'distinguishedName', :required => true, :size => 15 %></p>
-        </div>
-
-        <%= javascript_tag "show_options('#{sanitize_to_id('settings['+ldap.name+'][group_membership]')}', #{i});" %>
-
         <p><%= ldap_text_field ldap.name, 'class_user', :default => 'user', :required => true, :size => 15 %></p>
 
         <p><%= ldap_text_field ldap.name, 'class_group', :default => 'group', :required => true, :size => 15 %></p>
@@ -46,25 +28,69 @@
         <p><%= ldap_text_field ldap.name, 'groupname_pattern', :size => 15 %></p>
 
         <p><%= ldap_text_field ldap.name, 'group_search_filter', :size => 50 %></p>
+
+        <p><%= ldap_select ldap.name, 'group_membership', [:on_groups, :on_members], :default => :on_groups,
+                                      :onchange => "show_options(this, 'membership_', #{i})",
+                                      :onkeyup => "show_options(this, 'membership_', #{i})" %></p>
+
+        <p><%= ldap_select ldap.name, 'nested_groups', [:on_parents, :on_members], :default => '', 
+                                      :blank => :option_disabled_nested_groups,
+                                      :onchange => "show_options(this, 'nested_', #{i})",
+                                      :onkeyup => "show_options(this, 'nested_', #{i})" %></p>
+
+        <fieldset class="box">
+          <legend><%=l :label_attribute_plural %></legend>
+
+          <p><%= ldap_text_field ldap.name, 'groupname', :required => true, :size => 15 %></p>
+
+          <div id="membership_on_groups<%= i %>" style="display:none;">
+            <p><%= ldap_text_field ldap.name, 'member', :default => 'member', :required => true, :size => 15 %></p>
+
+            <p><%= ldap_text_field ldap.name, 'user_memberid', :default => 'dn', :required => true, :size => 15 %></p>
+          </div>
+
+          <div id="membership_on_members<%= i %>" style="display:none;">
+            <p><%= ldap_text_field ldap.name, 'user_groups', :default => 'memberof', :required => true, :size => 15 %></p>
+
+            <p><%= ldap_text_field ldap.name, 'groupid', :default => 'distinguishedName', :required => true, :size => 15 %></p>
+          </div>
+
+          <%= javascript_tag "show_options('#{sanitize_to_id('settings['+ldap.name+'][group_membership]')}', 'membership_', #{i});" %>
+
+          <div id="nested_on_members<%= i %>" style="display:none;">
+            <p><%= ldap_text_field ldap.name, 'parent_group', :required => true, :size => 15 %></p>
+
+            <p><%= ldap_text_field ldap.name, 'group_parentid', :required => true, :size => 15 %></p>
+          </div>
+
+          <div id="nested_on_parents<%= i %>" style="display:none;">
+            <p><%= ldap_text_field ldap.name, 'member_group', :required => true, :size => 15 %></p>
+
+            <p><%= ldap_text_field ldap.name, 'group_memberid', :required => true, :size => 15 %></p>
+          </div>
+
+          <%= javascript_tag "show_options('#{sanitize_to_id('settings['+ldap.name+'][nested_groups]')}', 'nested_', #{i});" %>
+        </fieldset>
+
       </div>
     </fieldset>
 
-    <fieldset class="collapsible collapsed">
-      <legend onclick="toggleFieldset(this);"><%=l :text_synchronization_actions %></legend>
-      <div style="display: none;">
-        <p><%= ldap_text_field ldap.name, 'required_group' %></p>
+      <fieldset class="collapsible collapsed">
+        <legend onclick="toggleFieldset(this);"><%=l :text_synchronization_actions %></legend>
+        <div style="display: none;">
+          <p><%= ldap_text_field ldap.name, 'required_group' %></p>
 
-        <p><%= ldap_text_field ldap.name, 'fixed_group', :size => 15 %></p>
+          <p><%= ldap_text_field ldap.name, 'fixed_group', :size => 15 %></p>
 
-        <p><%= ldap_check_box ldap.name, 'create_groups', :default => true %></p>
+          <p><%= ldap_check_box ldap.name, 'create_groups', :default => true %></p>
 
-        <p><%= ldap_check_box ldap.name, 'create_users', :default => true %></p>
+          <p><%= ldap_check_box ldap.name, 'create_users', :default => true %></p>
 
-        <p><%= ldap_check_box ldap.name, 'sync_user_attributes' %></p>
+          <p><%= ldap_check_box ldap.name, 'sync_user_attributes' %></p>
 
-        <p><%= ldap_multiselect ldap.name, 'attributes_to_sync', ['firstname', 'lastname', 'mail'], :size => 15 %></p>
-      </div>
-    </fieldset>
+          <p><%= ldap_multiselect ldap.name, 'attributes_to_sync', ['firstname', 'lastname', 'mail'], :size => 15 %></p>
+        </div>
+      </fieldset>
 
   </div>
 </fieldset>

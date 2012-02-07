@@ -1,20 +1,23 @@
 es:
   field_redmine_ldap_sync_active: "Activo"
   field_redmine_ldap_sync_groups_base_dn: "Base DN de grupos"
-  field_redmine_ldap_sync_attr_groupname: "Nombre del grupo"
   field_redmine_ldap_sync_group_membership: "Pertencia al grupo"
-  field_redmine_ldap_sync_attr_member: "Atributo membros (grupo)"
-  field_redmine_ldap_sync_attr_member_group: "Members group attribute (group)"
-  field_redmine_ldap_sync_attr_user_memberid: "Atributo memberid (usuario)"
-  field_redmine_ldap_sync_attr_user_groups: "Atributo grupos (usuario)"
-  field_redmine_ldap_sync_attr_groupid: "Atributo groupid (grupo)"
+  field_redmine_ldap_sync_nested_groups: "Habilitar grupos anidados"
   field_redmine_ldap_sync_class_user: "Objectclass de usuarios"
   field_redmine_ldap_sync_class_group: "Objectclass de grupos"
 
   field_redmine_ldap_sync_groupname_pattern: "Filtro regex de grupos"
   field_redmine_ldap_sync_group_search_filter: "Filtro de búsqueda de grupos"
 
-  field_redmine_ldap_sync_nested_groups: "Enable nested groups"
+  field_redmine_ldap_sync_groupname: "Nombre del grupo"
+  field_redmine_ldap_sync_member: "Miembros (grupo)"
+  field_redmine_ldap_sync_member_group: "Grupos miembros (grupo)"
+  field_redmine_ldap_sync_parent_group: "Grupos padres (grupo)"
+  field_redmine_ldap_sync_user_memberid: "Memberid (user)"
+  field_redmine_ldap_sync_group_memberid: "Memberid (grupo)"
+  field_redmine_ldap_sync_group_parentid: "Parentid (grupo)"
+  field_redmine_ldap_sync_user_groups: "Grupos (usuario)"
+  field_redmine_ldap_sync_groupid: "Groupid (grupo)"
 
   field_redmine_ldap_sync_required_group: "Usuarios deben ser miembros de"
   field_redmine_ldap_sync_fixed_group: "Añadir usuarios al grupo"
@@ -32,3 +35,7 @@ es:
 
   option_redmine_ldap_sync_group_membership_on_groups: "En la clase grupo"
   option_redmine_ldap_sync_group_membership_on_members: "En la clase usuario"
+
+  option_disabled_nested_groups: "Deshabilitado"
+  option_redmine_ldap_sync_nested_groups_on_parents: "Pertenencia en el padre"
+  option_redmine_ldap_sync_nested_groups_on_members: "Pertenencia en el miembro"

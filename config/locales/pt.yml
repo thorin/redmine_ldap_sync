@@ -1,20 +1,23 @@
 pt:
   field_redmine_ldap_sync_active: "Activo"
   field_redmine_ldap_sync_groups_base_dn: "Base DN dos grupos"
-  field_redmine_ldap_sync_attr_groupname: "Campo nome do grupo"
   field_redmine_ldap_sync_group_membership: "Relação grupo-membro"
-  field_redmine_ldap_sync_attr_member: "Campo membros (grupo)"
-  field_redmine_ldap_sync_attr_member_group: "Members group attribute (group)"
-  field_redmine_ldap_sync_attr_user_memberid: "Campo memberid (utilizador)"
-  field_redmine_ldap_sync_attr_user_groups: "Campo grupos (utilizador)"
-  field_redmine_ldap_sync_attr_groupid: "Campo groupid (grupo)"
+  field_redmine_ldap_sync_nested_groups: "Activar grupos aninhados"
   field_redmine_ldap_sync_class_user: "Objectclass de utilizadores"
   field_redmine_ldap_sync_class_group: "Objectclass de grupos"
 
   field_redmine_ldap_sync_groupname_pattern: "Filtro regex de grupos"
   field_redmine_ldap_sync_group_search_filter: "Filtro de pesquisa de grupos"
 
-  field_redmine_ldap_sync_nested_groups: "Enable nested groups"
+  field_redmine_ldap_sync_groupname: "Nome do grupo"
+  field_redmine_ldap_sync_member: "Membros (grupo)"
+  field_redmine_ldap_sync_member_group: "Grupos membros (grupo)"
+  field_redmine_ldap_sync_parent_group: "Grupos pais (grupo)"
+  field_redmine_ldap_sync_user_memberid: "ID do membro (utilizador)"
+  field_redmine_ldap_sync_group_memberid: "ID do grupo membro (grupo)"
+  field_redmine_ldap_sync_group_parentid: "ID do grupo pai (grupo)"
+  field_redmine_ldap_sync_user_groups: "Grupos (utilizador)"
+  field_redmine_ldap_sync_groupid: "ID do grupo (grupo)"
 
   field_redmine_ldap_sync_required_group: "Devem ser membros de"
   field_redmine_ldap_sync_fixed_group: "Adicionar ao grupo"
@@ -32,3 +35,7 @@ pt:
 
   option_redmine_ldap_sync_group_membership_on_groups: "No grupo"
   option_redmine_ldap_sync_group_membership_on_members: "No utilizador"
+
+  option_disabled_nested_groups: "Desactivado"
+  option_redmine_ldap_sync_nested_groups_on_parents: "Relação no grupo pai"
+  option_redmine_ldap_sync_nested_groups_on_members: "Relação no grupo membro"

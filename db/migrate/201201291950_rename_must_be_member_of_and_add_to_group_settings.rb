@@ -1,4 +1,4 @@
-class RenameMustBeMemberAndAddToGroupSettings < ActiveRecord::Migration
+class RenameMustBeMemberOfAndAddToGroupSettings < ActiveRecord::Migration
 
   def self.up
     all_settings = Setting.plugin_redmine_ldap_sync

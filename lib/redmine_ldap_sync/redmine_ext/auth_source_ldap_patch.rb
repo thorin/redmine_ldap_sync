@@ -13,21 +13,16 @@ module RedmineLdapSync
             end
 
             changes = groups_changes(user)
-            changes[:added].each do |groupname|
-              group = if create_groups?
+            user.groups << changes[:added].map do |groupname|
+              if create_groups?
                 Group.find_or_create_by_lastname(groupname, :auth_source_id => self.id)
               else
                 Group.find_by_lastname(groupname)
               end
+            end.compact
 
-              group.users << user if group
-            end
-
-            changes[:deleted].each do |groupname|
-              next unless group = user.groups.detect { |g| g.to_s == groupname }
-
-              group.users.delete(user)
-            end
+            deleted = Group.find_by_lastname(changes[:deleted])
+            user.groups.delete(*deleted) unless deleted.nil?
 
             changes
           end
@@ -72,7 +67,7 @@ module RedmineLdapSync
               puts "-- Creating user '#{user.login}'..." if user_is_fresh
               puts "-- Updating user '#{user.login}'..." if !user_is_fresh
 
-              groups = sync_groups(user, @ldap_cache)
+              groups = sync_groups(user)
               if groups[:added].present? || groups[:deleted].present?
                 a = groups[:added].size; d = groups[:deleted].size
                 print "   -> "
@@ -114,19 +109,22 @@ module RedmineLdapSync
             settings[:fixed_group]
           end
 
+          def ldapsync_active?
+            settings && settings[:active]
+          end
+
           protected
           def ldap_users
             return @ldap_users if @ldap_users
 
             ldap_con = initialize_ldap_con(self.account, self.account_password)
-            attr_enabled = 'userAccountControl'
             users = {:enabled => [], :disabled => []}
 
-            find_all_users(ldap_con, [self.attr_login, attr_enabled]) do |entry|
-              if entry[attr_enabled] && entry[attr_enabled].first.to_i & 2 != 0
-                users[:disabled] << entry[self.attr_login].first
+            find_all_users(ldap_con, [:login, :enabled]) do |entry|
+              if entry[:enabled] && entry[:enabled].to_i & 2 != 0
+                users[:disabled] << entry[:login]
               else
-                users[:enabled] << entry[self.attr_login].first
+                users[:enabled] << entry[:login]
               end
             end
 
@@ -135,60 +133,49 @@ module RedmineLdapSync
             @ldap_users = users
           end
 
-          def groups_changes(user, ldap_cache)
+          def groups_changes(user)
             return unless ldapsync_active?
             changes = { :added => [], :deleted => [] }
 
             ldap_con = initialize_ldap_con(self.account, self.account_password)
             ldap_con.open do |ldap|
               groupname_pattern   = /#{settings[:groupname_pattern]}/
-              attr_groupname      = settings[:attr_groupname]
 
               # Find which of the user's current groups are in ldap
               user_groups   = user.groups.select {|g| groupname_pattern =~ g.to_s}
-              names_filter  = user_groups.map {|g| Net::LDAP::Filter.eq( attr_groupname, g.to_s )}.reduce(:|)
-              find_all_groups(ldap, names_filter, [ attr_groupname ]) do |entry|
-                changes[:deleted] << entry[attr_groupname].first
+              names_filter  = user_groups.map {|g| Net::LDAP::Filter.eq( settings[:groupname], g.to_s )}.reduce(:|)
+              find_all_groups(ldap, names_filter, [:groupname]) do |group|
+                changes[:deleted] << group
               end if names_filter
 
               case settings[:group_membership]
               when 'on_groups'
-                attr_member         = settings[:attr_member],
-                attr_user_memberid  = settings[:attr_user_memberid]
-
                 # Find user's memberid
                 user_dn = user.login
-                find_user(ldap, user.login, [attr_user_memberid]) do |entry|
-                  user_dn = entry[attr_user_memberid].first
-                end unless attr_user_memberid == self.attr_login
+                unless settings[:user_memberid] == settings[:login]
+                  user_dn = find_user(ldap, user.login, [:user_memberid])
+                end
 
                 # Find the groups to which the user belongs to
-                member_filter = Net::LDAP::Filter.eq( attr_member, user_dn )
-                find_all_groups(ldap, member_filter, [attr_groupname]) do |entry|
-                  group = entry[attr_groupname].first
+                member_filter = Net::LDAP::Filter.eq( settings[:member], user_dn )
+                find_all_groups(ldap, member_filter, [:groupname]) do |group|
                   changes[:added] << group if groupname_pattern =~ group
                 end if user_dn
 
               else # 'on_members'
                 groups_base_dn    = settings[:groups_base_dn]
-                attr_user_groups  = settings[:attr_user_groups]
-                attr_groupid      = settings[:attr_groupid]
 
-                groups  = []
-                find_user(ldap, user.login, [attr_user_groups]) do |entry|
-                  groups = entry[attr_user_groups].select {|g| g.end_with?(groups_base_dn)}
-                end
+                groups = find_user(ldap, user.login, [:user_groups]).select {|g| g.end_with?(groups_base_dn)}
 
-                names_filter = groups.map{|g| Net::LDAP::Filter.eq( attr_groupid, g )}.reduce(:|)
-                find_all_groups(ldap, names_filter, [attr_groupname]) do |entry|
-                  group = entry[attr_groupname].first
+                names_filter = groups.map{|g| Net::LDAP::Filter.eq( settings[:groupid], g )}.reduce(:|)
+                find_all_groups(ldap, names_filter, [:groupname]) do |group|
                   changes[:added] << group if groupname_pattern =~ group
                 end if names_filter
               end
 
               changes[:added] = changes[:added].inject(Set.new) do |closure, group|
-                closure + closure_cache.fetch(group) do |group|
-                  get_group_closure(ldap, group).reject { |g| groupname_pattern =~ g }
+                closure + closure_cache.fetch(group) do
+                  get_group_closure(ldap, group).select { |g| groupname_pattern =~ g }
                 end
               end.to_a if nested_groups_enabled?
             end
@@ -199,41 +186,48 @@ module RedmineLdapSync
             changes
           ensure
             reset_parents_cache! unless syncing_users?
+            reset_ldap_settings! unless syncing_users?
           end
 
-          def get_group_closure(ldap, group, closure=Set.new)
-            attr_member_group = settings[:attr_member_group]
-            attr_groupname = settings[:attr_groupname]
-            attr_groupid   = settings[:attr_groupid]
+          def get_group_closure(ldap, group, closure=Set.new, cache_enabled=true)
+            groupname = group[:groupname] || group
+            parent_groups = parents_cache.fetch(groupname) do
+              case settings[:nested_groups]
+              when 'on_members'
+                group = find_group(ldap, groupname, [:groupname, :group_memberid, :parent_group]) unless group.is_a? Hash
 
-            parent_groups = parents_cache.fetch(group[:name] || group) do |group_name|
-              find_group(ldap, group_name, [attr_groupname, attr_groupid]) do |entry|
-                group = { :name => entry[attr_groupname].first, :id => entry[attr_groupid].first }
-              end unless group.is_a? Hash
+                if group[:parent_group].present?
+                  groups_filter = group[:parent_group].map{|g| Net::LDAP::Filter.eq( settings[:group_parentid], g )}.reduce(:|)
+                  find_all_groups(ldap, groups_filter, [:groupname, :group_memberid, :parent_group])
+                else
+                  Array.new
+                end
+              else # 'on_parents'
+                group = find_group(ldap, groupname, [:groupname, :group_memberid]) unless group.is_a? Hash
 
-              member_filter = Net::LDAP::Filter.eq( attr_member_group, group[:id] )
-              attributes = [attr_groupname, attr_groupid]
-              find_all_groups(ldap, member_filter, attributes).inject([]) do |parent_groups, entry|
-                parent_groups << { :name => entry[attr_groupname].first, :id => entry[attr_groupid].first }
+                member_filter = Net::LDAP::Filter.eq( settings[:member_group], group[:group_memberid] )
+                find_all_groups(ldap, member_filter, [:groupname, :group_memberid])
               end
             end
 
-            parent_groups.inject(closure << group[:name]) do |closure, group|
-              closure += get_group_closure(ldap, group, closure) unless closure.include? group[:name]
+            parent_groups.inject(closure << group[:groupname]) do |closure, group|
+              closure += get_group_closure(ldap, group, closure) unless closure.include? group[:groupname]
+              closure
             end
           end
 
           def find_group(ldap, group_name, attrs, &block)
-            extra_filter = Net::LDAP::Filter.eq( attr_groupname, group_name )
-            find_all_groups(ldap, extra_filter, attrs, &block)
+            extra_filter = Net::LDAP::Filter.eq( settings[:groupname], group_name )
+            result = find_all_groups(ldap, extra_filter, attrs, &block)
+            result.first if !block_given? && result.present?
           end
 
           def find_all_groups(ldap, extra_filter, attrs, &block)
-            group_filter = Net::LDAP::Filter.eq( 'objectClass', settings[:class_group] )
+            group_filter = Net::LDAP::Filter.eq( :objectclass, settings[:class_group] )
             group_filter &= Net::LDAP::Filter.construct( settings[:group_search_filter] ) if settings[:group_search_filter].present?
             groups_base_dn = settings[:groups_base_dn]
 
-            ldap.search({:base => groups_base_dn,
+            ldap_search(ldap, {:base => groups_base_dn,
                          :filter => group_filter & extra_filter,
                          :attributes => attrs,
                          :return_result => block_given? ? false : true},
@@ -241,24 +235,50 @@ module RedmineLdapSync
           end
 
           def find_user(ldap, login, attrs, &block)
-            user_filter = Net::LDAP::Filter.eq( 'objectClass', settings[:class_user] )
-            login_filter = Net::LDAP::Filter.eq( self.attr_login, login )
+            user_filter = Net::LDAP::Filter.eq( :objectclass, settings[:class_user] )
+            login_filter = Net::LDAP::Filter.eq( settings[:login], login )
 
-            ldap.search({:base => self.base_dn,
-                         :filter => user_filter & login_filter,
+            result = ldap_search(ldap, {:base => self.base_dn,
+                                  :filter => user_filter & login_filter,
+                                  :attributes => attrs,
+                                  :return_result => block_given? ? false : true},
+                                 &block)
+            result.first if !block_given? && result.present?
+          end
+
+          def find_all_users(ldap, attrs, &block)
+            user_filter = Net::LDAP::Filter.eq( :objectclass, settings[:class_user] )
+
+            ldap_search(ldap, {:base => self.base_dn,
+                         :filter => user_filter,
                          :attributes => attrs,
                          :return_result => block_given? ? false : true},
                         &block)
           end
 
-          def find_all_users(ldap, attrs, &block)
-            user_filter = Net::LDAP::Filter.eq( 'objectClass', settings[:class_user] )
+          def ldap_search(ldap, options, &block)
+            options[:attributes].map! {|n| attribute_of(n) } if options[:attributes]
+            attrs = options[:attributes]
 
-            ldap.search({:base => self.base_dn,
-                         :filter => user_filter,
-                         :attributes => attrs,
-                         :return_result => block_given? ? false : true},
-                        &block)
+            block = Proc.new { |e| yield renamed_attrs(e, attrs); } if block_given?
+            result = ldap.search(options, &block)
+            result.map { |e| renamed_attrs(e, attrs) } unless block_given? || result.nil?
+          end
+
+          def renamed_attrs(ldap_entry, attrs)
+            multivalued_attrs = [ attribute_of(:user_groups), attribute_of(:parent_group) ]
+
+            if attrs.length == 1
+              value = ldap_entry[attrs.first]
+              multivalued_attrs.include?(attrs.first) ? value : value.first
+            else
+              entry = Hash.new
+              ldap_entry.each do |k, v|
+                value = (multivalued_attrs.include?(k) ? v : v.first)
+                name_of(k).each {|n| entry[n] = value }
+              end
+              entry
+            end
           end
 
           def new_memory_cache
@@ -274,18 +294,25 @@ module RedmineLdapSync
           end
 
           def reset_parents_cache!
-            @parents_cache = nil
+            @parents_cache.clear unless @parents_cache.nil?
+          end
+
+          def cache_root
+            root_path = Rails.root.join("tmp/ldap_cache/#{self.id}")
+            FileUtils.mkdir_p root_path unless File.exists? root_path
+
+            root_path
           end
 
           def closure_cache
-            @closure_cache ||= ActiveSupport::Cache.lookup_store(:file_store, Rails.root.join("/tmp/ldap_cache"))
+            @closure_cache ||= ActiveSupport::Cache.lookup_store(:file_store, cache_root)
           end
 
           def update_closure_cache!
-            disk_cache = ActiveSupport::Cache.lookup_store(:file_store, Rails.root.join("/tmp/ldap_cache"))
+            disk_cache = ActiveSupport::Cache.lookup_store(:file_store, cache_root)
             mem_cache = @closure_cache
 
-            # A small hack to enable deleting the old entries
+            # Match all the entries we want to delete
             def mem_cache.=~(entry)
               !self.key?(entry)
             end
@@ -293,8 +320,8 @@ module RedmineLdapSync
             mem_cache.each {|k, v| disk_cache.write(k, v) }
           end
 
-          def ldapsync_active?
-            settings && settings[:active]
+          def syncing_users?
+            @syncing_users
           end
 
           def sync_user_attributes?
@@ -310,7 +337,7 @@ module RedmineLdapSync
           end
 
           def nested_groups_enabled?
-            settings && settings[:nested_groups]
+            settings && settings[:nested_groups].present?
           end
 
           def pluralize(n, word)
@@ -320,7 +347,42 @@ module RedmineLdapSync
           def settings
             return @settings if @settings
 
-            @settings = Setting.plugin_redmine_ldap_sync[self.name]
+            @settings = Setting.plugin_redmine_ldap_sync.fetch(self.name, Hash.new)
+            @settings[:login] = self.attr_login
+            @settings[:enabled] = 'userAccountControl'
+            @settings[:object_class] = 'objectClass'
+            @settings.slice(*@@LDAP_ATTRIBUTES).each do |key, value|
+              @settings[key] = (value.to_s.downcase.to_sym if value.present?)
+            end
+
+            @settings
+          end
+
+          def attribute_of(name)
+            settings[name]
+          end
+
+          @@LDAP_ATTRIBUTES = [:object_class, :login, :enabled, :groupname, :member, :user_memberid,
+                               :user_groups, :groupid, :member_group, :group_memberid, 
+                               :parent_group, :group_parentid]
+          def name_of(attribute)
+            return @attribute_names[attribute] if @attribute_names
+
+            @attribute_names = Hash.new(Array.new)
+            settings.slice(*@@LDAP_ATTRIBUTES).each do |name, attrb|
+              if @attribute_names.has_key? attrb 
+                @attribute_names[attrb] << name.to_sym
+              else
+                @attribute_names[attrb] = [ name.to_sym ]
+              end
+            end
+
+            @attribute_names[attribute]
+          end
+
+          def reset_ldap_settings!
+            @settings = nil
+            @attribute_names = nil
           end
         end
       end
