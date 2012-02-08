@@ -88,6 +88,12 @@ attribute__. Eg, `distinguishedName`.
 + _Parentid attribute (group)_ - The ldap attribute from where to fetch the 
 parent group's id. This attribute must match with the __parent groups 
 attribute__. Eg, `distinguishedName`.
++ _Account flags (user)_ - The ldap attribute containing the account disabled
+flag. Eg., `userAccountControl`.
++ _Account disabled test_ - A boolean expression that should test the account's
+flags and return `true` in case the account is disabled. The variable containing 
+the account's flags is `flags`. Eg., `flags.to_i & 2 != 0` or 
+`flags.include? 'D'`.
 
 **Synchronization Actions:**
 
@@ -124,6 +130,8 @@ LDAP Compatibility
 + _Group name attribute (group)_ = sAMAccountName
 + _Members attribute (group)_ = member
 + _Memberid attribute (user)_ = dn
++ _Account control flags (user)_ = userAccountControl
++ _Account disabled test_ = flags & 2 != 0
 + _Groups attribute (user)_ = ---   | {memberof}
 + _Groupid attribute (group)_ = --- | {distinguishedName}
 + _Groups objectclass_ = group
@@ -141,6 +149,7 @@ LDAP Compatibility
 + _Memberid attribute (user)_ = entryDN
 + _Groups objectclass_ = groupOfUniqueNames
 + _Users objectclass_ = person
++ _Nested groups_ = disabled
 
 ### Lotus Notes LDAP (tested against Lotus Notes 8.5.2)
 + _Group membership_ = on the group class
@@ -149,6 +158,7 @@ LDAP Compatibility
 + _Memberid attribute (user)_ = dn
 + _Groups objectclass_ = dominoGroup
 + _Users objectclass_ = dominoPerson
++ _Nested groups_ = disabled
 
 ### Open LDAP (with posixGroups)
 + _Group membership_ = on the group class
@@ -156,6 +166,18 @@ LDAP Compatibility
 + _Members attribute_ = member
 + _Groups objectclass_ = posixGroup
 + _Users objectclass_ = person
++ _Nested groups_ = disabled
+
+### Samba LDAP
++ _Group membership_ = on the group class 
++ _Group name attribute (group)_ = cn
++ _Members attribute (group)_ = member
++ _Memberid attribute (user)_ = dn
++ _Account control flags (user)_ = sambaAcctFlags
++ _Account disabled test_ = flags.include? 'D'
++ _Groups objectclass_ = sambaGroupMapping
++ _Users objectclass_ = sambaSamAccount
++ _Nested groups_ = disabled
 
 License
 -------

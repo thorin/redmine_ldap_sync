@@ -9,7 +9,7 @@ module RedmineLdapSync
             return unless ldapsync_active?
 
             if fixed_group.present? && user.groups.none? { |g| g.to_s == fixed_group }
-              user.add_to_auth_source_group
+              user.add_to_fixed_group
             end
 
             changes = groups_changes(user)
@@ -21,7 +21,7 @@ module RedmineLdapSync
               end
             end.compact
 
-            deleted = Group.find_by_lastname(changes[:deleted])
+            deleted = Group.find_all_by_lastname(changes[:deleted])
             user.groups.delete(*deleted) unless deleted.nil?
 
             changes
@@ -120,11 +120,15 @@ module RedmineLdapSync
             ldap_con = initialize_ldap_con(self.account, self.account_password)
             users = {:enabled => [], :disabled => []}
 
-            find_all_users(ldap_con, [:login, :enabled]) do |entry|
-              if entry[:enabled] && entry[:enabled].to_i & 2 != 0
-                users[:disabled] << entry[:login]
-              else
-                users[:enabled] << entry[:login]
+            if settings[:account_flags].blank?
+              users[:enabled] = find_all_users(ldap_con, [:login])
+            else
+              find_all_users(ldap_con, [:login, :account_flags]) do |entry|
+                if account_disabled?(entry[:account_flags])
+                  users[:disabled] << entry[:login]
+                else
+                  users[:enabled] << entry[:login]
+                end
               end
             end
 
@@ -163,7 +167,7 @@ module RedmineLdapSync
                 end if user_dn
 
               else # 'on_members'
-                groups_base_dn    = settings[:groups_base_dn]
+                groups_base_dn = settings[:groups_base_dn]
 
                 groups = find_user(ldap, user.login, [:user_groups]).select {|g| g.end_with?(groups_base_dn)}
 
@@ -340,6 +344,15 @@ module RedmineLdapSync
             settings && settings[:nested_groups].present?
           end
 
+          def account_disabled?(flags)
+            return false if flags.blank?
+            return @account_disabled_test.call(flags) if @account_disabled_test
+            return false if settings[:account_disabled_test].blank?
+
+            @account_disabled_test = eval("lambda { |flags| #{settings[:account_disabled_test]} }")
+            @account_disabled_test.call(flags)
+          end
+
           def pluralize(n, word)
             word.present? ? "#{n} #{word}#{'s' if n != 1}" : n.to_s
           end
@@ -349,7 +362,6 @@ module RedmineLdapSync
 
             @settings = Setting.plugin_redmine_ldap_sync.fetch(self.name, Hash.new)
             @settings[:login] = self.attr_login
-            @settings[:enabled] = 'userAccountControl'
             @settings[:object_class] = 'objectClass'
             @settings.slice(*@@LDAP_ATTRIBUTES).each do |key, value|
               @settings[key] = (value.to_s.downcase.to_sym if value.present?)
@@ -362,9 +374,9 @@ module RedmineLdapSync
             settings[name]
           end
 
-          @@LDAP_ATTRIBUTES = [:object_class, :login, :enabled, :groupname, :member, :user_memberid,
-                               :user_groups, :groupid, :member_group, :group_memberid, 
-                               :parent_group, :group_parentid]
+          @@LDAP_ATTRIBUTES = [:object_class, :login, :groupname, :member, :user_memberid,
+                               :user_groups, :groupid, :member_group, :group_memberid,
+                               :parent_group, :group_parentid, :account_flags]
           def name_of(attribute)
             return @attribute_names[attribute] if @attribute_names
 

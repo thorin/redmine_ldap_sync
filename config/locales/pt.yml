@@ -5,6 +5,7 @@ pt:
   field_redmine_ldap_sync_nested_groups: "Activar grupos aninhados"
   field_redmine_ldap_sync_class_user: "Objectclass de utilizadores"
   field_redmine_ldap_sync_class_group: "Objectclass de grupos"
+  field_redmine_ldap_sync_account_disabled: "Teste de conta desactivada"
 
   field_redmine_ldap_sync_groupname_pattern: "Filtro regex de grupos"
   field_redmine_ldap_sync_group_search_filter: "Filtro de pesquisa de grupos"
@@ -18,6 +19,7 @@ pt:
   field_redmine_ldap_sync_group_parentid: "ID do grupo pai (grupo)"
   field_redmine_ldap_sync_user_groups: "Grupos (utilizador)"
   field_redmine_ldap_sync_groupid: "ID do grupo (grupo)"
+  field_redmine_ldap_sync_account_flags: "Flags de controlo (utilizador)"
 
   field_redmine_ldap_sync_required_group: "Devem ser membros de"
   field_redmine_ldap_sync_fixed_group: "Adicionar ao grupo"

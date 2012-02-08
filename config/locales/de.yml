@@ -5,6 +5,7 @@ de:
   field_redmine_ldap_sync_nested_groups: "Enable nested groups"
   field_redmine_ldap_sync_class_user: "Benutzerobjektklasse"
   field_redmine_ldap_sync_class_group: "Gruppenobjektklasse"
+  field_redmine_ldap_sync_account_disabled: "Account disabled test"
 
   field_redmine_ldap_sync_groupname_pattern: "Regular Expression für den Gruppenfilter"
   field_redmine_ldap_sync_group_search_filter: "Gruppensuchfilfer"
@@ -18,6 +19,7 @@ de:
   field_redmine_ldap_sync_group_parentid: "Parentid (group)"
   field_redmine_ldap_sync_user_groups: "Groups (user)"
   field_redmine_ldap_sync_groupid: "Groupid (group)"
+  field_redmine_ldap_sync_account_flags: "Account flags (user)"
 
   field_redmine_ldap_sync_required_group: "Benutzer müssen Gruppenteilnehmer sein"
   field_redmine_ldap_sync_fixed_group: "Benutzer zur Gruppe hinzufügen"

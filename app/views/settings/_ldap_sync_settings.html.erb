@@ -29,6 +29,8 @@
 
         <p><%= ldap_text_field ldap.name, 'group_search_filter', :size => 50 %></p>
 
+        <p><%= ldap_text_field ldap.name, 'account_disabled_test', :size => 15, :default => 'flags & 2 != 0' %></p>
+
         <p><%= ldap_select ldap.name, 'group_membership', [:on_groups, :on_members], :default => :on_groups,
                                       :onchange => "show_options(this, 'membership_', #{i})",
                                       :onkeyup => "show_options(this, 'membership_', #{i})" %></p>
@@ -42,6 +44,8 @@
           <legend><%=l :label_attribute_plural %></legend>
 
           <p><%= ldap_text_field ldap.name, 'groupname', :required => true, :size => 15 %></p>
+
+          <p><%= ldap_text_field ldap.name, 'account_flags', :size => 15 %></p>
 
           <div id="membership_on_groups<%= i %>" style="display:none;">
             <p><%= ldap_text_field ldap.name, 'member', :default => 'member', :required => true, :size => 15 %></p>
