@@ -193,7 +193,7 @@ module RedmineLdapSync
             reset_ldap_settings! unless syncing_users?
           end
 
-          def get_group_closure(ldap, group, closure=Set.new, cache_enabled=true)
+          def get_group_closure(ldap, group, closure=Set.new)
             groupname = group[:groupname] || group
             parent_groups = parents_cache.fetch(groupname) do
               case settings[:nested_groups]
@@ -214,7 +214,8 @@ module RedmineLdapSync
               end
             end
 
-            parent_groups.inject(closure << group[:groupname]) do |closure, group|
+            closure << groupname
+            parent_groups.inject(closure) do |closure, group|
               closure += get_group_closure(ldap, group, closure) unless closure.include? group[:groupname]
               closure
             end
