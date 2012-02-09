@@ -90,10 +90,9 @@ parent group's id. This attribute must match with the __parent groups
 attribute__. Eg, `distinguishedName`.
 + _Account flags (user)_ - The ldap attribute containing the account disabled
 flag. Eg., `userAccountControl`.
-+ _Account disabled test_ - A boolean expression that should test the account's
-flags and return `true` in case the account is disabled. The variable containing 
-the account's flags is `flags`. Eg., `flags.to_i & 2 != 0` or 
-`flags.include? 'D'`.
++ _Account disabled test_ - A ruby boolean expression that should evaluate an
+account's flags (the variable `flags`) and return `true` if the account is 
+disabled. Eg., `flags.to_i & 2 != 0` or flags.include? 'D'`.
 
 **Synchronization Actions:**
 
