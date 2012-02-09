@@ -122,8 +122,8 @@ An alternative is to do it periodically with a cron task:
     # Synchronize users with ldap @ every 60 minutes
     35 *            * * *   root /usr/bin/rake -f /opt/redmine/Rakefile --silent redmine:plugins:redmine_ldap_sync:sync_users RAILS_ENV=production 2>&- 1>&-
 
-LDAP Compatibility
-------------------
+LDAP Configuration Examples
+---------------------------
 ### Active Directory
 + _Group membership_ = on the group class | {on the user class}
 + _Group name attribute (group)_ = sAMAccountName
