@@ -28,6 +28,8 @@ module RedmineLdapSync
               user.auth_source.lock_unless_member_of(user)
 
               user if user.active?
+            rescue => text
+              raise text
             end
             alias_method_chain :try_to_login, :redmine_ldap_sync
           end
