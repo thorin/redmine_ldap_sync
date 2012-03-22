@@ -34,7 +34,7 @@ module RedmineLdapSync
 
             if add_to_group.present? && !user.groups.detect { |g| g.to_s == add_to_group }
               if settings[:dry_run].blank?
-                logger.debug "==>dynamic default group add '#{add_to_group}' for #{user.login}" if logger && logger.debug?
+                logger.info "==>LDAP : dynamic default group add '#{add_to_group}' for #{user.login}" if logger && logger.debug?
                 user.add_to_auth_source_group
               else
                 logger.debug "==>dry-run : NO dynamic default group add '#{add_to_group}' for #{user.login}" if logger && logger.debug?
@@ -50,7 +50,7 @@ module RedmineLdapSync
               if group.nil?
                 if create_groups?
                   if settings[:dry_run].blank?
-                    logger.debug "==>dynamic group creation '#{groupname}' for #{user.login}" if logger && logger.debug?
+                    logger.info "==>LDAP : dynamic group creation '#{groupname}' for #{user.login}" if logger && logger.debug?
                     group = Group.new
                     group.lastname = groupname
                     group.auth_source_id = self.id
@@ -68,7 +68,7 @@ module RedmineLdapSync
               next unless group = user.groups.detect { |g| g.to_s == groupname }
 
               if settings[:dry_run].blank?
-                logger.debug "==>dynamic group remove #'{groupname}' for #{user.login}" if logger && logger.debug?
+                logger.info "==>LDAP : dynamic group remove #'{groupname}' for #{user.login}" if logger && logger.debug?
                 group.users.delete(user) && (!settings[:dry_run].present?)
               else
                 logger.debug "==>dry-run : NO dynamic group remove #'{groupname}' for #{user.login}" if logger && logger.debug?
@@ -180,7 +180,7 @@ module RedmineLdapSync
           def lock_unless_member_of(user)
             groupname = settings && settings[:must_be_member_of]
             if groupname.present? && !user.groups.exists?(:lastname => groupname)
-              logger.debug "==>locked, NOT member of #{groupname} for #{user.login}" if logger && logger.debug?
+              logger.info "==>LDAP : locked, NOT member of #{groupname} for #{user.login}" if logger && logger.debug?
               user.lock! 
             end
           end
