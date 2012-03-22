@@ -22,6 +22,6 @@ class ChangeSettingsName < ActiveRecord::Migration
   end
 
   def self.down
-    # Nothing to do here    
+    # Nothing to do here
   end
 end
