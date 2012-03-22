@@ -8,7 +8,7 @@ class AddUserMemberidSetting < ActiveRecord::Migration
       settings = all_settings[as.name]
 
       say_with_time "Updating settings for '#{as.name}'" do
-	settings[:attr_user_memberid] = 'dn'
+        settings[:attr_user_memberid] = 'dn'
         Setting.plugin_redmine_ldap_sync = all_settings
       end if settings
     end
