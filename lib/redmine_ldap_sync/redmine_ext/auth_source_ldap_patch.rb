@@ -42,14 +42,14 @@ module RedmineLdapSync
               end
             end
 
-            groupname = settings[:required_group]
+            required_group = settings[:required_group]
 
             ldap_users[:enabled].each do |login|
               user_is_fresh = false
               user = User.find_by_login(login)
               user = User.create do |u|
                 u.login = login
-                u.attributes = get_user_dn(login).except(:dn)
+                u.attributes = get_user_dn(login, '').except(:dn)
                 u.language = Setting.default_language
                 user_is_fresh = true
               end if user.nil? && create_users?
@@ -79,15 +79,15 @@ module RedmineLdapSync
 
               sync_user_attributes(user) unless user_is_fresh
 
-              if user.groups.exists?(:lastname => groupname)
+              if user.groups.exists?(:lastname => required_group)
                 if user.locked?
                   user.activate!
-                  puts "   -> activated: the user is a member of group '#{groupname}'"
+                  puts "   -> activated: the user is a member of group '#{required_group}'"
                 end
               elsif user.active?
                 user.lock!
-                puts "   -> locked: the user is not a member of group '#{groupname}'"
-              end if groupname.present?
+                puts "   -> locked: the user is not a member of group '#{required_group}'"
+              end if required_group.present?
             end
 
             update_closure_cache! if nested_groups_enabled?
@@ -96,13 +96,13 @@ module RedmineLdapSync
           def sync_user_attributes(user)
             return unless sync_user_attributes?
 
-            attrs = get_user_dn(user.login)
+            attrs = get_user_dn(user.login, '')
             user.update_attributes(attrs.slice(*settings[:attributes_to_sync].map(&:intern)))
           end
 
           def lock_unless_member_of(user)
-            groupname = settings && settings[:required_group]
-            user.lock! if groupname.present? && !user.groups.exists?(:lastname => groupname)
+            required_group = settings && settings[:required_group]
+            user.lock! if required_group.present? && !user.groups.exists?(:lastname => required_group)
           end
 
           def fixed_group
@@ -383,7 +383,7 @@ module RedmineLdapSync
 
             @attribute_names = Hash.new(Array.new)
             settings.slice(*@@LDAP_ATTRIBUTES).each do |name, attrb|
-              if @attribute_names.has_key? attrb 
+              if @attribute_names.has_key? attrb
                 @attribute_names[attrb] << name.to_sym
               else
                 @attribute_names[attrb] = [ name.to_sym ]
@@ -397,7 +397,18 @@ module RedmineLdapSync
             @settings = nil
             @attribute_names = nil
           end
+
+          # Backward compatibility with versions prior to rev. 9241
+          if instance_method(:get_user_dn).arity == 1
+            def get_user_dn_with_ldap_sync(login, password)
+              get_user_dn_without_ldap_sync(login)
+            end
+
+            alias_method_chain :get_user_dn, :ldap_sync
+          end
+
         end
+
       end
     end
   end
