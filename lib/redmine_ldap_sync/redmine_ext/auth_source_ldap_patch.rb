@@ -15,7 +15,12 @@ module RedmineLdapSync
             changes = groups_changes(user)
             user.groups << changes[:added].map do |groupname|
               if create_groups?
-                Group.find_or_create_by_lastname(groupname, :auth_source_id => self.id)
+                group = Group.find_or_create_by_lastname(groupname, :auth_source_id => self.id)
+                if group.valid?
+                  group
+                else
+                  logger.error "Could not create group '#{groupname}': \"#{group.errors.full_messages.join('", "')}\""; nil
+                end
               else
                 Group.find_by_lastname(groupname)
               end
@@ -398,7 +403,7 @@ module RedmineLdapSync
             @attribute_names = nil
           end
 
-          # Backward compatibility with versions prior to rev. 9241
+          # Adds compatibility with versions prior to rev. 9241
           if instance_method(:get_user_dn).arity == 1
             def get_user_dn_with_ldap_sync(login, password)
               get_user_dn_without_ldap_sync(login)
