@@ -52,9 +52,9 @@ module RedmineLdapSync
             ldap_users[:enabled].each do |login|
               user_is_fresh = false
               user = User.find_by_login(login)
-              user = User.create do |u|
+
+              user = User.create(get_user_dn(login, '').except(:dn)) do |u|
                 u.login = login
-                u.attributes = get_user_dn(login, '').except(:dn)
                 u.language = Setting.default_language
                 user_is_fresh = true
               end if user.nil? && create_users?
