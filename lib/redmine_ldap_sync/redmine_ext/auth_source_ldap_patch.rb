@@ -405,7 +405,7 @@ module RedmineLdapSync
 
           # Adds compatibility with versions prior to rev. 9241
           if instance_method(:get_user_dn).arity == 1
-            def get_user_dn_with_ldap_sync(login, password)
+            def get_user_dn_with_ldap_sync(login, password = '')
               get_user_dn_without_ldap_sync(login)
             end
 
