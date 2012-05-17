@@ -1,7 +1,6 @@
 require 'redmine'
-require 'dispatcher'
 
-RAILS_DEFAULT_LOGGER.info 'Starting Redmine Ldap Sync plugin for RedMine'
+Rails.logger.info 'Starting Redmine Ldap Sync plugin for RedMine'
 
 Redmine::Plugin.register :redmine_ldap_sync do
   name 'Redmine - Ldap Sync'
@@ -16,7 +15,7 @@ Redmine::Plugin.register :redmine_ldap_sync do
   settings :default => HashWithIndifferentAccess.new(), :partial => 'settings/ldap_sync_settings'
 end
 
-Dispatcher.to_prepare :redmine_ldap_sync do
+RedmineApp::Application.config.after_initialize do
   require_dependency 'principal'
   require_dependency 'user'
 
