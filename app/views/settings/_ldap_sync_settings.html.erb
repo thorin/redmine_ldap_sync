@@ -1,11 +1,13 @@
 <%= stylesheet_link_tag 'redmine_ldap_sync.css', :plugin => 'redmine_ldap_sync' %>
 <%= javascript_tag "function show_options(elem, prefix, i) {
-    if ($F(elem) != '') $(prefix + $F(elem) + i).show();
-    $A(elem.options).each(function (option) {
-      if (option.value != '' && $F(elem) != option.value) {
+    if ($(elem).val() != '') $(prefix + $(elem).val() + i).show();
+    if (!elem.options) return;
+    for (var i = elem.options.length >>> 0; i--;) {
+      var option = elem.options[i];
+      if (option.value != '' && $(elem).val() != option.value) {
         $(prefix + option.value + i).hide();
       }
-    });
+    }
   }
 "
 %>
