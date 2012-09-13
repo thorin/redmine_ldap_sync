@@ -61,7 +61,7 @@
             <p><%= ldap_text_field ldap.name, 'groupid', :default => 'distinguishedName', :required => true, :size => 15 %></p>
           </div>
 
-          <%= javascript_tag "show_options('#{sanitize_to_id('settings['+ldap.name+'][group_membership]')}', 'membership_', #{i});" %>
+          <%= javascript_tag "show_options('##{sanitize_to_id('settings['+ldap.name+'][group_membership]')}', 'membership_', #{i});" %>
 
           <div id="nested_on_members<%= i %>" style="display:none;">
             <p><%= ldap_text_field ldap.name, 'parent_group', :required => true, :size => 15 %></p>
@@ -75,7 +75,7 @@
             <p><%= ldap_text_field ldap.name, 'group_memberid', :required => true, :size => 15 %></p>
           </div>
 
-          <%= javascript_tag "show_options('#{sanitize_to_id('settings['+ldap.name+'][nested_groups]')}', 'nested_', #{i});" %>
+          <%= javascript_tag "show_options('##{sanitize_to_id('settings['+ldap.name+'][nested_groups]')}', 'nested_', #{i});" %>
         </fieldset>
 
       </div>

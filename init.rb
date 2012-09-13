@@ -16,8 +16,7 @@ Redmine::Plugin.register :redmine_ldap_sync do
 end
 
 RedmineApp::Application.config.after_initialize do
-  require_dependency 'principal'
-  require_dependency 'user'
+  require 'project'
 
   unless AuthSourceLdap.include? RedmineLdapSync::RedmineExt::AuthSourceLdapPatch
     AuthSourceLdap.send(:include, RedmineLdapSync::RedmineExt::AuthSourceLdapPatch)
@@ -27,5 +26,8 @@ RedmineApp::Application.config.after_initialize do
   end
   unless User.include? RedmineLdapSync::RedmineExt::UserPatch
     User.send(:include, RedmineLdapSync::RedmineExt::UserPatch)
+  end
+  unless ActiveSupport::Cache::FileStore.include? RedmineLdapSync::CoreExt::FileStorePatch
+    ActiveSupport::Cache::FileStore.send(:include, RedmineLdapSync::CoreExt::FileStorePatch)
   end
 end
