@@ -16,8 +16,7 @@ Redmine::Plugin.register :redmine_ldap_sync do
 end
 
 RedmineApp::Application.config.after_initialize do
-  require_dependency 'principal'
-  require_dependency 'user'
+  require 'project'
 
   unless AuthSourceLdap.include? RedmineLdapSync::RedmineExt::AuthSourceLdapPatch
     AuthSourceLdap.send(:include, RedmineLdapSync::RedmineExt::AuthSourceLdapPatch)
