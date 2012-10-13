@@ -27,4 +27,7 @@ RedmineApp::Application.config.after_initialize do
   unless User.include? RedmineLdapSync::RedmineExt::UserPatch
     User.send(:include, RedmineLdapSync::RedmineExt::UserPatch)
   end
+  unless ActiveSupport::Cache::FileStore.include? RedmineLdapSync::CoreExt::FileStorePatch
+    ActiveSupport::Cache::FileStore.send(:include, RedmineLdapSync::CoreExt::FileStorePatch)
+  end
 end
