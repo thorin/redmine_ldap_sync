@@ -8,7 +8,7 @@ module RedmineLdapSync
             setting_values = @settings[ldap_name]? @settings[ldap_name][setting]: []
             setting_values = [] unless setting_values.is_a?(Array)
 
-            ldap_label(setting, options).html_safe +
+            ldap_label(setting, options) +
               choices.collect do |choice|
                 text, value = (choice.is_a?(Array) ? choice : [l("field_#{@plugin.id}_#{choice}"), choice])
                 content_tag(
@@ -28,14 +28,14 @@ module RedmineLdapSync
             return '' if label == false
 
             label_text = l(label || "field_#{@plugin.id}_#{setting}") + (options.delete(:required) ? content_tag("span", " *", :class => "required") : "")
-            content_tag("label", label_text).html_safe
+            content_tag("label", label_text.html_safe)
           end
 
           def ldap_text_field(ldap_name, setting, options={})
             default = options.delete(:default)
             ldap_settings = @settings[ldap_name]
-            ldap_label(setting, options).html_safe +
-              text_field_tag("settings[#{ldap_name}][#{setting}]", (ldap_settings ? ldap_settings[setting] : default), options).html_safe
+            ldap_label(setting, options) +
+              text_field_tag("settings[#{ldap_name}][#{setting}]", (ldap_settings ? ldap_settings[setting] : default), options)
           end
 
           def ldap_check_box(ldap_name, setting, options={})

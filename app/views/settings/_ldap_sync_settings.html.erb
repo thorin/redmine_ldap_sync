@@ -1,11 +1,13 @@
 <%= stylesheet_link_tag 'redmine_ldap_sync.css', :plugin => 'redmine_ldap_sync' %>
 <%= javascript_tag "function show_options(elem, prefix, i) {
-    if ($F(elem) != '') $(prefix + $F(elem) + i).show();
-    $A(elem.options).each(function (option) {
-      if (option.value != '' && $F(elem) != option.value) {
-        $(prefix + option.value + i).hide();
+    if ($(elem).val() != '') $('#' + prefix + $(elem).val() + i).show();
+    if (!elem.options) return;
+    for (var j = elem.options.length >>> 0; j--;) {
+      var option = elem.options[j];
+      if (option.value != '' && $(elem).val() != option.value) {
+        $('#' + prefix + option.value + i).hide();
       }
-    });
+    }
   }
 "
 %>
@@ -29,7 +31,7 @@
 
         <p><%= ldap_text_field ldap.name, 'group_search_filter', :size => 50 %></p>
 
-        <p><%= ldap_text_field ldap.name, 'account_disabled_test', :size => 15, :default => 'flags & 2 != 0' %></p>
+        <p><%= ldap_text_field ldap.name, 'account_disabled_test', :size => 15, :default => 'flags.to_i & 2 != 0' %></p>
 
         <p><%= ldap_select ldap.name, 'group_membership', [:on_groups, :on_members], :default => :on_groups,
                                       :onchange => "show_options(this, 'membership_', #{i})",
@@ -43,9 +45,9 @@
         <fieldset class="box">
           <legend><%=l :label_attribute_plural %></legend>
 
-          <p><%= ldap_text_field ldap.name, 'groupname', :required => true, :size => 15 %></p>
+          <p><%= ldap_text_field ldap.name, 'groupname', :default => 'dn', :required => true, :size => 15 %></p>
 
-          <p><%= ldap_text_field ldap.name, 'account_flags', :size => 15 %></p>
+          <p><%= ldap_text_field ldap.name, 'account_flags', :default => 'useraccountcontrol', :size => 15 %></p>
 
           <div id="membership_on_groups<%= i %>" style="display:none;">
             <p><%= ldap_text_field ldap.name, 'member', :default => 'member', :required => true, :size => 15 %></p>
@@ -59,7 +61,7 @@
             <p><%= ldap_text_field ldap.name, 'groupid', :default => 'distinguishedName', :required => true, :size => 15 %></p>
           </div>
 
-          <%= javascript_tag "show_options('#{sanitize_to_id('settings['+ldap.name+'][group_membership]')}', 'membership_', #{i});" %>
+          <%= javascript_tag "show_options('##{sanitize_to_id('settings['+ldap.name+'][group_membership]')}', 'membership_', #{i});" %>
 
           <div id="nested_on_members<%= i %>" style="display:none;">
             <p><%= ldap_text_field ldap.name, 'parent_group', :required => true, :size => 15 %></p>
@@ -73,7 +75,7 @@
             <p><%= ldap_text_field ldap.name, 'group_memberid', :required => true, :size => 15 %></p>
           </div>
 
-          <%= javascript_tag "show_options('#{sanitize_to_id('settings['+ldap.name+'][nested_groups]')}', 'nested_', #{i});" %>
+          <%= javascript_tag "show_options('##{sanitize_to_id('settings['+ldap.name+'][nested_groups]')}', 'nested_', #{i});" %>
         </fieldset>
 
       </div>

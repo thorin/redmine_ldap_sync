@@ -323,10 +323,7 @@ module RedmineLdapSync
             mem_cache = @closure_cache
 
             # Match all the entries we want to delete
-            def mem_cache.=~(entry)
-              !self.key?(entry)
-            end
-            disk_cache.delete_matched(mem_cache)
+            disk_cache.delete_unless {|k| mem_cache.has_key?(k) }
             mem_cache.each {|k, v| disk_cache.write(k, v) }
           end
 
