@@ -199,7 +199,7 @@ module RedmineLdapSync
           end
 
           def get_group_closure(ldap, group, closure=Set.new)
-            groupname = group[:groupname] || group
+            groupname = group.is_a?(Hash) ? group[:groupname] : group
             parent_groups = parents_cache.fetch(groupname) do
               case settings[:nested_groups]
               when 'on_members'
