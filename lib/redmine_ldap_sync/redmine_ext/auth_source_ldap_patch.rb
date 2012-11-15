@@ -258,6 +258,9 @@ module RedmineLdapSync
 
           def find_all_users(ldap, attrs, &block)
             user_filter = Net::LDAP::Filter.eq( :objectclass, settings[:class_user] )
+            if f = ldap_filter
+              user_filter &= f
+            end
 
             ldap_search(ldap, {:base => self.base_dn,
                          :filter => user_filter,
