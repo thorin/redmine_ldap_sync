@@ -1,11 +1,17 @@
 <%= stylesheet_link_tag 'redmine_ldap_sync.css', :plugin => 'redmine_ldap_sync' %>
 <%= javascript_tag "function show_options(elem, prefix, i) {
-    if ($(elem).value != '') $(prefix + $(elem).value + i).show();
+    if (toString.call(elem) == '[object String]') {
+      elem = document.getElementById(elem);
+    }
+    var value = elem.options[elem.selectedIndex].value;
+    if (value != '') {
+      document.getElementById(prefix + value + i).style.display = '';
+    }
     if (!elem.options) return;
     for (var j = elem.options.length >>> 0; j--;) {
       var option = elem.options[j];
-      if (option.value != '' && $(elem).value != option.value) {
-        $(prefix + option.value + i).hide();
+      if (option.value != '' && value != option.value) {
+        document.getElementById(prefix + option.value + i).style.display = 'none';
       }
     }
   }
@@ -37,7 +43,7 @@
                                       :onchange => "show_options(this, 'membership_', #{i})",
                                       :onkeyup => "show_options(this, 'membership_', #{i})" %></p>
 
-        <p><%= ldap_select ldap.name, 'nested_groups', [:on_parents, :on_members], :default => '', 
+        <p><%= ldap_select ldap.name, 'nested_groups', [:on_parents, :on_members], :default => '',
                                       :blank => :option_disabled_nested_groups,
                                       :onchange => "show_options(this, 'nested_', #{i})",
                                       :onkeyup => "show_options(this, 'nested_', #{i})" %></p>
