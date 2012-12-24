@@ -1,11 +1,11 @@
 <%= stylesheet_link_tag 'redmine_ldap_sync.css', :plugin => 'redmine_ldap_sync' %>
 <%= javascript_tag "function show_options(elem, prefix, i) {
-    if ($(elem).val() != '') $('#' + prefix + $(elem).val() + i).show();
+    if ($(elem).value != '') $(prefix + $(elem).value + i).show();
     if (!elem.options) return;
     for (var j = elem.options.length >>> 0; j--;) {
       var option = elem.options[j];
-      if (option.value != '' && $(elem).val() != option.value) {
-        $('#' + prefix + option.value + i).hide();
+      if (option.value != '' && $(elem).value != option.value) {
+        $(prefix + option.value + i).hide();
       }
     }
   }
@@ -61,7 +61,7 @@
             <p><%= ldap_text_field ldap.name, 'groupid', :default => 'distinguishedName', :required => true, :size => 15 %></p>
           </div>
 
-          <%= javascript_tag "show_options('##{sanitize_to_id('settings['+ldap.name+'][group_membership]')}', 'membership_', #{i});" %>
+          <%= javascript_tag "show_options('#{sanitize_to_id('settings['+ldap.name+'][group_membership]')}', 'membership_', #{i});" %>
 
           <div id="nested_on_members<%= i %>" style="display:none;">
             <p><%= ldap_text_field ldap.name, 'parent_group', :required => true, :size => 15 %></p>
@@ -75,7 +75,7 @@
             <p><%= ldap_text_field ldap.name, 'group_memberid', :required => true, :size => 15 %></p>
           </div>
 
-          <%= javascript_tag "show_options('##{sanitize_to_id('settings['+ldap.name+'][nested_groups]')}', 'nested_', #{i});" %>
+          <%= javascript_tag "show_options('#{sanitize_to_id('settings['+ldap.name+'][nested_groups]')}', 'nested_', #{i});" %>
         </fieldset>
 
       </div>
