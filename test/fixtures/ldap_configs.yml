@@ -1,0 +1,53 @@
+# Read about fixtures at http://api.rubyonrails.org/classes/ActiveRecord/Fixtures.html
+
+one:
+  groups_base_dn: MyString
+  class_user: MyString
+  class_group: MyString
+  groupname_pattern: MyString
+  group_search_filter: MyString
+  account_disabled_test: MyString
+  group_membership: MyString
+  nested_groups: MyString
+  groupname: MyString
+  account_flags: MyString
+  member: MyString
+  user_memberid: MyString
+  user_groups: MyString
+  groupid: MyString
+  parent_group: MyString
+  group_parentid: MyString
+  member_group: MyString
+  group_memberid: MyString
+  required_group: MyString
+  fixed_group: MyString
+  create_groups: false
+  create_users: false
+  sync_user_attributes: false
+  attributes_to_sync: MyString
+
+two:
+  groups_base_dn: MyString
+  class_user: MyString
+  class_group: MyString
+  groupname_pattern: MyString
+  group_search_filter: MyString
+  account_disabled_test: MyString
+  group_membership: MyString
+  nested_groups: MyString
+  groupname: MyString
+  account_flags: MyString
+  member: MyString
+  user_memberid: MyString
+  user_groups: MyString
+  groupid: MyString
+  parent_group: MyString
+  group_parentid: MyString
+  member_group: MyString
+  group_memberid: MyString
+  required_group: MyString
+  fixed_group: MyString
+  create_groups: false
+  create_users: false
+  sync_user_attributes: false
+  attributes_to_sync: MyString

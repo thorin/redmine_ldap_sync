@@ -1,0 +1,41 @@
+<% f = tab[:form] %>
+<%= error_messages_for 'ldap_setting' %>
+<div class="box tabular settings">
+  <p><%= label_tag :base_settings, l(:field_base_settings) %>
+    <%=  select_tag :base_settings, options_for_base_settings %></p>
+  <p><%= f.text_field :groups_base_dn, :required => true, :size => 50 %></p>
+  <p><%= f.text_field :class_user, :default => 'user', :required => true, :size => 15 %></p>
+  <p><%= f.text_field :class_group, :default => 'group', :required => true, :size => 50 %></p>
+  <p><%= f.text_field :groupname_pattern, :size => 50 %></p>
+  <p><%= f.text_field :group_search_filter, :size => 50  %></p>
+
+  <p><%= f.text_field :account_disabled_test, :size => 15, :default => 'flags.to_i & 2 != 0' %></p>
+  <p><%= f.select :group_membership, options_for_group_membeship, :default => :on_groups %></p>
+  <p><%= f.select :nested_groups, options_for_nested_groups, :default => '' %></p>
+
+  <fieldset class="box">
+    <legend><%=l(:label_attribute_plural)%></legend>
+
+    <p><%= f.text_field :groupname, :default => 'dn', :required => true, :size => 15 %></p>
+    <p><%= f.text_field :account_flags, :default => 'useraccountcontrol', :size => 15 %></p>
+
+    <div id="membership_on_groups" style="display:none;">
+      <p><%= f.text_field :member, :default => 'member', :required => true, :size => 15 %></p>
+      <p><%= f.text_field :user_memberid, :default => 'dn', :required => true, :size => 15%></p>
+    </div>
+    <div id="membership_on_members" style="display:none;">
+      <p><%= f.text_field :user_groups, :default => 'memberof', :required => true, :size => 15 %></p>
+      <p><%= f.text_field :groupid, :default => 'distinguishedName', :required => true, :size => 15 %></p>
+    </div>
+
+    <div id="nested_on_members" style="display:none;">
+      <p><%= f.text_field :parent_group, :required => true, :size => 15 %></p>
+      <p><%= f.text_field :group_parentid, :required => true, :size => 15 %></p>
+    </div>
+
+    <div id="nested_on_parents" style="display:none;">
+      <p><%= f.text_field :member_group, :required => true, :size => 15 %></p>
+      <p><%= f.text_field :group_memberid, :required => true, :size => 15 %></p>
+    </div>
+  </fieldset>
+</div>

@@ -1,6 +1,6 @@
-module RedmineLdapSync
+module LdapSync
   module CoreExt
-    module FileStorePatch
+    module FileStore
       def self.included(base)
         base.class_eval do
           def delete_unless

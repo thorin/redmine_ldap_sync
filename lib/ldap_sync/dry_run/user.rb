@@ -1,6 +1,6 @@
-module RedmineLdapSync
-  module RedmineExt
-    module UserDryRun
+module LdapSync
+  module DryRun
+    module User
 
       def self.included(base)
 

@@ -1,0 +1,58 @@
+active_directory:
+  name: Active Directory
+  class_user: user
+  class_group: group
+  account_disabled_test: "flags.to_i & 2 != 0"
+  group_membership: on_members
+  nested_groups: ""
+  groupname: samaccountname
+  account_flags: useraccountcontrol
+  user_groups: memberof
+  groupid: distinguishedname
+active_directory_nested:
+  name: Active Directory (with nested groups)
+  class_user: user
+  class_group: group
+  account_disabled_test: "flags.to_i & 2 != 0"
+  group_membership: on_members
+  nested_groups: on_parents
+  groupname: samaccountname
+  account_flags: useraccountcontrol
+  user_groups: memberof
+  groupid: distinguishedname
+  member_group: member
+  group_memberid: distinguishedname
+open_ds:
+  name: OpenDS
+  class_user: person
+  class_group: groupOfUniqueNames
+  group_membership: on_members
+  groupname: cn
+  user_groups: isMemberOf
+  groupid: entryDN
+lotus_notes_ldap:
+  name: Lotus Notes LDAP
+  class_user: dominoPerson
+  class_group: dominoGroup
+  group_membership: on_groups
+  groupname: cn
+  member: member
+  user_memberid: dn
+open_ldap_posix_groups:
+  name: Open LDAP (with posixGroups)
+  class_user: person
+  class_group: posixGroup
+  group_membership: on_groups
+  groupname: cn
+  member: member
+  user_memberid: dn
+samba_ldap:
+  name: Samba LDAP
+  class_user: sambaSamAccount
+  class_group: sambaGroupMapping
+  account_disabled_test: "flags.include? 'D'"
+  group_membership: on_groups
+  groupname: cn
+  account_flags: sambaAcctFlags
+  member: member
+  user_memberid: dn

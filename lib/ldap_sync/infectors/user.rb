@@ -1,19 +1,18 @@
-module RedmineLdapSync
-  module RedmineExt
-    module UserPatch
+module LdapSync
+  module Infectors
+    module User
       def self.included(base)
         base.class_eval do
           after_create :add_to_fixed_group
-          
+
           def add_to_fixed_group
             return unless auth_source && auth_source.auth_method_name == 'LDAP'
 
-            groupname = auth_source.fixed_group
-            return unless groupname.present?
+            return unless auth_source.fixed_group.present?
 
-            group = Group.find_or_create_by_lastname(groupname)
+            group = Group.find_or_create_by_lastname(auth_source.fixed_group)
             group.users << self
-            
+
             save
           end
 
@@ -23,7 +22,7 @@ module RedmineLdapSync
               return nil unless user
               return user unless user.auth_source && user.auth_source.auth_method_name == 'LDAP'
 
-              user.auth_source.sync_groups(user)
+              user.auth_source.sync_user_groups(user)
               user.auth_source.sync_user_attributes(user)
               user.auth_source.lock_unless_member_of(user)
 

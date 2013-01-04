@@ -17,9 +17,11 @@ namespace :redmine do
           Group.send :include, RedmineLdapSync::RedmineExt::GroupDryRun
         end
 
+        $running_rake = true
         AuthSourceLdap.all.each do |as|
           puts "Synchronizing AuthSource #{as.name}..."
           as.sync_users
+          #as.sync_groups (sync custom attributes)
         end
 
       end

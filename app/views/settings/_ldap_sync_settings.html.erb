@@ -14,7 +14,7 @@
 <% AuthSourceLdap.all.each_with_index do |ldap, i| -%>
 <fieldset class="collapsible <%= 'collapsed' unless ldap.ldapsync_active? %>">
   <legend onclick="toggleFieldset(this);"><%= ldap.name %></legend>
-  <div <%= 'style="display:none"' unless ldap.ldapsync_active? %>>
+  <div <%= 'style="display:none"'.html_safe unless ldap.ldapsync_active? %>>
 
     <p><%= ldap_check_box ldap.name, 'active' %></p>
 
@@ -37,7 +37,7 @@
                                       :onchange => "show_options(this, 'membership_', #{i})",
                                       :onkeyup => "show_options(this, 'membership_', #{i})" %></p>
 
-        <p><%= ldap_select ldap.name, 'nested_groups', [:on_parents, :on_members], :default => '', 
+        <p><%= ldap_select ldap.name, 'nested_groups', [:on_parents, :on_members], :default => '',
                                       :blank => :option_disabled_nested_groups,
                                       :onchange => "show_options(this, 'nested_', #{i})",
                                       :onkeyup => "show_options(this, 'nested_', #{i})" %></p>

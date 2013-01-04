@@ -1,0 +1,8 @@
+resources :ldap_settings, :path => 'admin/ldap_sync', :only => [:edit, :update, :index]  do
+  member do
+    get 'test'
+    put 'disable'
+    put 'enable'
+  end
+  get 'base_settings', :constraints => { :format => /js/ }, :on => :collection
+end

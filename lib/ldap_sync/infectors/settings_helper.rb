@@ -1,6 +1,6 @@
-module RedmineLdapSync
-  module RedmineExt
-    module SettingsHelperPatch
+module LdapSync
+  module Infectors
+    module SettingsHelper
       def self.included(base)
         base.class_eval do
 

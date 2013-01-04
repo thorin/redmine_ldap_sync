@@ -125,58 +125,59 @@ An alternative is to do it periodically with a cron task:
 LDAP Configuration Examples
 ---------------------------
 ### Active Directory
-+ _Group membership_ = on the group class | {on the user class}
-+ _Group name attribute (group)_ = sAMAccountName
-+ _Members attribute (group)_ = member
-+ _Memberid attribute (user)_ = dn
-+ _Account control flags (user)_ = userAccountControl
-+ _Account disabled test_ = flags & 2 != 0
-+ _Groups attribute (user)_ = ---   | {memberof}
-+ _Groupid attribute (group)_ = --- | {distinguishedName}
-+ _Groups objectclass_ = group
 + _Users objectclass_ = user
-+ _Nested groups_ = membership on the parent class | {membership on the member class}
-+ _Member groups attribute (group)_ - member
-+ _Memberid attribute (group)_ - distinguishedName
-+ _Parent groups attribute (group)_ - --- | {memberof}
-+ _Parentid attribute (group)_ - ---      | {distinguishedName}
++ _Groups objectclass_ = group
++ _Account disabled test_ = flags.to_i & 2 != 0
++ _Group membership_ = on the group class | on the user class
++ _Nested groups_ = membership on the parent class | membership on the member class
++ _Group name (group)_ = sAMAccountName
++ _Account control flags (user)_ = userAccountControl
++ _Member users (group)_ = member
++ _Memberid (user)_ = dn
++ _Groups (user)_ = memberof
++ _Groupid (group)_ = distinguishedName
++ _Member groups (group)_ - member
++ _Memberid (group)_ - distinguishedName
++ _Parent groups (group)_ - memberof
++ _Parentid (group)_ - distinguishedName
 
 ### OpenDS
-+ _Group name attribute (group)_ = cn
-+ _Group membership_ = on the user class
-+ _Groups attribute (user)_ = isMemberOf
-+ _Memberid attribute (user)_ = entryDN
-+ _Groups objectclass_ = groupOfUniqueNames
 + _Users objectclass_ = person
++ _Groups objectclass_ = groupOfUniqueNames
++ _Group membership_ = on the user class
 + _Nested groups_ = disabled
++ _Group name (group)_ = cn
++ _Groups (user)_ = isMemberOf
++ _Groupid (group)_ = entryDN
 
 ### Lotus Notes LDAP (tested against Lotus Notes 8.5.2)
-+ _Group membership_ = on the group class
-+ _Group name attribute (group)_ = cn
-+ _Members attribute (group)_ = member
-+ _Memberid attribute (user)_ = dn
-+ _Groups objectclass_ = dominoGroup
 + _Users objectclass_ = dominoPerson
++ _Groups objectclass_ = dominoGroup
++ _Group membership_ = on the group class
 + _Nested groups_ = disabled
++ _Group name (group)_ = cn
++ _Members (group)_ = member
++ _Memberid (user)_ = dn
 
 ### Open LDAP (with posixGroups)
-+ _Group membership_ = on the group class
-+ _Group name attribute_ = cn
-+ _Members attribute_ = member
-+ _Groups objectclass_ = posixGroup
 + _Users objectclass_ = person
++ _Groups objectclass_ = posixGroup
++ _Group membership_ = on the group class
 + _Nested groups_ = disabled
++ _Group name (group)_ = cn
++ _Members (group)_ = member
++ _Memberid (user)_ = dn
 
 ### Samba LDAP
-+ _Group membership_ = on the group class 
-+ _Group name attribute (group)_ = cn
-+ _Members attribute (group)_ = member
-+ _Memberid attribute (user)_ = dn
-+ _Account control flags (user)_ = sambaAcctFlags
-+ _Account disabled test_ = flags.include? 'D'
-+ _Groups objectclass_ = sambaGroupMapping
 + _Users objectclass_ = sambaSamAccount
++ _Groups objectclass_ = sambaGroupMapping
++ _Account disabled test_ = flags.include? 'D'
++ _Group membership_ = on the group class 
 + _Nested groups_ = disabled
++ _Group name (group)_ = cn
++ _Account control flags (user)_ = sambaAcctFlags
++ _Members (group)_ = member
++ _Memberid (user)_ = dn
 
 License
 -------

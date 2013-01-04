@@ -1,6 +1,6 @@
-module RedmineLdapSync
-  module RedmineExt
-    module GroupDryRun
+module LdapSync
+  module DryRun
+    module Group
 
       def self.included(base)
         base.instance_eval do
