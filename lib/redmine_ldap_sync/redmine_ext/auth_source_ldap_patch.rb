@@ -13,7 +13,8 @@ module RedmineLdapSync
             end
 
             changes = groups_changes(user)
-            user.groups << changes[:added].map do |groupname|
+            current_groups = user.groups.all.map(&:name)
+            user.groups << changes[:added].reject {|g| current_groups.include?(g) }.map do |groupname|
               if create_groups?
                 group = Group.find_or_create_by_lastname(groupname, :auth_source_id => self.id)
                 if group.valid?
