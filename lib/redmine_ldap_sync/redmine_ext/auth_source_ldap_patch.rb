@@ -84,15 +84,20 @@ module RedmineLdapSync
 
               sync_user_attributes(user) unless user_is_fresh
 
-              if user.groups.exists?(:lastname => required_group)
-                if user.locked?
-                  user.activate!
-                  puts "   -> activated: the user is a member of group '#{required_group}'"
+              if required_group.present?
+                if user.groups.exists?(:lastname => required_group)
+                  if user.locked?
+                    user.activate!
+                    puts "   -> activated: the user is a member of group '#{required_group}'"
+                  end
+                elsif user.active?
+                  user.lock!
+                  puts "   -> locked: the user is not a member of group '#{required_group}'"
                 end
-              elsif user.active?
-                user.lock!
-                puts "   -> locked: the user is not a member of group '#{required_group}'"
-              end if required_group.present?
+              elsif activate_users? && user.locked?
+                user.activate!
+                puts "   -> activated: ACTIVATE_USERS flag is on"
+              end
             end
 
             update_closure_cache! if nested_groups_enabled?
@@ -396,6 +401,10 @@ module RedmineLdapSync
             end
 
             @attribute_names[attribute]
+          end
+
+          def activate_users?
+            defined?($activate_users) && $activate_users
           end
 
           def reset_ldap_settings!
