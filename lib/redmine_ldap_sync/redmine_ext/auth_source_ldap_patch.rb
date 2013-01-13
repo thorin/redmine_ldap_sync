@@ -13,8 +13,7 @@ module RedmineLdapSync
             end
 
             changes = groups_changes(user)
-            current_groups = user.groups.map(&:name)
-            user.groups << changes[:added].reject {|g| current_groups.include?(g) }.map do |groupname|
+            user.groups << changes[:added].map do |groupname|
               if create_groups?
                 group = Group.find_or_create_by_lastname(groupname, :auth_source_id => self.id)
                 if group.valid?
@@ -27,7 +26,7 @@ module RedmineLdapSync
               end
             end.compact
 
-            deleted = Group.find_all_by_lastname(changes[:deleted])
+            deleted = Group.find_all_by_lastname(changes[:deleted].to_a)
             user.groups.delete(*deleted) unless deleted.nil?
 
             changes
@@ -145,7 +144,7 @@ module RedmineLdapSync
 
           def groups_changes(user)
             return unless ldapsync_active?
-            changes = { :added => [], :deleted => [] }
+            changes = { :added => Set.new, :deleted => Set.new }
 
             ldap_con = initialize_ldap_con(self.account, self.account_password)
             ldap_con.open do |ldap|
@@ -187,7 +186,7 @@ module RedmineLdapSync
                 closure + closure_cache.fetch(group) do
                   get_group_closure(ldap, group).select { |g| groupname_pattern =~ g }
                 end
-              end.to_a if nested_groups_enabled?
+              end if nested_groups_enabled?
             end
 
             changes[:deleted] -= changes[:added]
