@@ -142,7 +142,7 @@ module RedmineLdapSync
               end
             end
 
-            users[:disabled] += self.users.active.collect(&:login) - users.values.flatten
+            users[:disabled] += self.users.active.collect(&:login) - users.values.sum.to_a
 
             @ldap_users = users
           end
