@@ -1,21 +1,23 @@
-function show_options(elem, prefix) {
-  if ($(elem).val() != '') $('#' + prefix + $(elem).val()).show();
-  if (!elem.options) return;
-  for (var j = elem.options.length >>> 0; j--;) {
-    var option = elem.options[j];
-    if (option.value != '' && $(elem).val() != option.value) {
-      $('#' + prefix + option.value).hide();
-    }
+function show_options(elem, ambit) {
+  var selected = $(elem).val();
+  var prefix = '#ldap_attributes div.' + ambit;
+
+  if (selected != '') {
+    $(prefix + '.' + selected).show();
+    $(prefix + ':not(.' + selected + ')').hide()
+  } else {
+    $(prefix).hide()  
   }
 }
-$(function() {
-  show_options($('#ldap_setting_group_membership')[0], 'membership_');
-  $('#ldap_setting_group_membership')
-    .bind('change keyup', function() { show_options(this, 'membership_') });
 
-  show_options($('#ldap_setting_nested_groups')[0], 'nested_');
+$(function() {
+  show_options($('#ldap_setting_group_membership'), 'membership');
+  $('#ldap_setting_group_membership')
+    .bind('change keyup', function() { show_options(this, 'membership') });
+
+  show_options($('#ldap_setting_nested_groups'), 'nested');
   $('#ldap_setting_nested_groups')
-    .bind('change keyup', function() { show_options(this, 'nested_') });
+    .bind('change keyup', function() { show_options(this, 'nested') });
 
   $('#base_settings').bind('change keyup', function() {
     var id = $(this).val();
@@ -29,4 +31,11 @@ $(function() {
         .effect('highlight', {easing: 'easeInExpo'}, 500);
     }
   });
+
+  $('form[id^="edit_ldap_setting"]').submit(function() {
+    var current_tab = $('a[id^="tab-"].selected').attr('id').substring(4);
+    $('form[id^="edit_ldap_setting"]').append(
+      '<input type="hidden" name="tab" value="' + current_tab + '">'
+    );
+  })
 })

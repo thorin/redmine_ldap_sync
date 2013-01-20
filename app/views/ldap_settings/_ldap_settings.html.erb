@@ -13,27 +13,27 @@
   <p><%= f.select :group_membership, options_for_group_membeship, :default => :on_groups %></p>
   <p><%= f.select :nested_groups, options_for_nested_groups, :default => '' %></p>
 
-  <fieldset class="box">
+  <fieldset class="box" id="ldap_attributes">
     <legend><%=l(:label_attribute_plural)%></legend>
 
     <p><%= f.text_field :groupname, :default => 'dn', :required => true, :size => 15 %></p>
     <p><%= f.text_field :account_flags, :default => 'useraccountcontrol', :size => 15 %></p>
 
-    <div id="membership_on_groups" style="display:none;">
+    <div class="membership on_groups" style="display:none;">
       <p><%= f.text_field :member, :default => 'member', :required => true, :size => 15 %></p>
       <p><%= f.text_field :user_memberid, :default => 'dn', :required => true, :size => 15%></p>
     </div>
-    <div id="membership_on_members" style="display:none;">
+    <div class="membership on_members" style="display:none;">
       <p><%= f.text_field :user_groups, :default => 'memberof', :required => true, :size => 15 %></p>
       <p><%= f.text_field :groupid, :default => 'distinguishedName', :required => true, :size => 15 %></p>
     </div>
 
-    <div id="nested_on_members" style="display:none;">
+    <div class="nested on_members" style="display:none;">
       <p><%= f.text_field :parent_group, :required => true, :size => 15 %></p>
       <p><%= f.text_field :group_parentid, :required => true, :size => 15 %></p>
     </div>
 
-    <div id="nested_on_parents" style="display:none;">
+    <div class="nested on_parents" style="display:none;">
       <p><%= f.text_field :member_group, :required => true, :size => 15 %></p>
       <p><%= f.text_field :group_memberid, :required => true, :size => 15 %></p>
     </div>

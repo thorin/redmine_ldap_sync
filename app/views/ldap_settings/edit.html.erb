@@ -8,7 +8,7 @@
 
   <%= render_tabs ldap_setting_tabs(f) %>
 
-  <%= submit_tag l(:button_save) %>
+  <%= submit_tag l(:button_save), :id => 'commit-save' %>
 <% end -%>
 
 <% html_title(l(:label_ldap_synchronization)) -%>

@@ -2,5 +2,6 @@ fieldset.box legend { padding-left: 2px; background-image: none; cursor: default
 #admin-menu a.ldap-sync { background-image:url('../images/server_key.png'); }
 tr.ldap_setting.disabled { color: #AAAAAA; }
 tr.ldap_setting.disabled a { color: #AAAAAA; }
-.icon-disable { background-image: url("../images/disable.png") }
-.icon-enable { background-image: url("../images/enable.png") }
+.icon-disable { background-image: url("../images/disable.png"); }
+.icon-enable { background-image: url("../images/enable.png"); }
+.paragraph { padding-left: 300px; }

@@ -3,6 +3,9 @@ en:
   label_ldap_settings: "LDAP settings"
   label_ldap_servers: "LDAP servers"
   label_synchronization_actions: "Synchronization actions"
+  label_synchronize: "Synchronize"
+  label_ldap_attribute: "LDAP attribute"
+  label_default_value: "Default value"
   label_test: "Test"
   label_result: "Result"
 
@@ -12,7 +15,8 @@ en:
   field_nested_groups: "Nested groups"
   field_create_groups: "Create groups"
   field_create_users: "Create users"
-  field_sync_user_attributes: "Sync user attributes"
+  field_sync_user_fields: "Sync user fields"
+  field_sync_group_fields: "Sync group fields"
 
   field_groups_base_dn: "Groups base DN"
   field_group_membership: "Group membership"
@@ -35,9 +39,10 @@ en:
   field_account_flags: "Account flags (user)"
 
   field_required_group: "Users must be members of"
+  field_admin_group: "Administrators group"
   field_fixed_group: "Add users to group"
-  field_attributes_to_sync: "Attributes to be synced"
 
+  field_user_group_fields: "User/Group fields"
   field_firstname: "First name"
   field_lastname: "Last name"
   field_mail: "Email"
@@ -53,3 +58,6 @@ en:
 
   field_base_settings: "Base settings"
   option_custom: "Customized"
+
+  error_invalid_ldap_attribute: "%{value} has an invalid LDAP attribute"
+  error_must_have_ldap_attribute: "%{value} must have an LDAP attribute to be synchronized"

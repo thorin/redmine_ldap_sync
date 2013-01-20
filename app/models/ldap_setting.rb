@@ -1,11 +1,19 @@
-class LdapSetting
+class LdapSetting 
   include Redmine::SafeAttributes
+  include Redmine::I18n
 
   include ActiveModel::Validations
   include ActiveModel::Validations::Callbacks
   include ActiveModel::Conversion
   extend ActiveModel::Naming
   include ActiveModel::AttributeMethods
+
+  # LDAP_DESCRIPTORS
+  LDAP_ATTRIBUTES = %w( groupname member user_memberid user_groups groupid parent_group group_parentid member_group group_memberid account_flags )
+  CLASS_NAMES = %w( class_user class_group )
+  FLAGS = %w( create_groups create_users active )
+  COMBOS = %w( group_membership nested_groups )
+  OTHERS = %w( account_disabled_test user_fields_to_sync group_fields_to_sync user_ldap_attrs group_ldap_attrs fixed_group admin_group required_group group_search_filter groupname_pattern groups_base_dn )
 
   validates_presence_of :auth_source_ldap_id
   validates_presence_of :groups_base_dn, :class_user, :class_group, :groupname, :if => :active?
@@ -17,43 +25,23 @@ class LdapSetting
   validates_inclusion_of :nested_groups, :in => ['on_members', 'on_parents', '']
   validates_inclusion_of :group_membership, :in => ['on_groups', 'on_members']
 
+  validates_format_of *LDAP_ATTRIBUTES, :with => /\A[a-z][a-z0-9-]*\z/i, :allow_blank => true
+
   validate :validate_group_filter
+  validate :validate_user_fields_to_sync, :validate_user_ldap_attrs
+  validate :validate_group_fields_to_sync, :validate_group_ldap_attrs
 
   before_validation :strip_names
 
   # after_save :validate_auth_ldap_id (if account.include? "$login" :cannot_sync_users_and_groups )
 
-  ## This will be done on a execution test
-  # validates :groups_base_dn ---- find object on ldap
-  # validates :class_user ---- find this class on ldap
-  # validates :class_group ---- find this class on ldap
-  # validates :groupname ---- validate that a group has this attribute
-  # validates :member ---- validate that a group has this attribute
-  # validates :user_memberid ---- validate that a user has this attribute
-  # validates :user_groups ---- validate that a user has this attribute
-  # validates :groupid ---- validate that a group has this attribute
-  # validates :parent_group ---- valitade that a group has this attribute
-  # validates :group_parentid ---- valitade that a group has this attribute
-  # validates :member_group ---- valitade that a group has this attribute
-  # validates :group_memberid ---- valitade that a group has this attribute
-
-  LDAP_ATTRIBUTES = %w( groupname member user_memberid user_groups groupid parent_group group_parentid member_group group_memberid account_flags )
-  CLASS_NAMES = %w( class_user class_group )
-  FLAGS = %w( create_groups create_users sync_user_attributes active )
-  COMBOS = %w( group_membership nested_groups )
-  OTHER = %w( account_disabled_test attributes_to_sync fixed_group required_group group_search_filter groupname_pattern groups_base_dn )
-
   attribute_method_affix :prefix => 'has_', :suffix => '?'
   attribute_method_suffix '?', '='
 
-  safe_attributes *LDAP_ATTRIBUTES, *CLASS_NAMES, *FLAGS, *COMBOS, *OTHER
-  define_attribute_methods [*LDAP_ATTRIBUTES, *CLASS_NAMES, *FLAGS, *COMBOS, *OTHER]
+  safe_attributes *LDAP_ATTRIBUTES, *CLASS_NAMES, *FLAGS, *COMBOS, *OTHERS
+  define_attribute_methods LDAP_ATTRIBUTES + CLASS_NAMES + FLAGS + COMBOS + OTHERS
 
-  def validate_group_filter
-    Net::LDAP::Filter.construct(group_search_filter) if group_search_filter.present?
-  rescue Net::LDAP::LdapError
-    errors.add(:group_search_filter, :invalid)
-  end
+  [:login, *User::STANDARD_FIELDS].each {|f| module_eval("def #{f}; auth_source_ldap.attr_#{f}; end") }
 
   def id
     @auth_source_ldap_id
@@ -66,11 +54,11 @@ class LdapSetting
   def active?
     return @active if defined? @active
 
-    @active = [true, '1', 'yes'].include? active
+    @active = active.in?(true, '1', 'yes')
   end
 
   def sync_user_attributes?
-    self.active? && [true, '1', 'yes'].include?(sync_user_attributes)
+    self.active? && sync_user_attributes.in?(true, '1', 'yes')
   end
 
   def nested_groups_enabled?
@@ -93,6 +81,37 @@ class LdapSetting
     self.active? && group_membership == 'on_members'
   end
 
+  def sync_user_fields?
+    has_user_fields_to_sync?
+  end
+
+  def sync_group_fields?
+    has_group_fields_to_sync?
+  end
+
+  def user_ldap_attrs_to_sync
+    user_fields_to_sync.map {|f| user_ldap_attrs[f] || send(f) }
+  end
+
+  def group_ldap_attrs_to_sync
+    group_fields_to_sync.map {|f| group_ldap_attrs[f] }
+  end
+
+  def ldap_attributes(*names)
+    names.map {|n| send(n) }
+  end
+
+  def group_field(ldap_attr)
+    ldap_attr = ldap_attr.to_s
+    group_ldap_attrs.find { |(k, v)| v.downcase == ldap_attr}.try(:first) 
+  end
+
+  def user_field(ldap_attr)
+    ldap_attr = ldap_attr.to_s
+    result = @user_standard_ldap_attrs.invert[ldap_attr]
+    result ||= user_ldap_attrs.find { |(k, v)| v.downcase == ldap_attr}.try(:first) 
+  end
+
   def test
     @ldap_test ||= LdapTest.new(self)
   end
@@ -102,6 +121,7 @@ class LdapSetting
 
     self.auth_source_ldap = source
     @attributes.merge!(settings)
+    @user_standard_ldap_attrs = User::STANDARD_FIELDS.each_with_object({}) {|f, h| h[f] = (send(f)||'').downcase }
   end
 
   def auth_source_ldap_id=(id)
@@ -138,8 +158,10 @@ class LdapSetting
     true
   end
 
-  def to_param
-    @to_param ||= @auth_source_ldap_id
+  def self.human_attribute_name(attr, *args)
+    attr = attr.to_s.sub(/_id$/, '')
+
+    l("field_#{name.underscore.gsub('/', '_')}_#{attr}", :default => ["field_#{attr}".to_sym, attr])
   end
 
   def self.find_by_auth_source_ldap_id(id)
@@ -152,18 +174,65 @@ class LdapSetting
     AuthSourceLdap.all(options).map {|source| find_by_auth_source_ldap_id(source.id) }
   end
 
-  def self.count(options = {})
-    AuthSourceLdap.count(options)
-  end
+  protected
 
-  def self.find(method, options = {})
-    AuthSourceLdap.find(method, options).map {|source| find_by_auth_source_ldap_id(source.id) }
-  end
+    def validate_group_filter
+      Net::LDAP::Filter.construct(group_search_filter) if group_search_filter.present?
+    rescue Net::LDAP::LdapError
+      errors.add :group_search_filter, :invalid
+    end
+
+    def validate_user_ldap_attrs
+      validate_ldap_attrs user_ldap_attrs, UserCustomField.all
+    end
+
+    def validate_user_fields_to_sync
+      validate_fields user_fields_to_sync, (User::STANDARD_FIELDS + UserCustomField.all), user_ldap_attrs
+    end
+
+    def validate_group_ldap_attrs
+      validate_ldap_attrs group_ldap_attrs, GroupCustomField.all
+    end
+
+    def validate_group_fields_to_sync
+      validate_fields group_fields_to_sync, GroupCustomField.all, group_ldap_attrs
+    end
+
+    def validate_ldap_attrs(ldap_attrs, fields)
+      return unless ldap_attrs.present?
+
+      field_ids = fields.map {|f| f.id.to_s }
+      ldap_attrs.each do |k, v|
+        if !k.in? field_ids
+          errors.add :user_group_fields, :invalid
+
+        elsif v.present? && v !~ /\A[a-z][a-z0-9-]*\z/i
+          field_name = fields.find {|f| f.id == k.to_i }.name
+          errors.add :base, l(:error_invalid_ldap_attribute, field_name)
+        end
+      end
+    end
+
+    def validate_fields(fields_to_sync, fields, attrs)
+      return unless fields_to_sync.present?
+
+      fields_ids = fields.map {|f| f.respond_to?(:id) ? f.id.to_s : f }
+      if fields_to_sync.any? {|f| !f.in? fields_ids  }
+        errors.add(:user_group_fields, :invalid)
+      end
+      fields_to_sync.each do |f|
+        if f =~ /\A\d+\z/ && (attrs.blank? || attrs[f].blank?)
+          field_name = fields.find{|c| c.respond_to?(:id) && c.id.to_s == f}.name
+          errors.add :base, l(:error_must_have_ldap_attribute, field_name)
+        end
+      end
+    end
 
   private
 
     def strip_names
       LDAP_ATTRIBUTES.each { |a| @attributes[a].strip! unless @attributes[a].nil? }
+      CLASS_NAMES.each { |a| @attributes[a].strip! unless @attributes[a].nil? }
     end
 
     def attribute(attr)
@@ -175,7 +244,7 @@ class LdapSetting
     end
 
     def attribute?(attr)
-      [true, '1', 'yes'].include?(@attributes[attr])
+      @attributes[attr].in? true, '1', 'yes'
     end
 
     def has_attribute?(attr)

@@ -4,7 +4,8 @@ class LdapSettingTest < ActiveModel::TestCase
   include ActiveModel::Lint::Tests
 
   def setup
-    @model = LdapSetting.new
+  	@auth_source = auth_sources(:auth_sources_001)
+    @model = LdapSetting.find_by_auth_source_ldap_id(@auth_source.id)
   end
 
   # Replace this with your real tests.

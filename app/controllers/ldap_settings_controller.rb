@@ -3,12 +3,12 @@ class LdapSettingsController < ApplicationController
   menu_item :ldap_sync
 
   before_filter :require_admin
-  before_filter :find_ldap_setting, :only => [:edit, :test, :update, :enable, :disable]
+  before_filter :find_ldap_setting, :only => [:show, :edit, :update, :test, :enable, :disable]
+  before_filter :update_ldap_setting_from_params, :only => [:edit, :update, :test]
 
   # GET /ldap_settings
-  # GET /ldap_settings.json
   def index
-    @ldap_settings_pages, @ldap_settings = paginate LdapSetting, :per_page => 10
+    @ldap_settings = LdapSetting.all
 
     respond_to do |format|
       format.html # index.html.erb
@@ -22,10 +22,13 @@ class LdapSettingsController < ApplicationController
     end
   end
 
+  # GET /ldap_settings/1
+  def show
+    redirect_to edit_ldap_setting_path(@ldap_setting)
+  end
+
   # GET /ldap_settings/1/edit
   def edit
-    update_ldap_setting_from_params
-
     respond_to do |format|
       format.html # edit.html.erb
     end
@@ -59,33 +62,44 @@ class LdapSettingsController < ApplicationController
 
   # GET /ldap_settings/1/test
   def test
-    update_ldap_setting_from_params
-
+    # validates :groups_base_dn ---- find object on ldap
+    # validates :class_user ---- find this class on ldap
+    # validates :class_group ---- find this class on ldap
+    # validates :groupname ---- validate that a group has this attribute
+    # validates :member ---- validate that a group has this attribute
+    # validates :user_memberid ---- validate that a user has this attribute
+    # validates :user_groups ---- validate that a user has this attribute
+    # validates :groupid ---- validate that a group has this attribute
+    # validates :parent_group ---- valitade that a group has this attribute
+    # validates :group_parentid ---- valitade that a group has this attribute
+    # validates :member_group ---- valitade that a group has this attribute
+    # validates :group_memberid ---- valitade that a group has this attribute
   end
 
   # PUT /ldap_settings/1
-  # PUT /ldap_settings/1.json
   def update
-    update_ldap_setting_from_params
-
     respond_to do |format|
       if @ldap_setting.save
         format.html { flash[:notice] = l(:text_ldap_setting_successfully_updated); redirect_to_referer_or ldap_settings_path }
       else
-        format.html { render action: "edit" }
+        format.html { render :action => "edit" }
       end
     end
   end
 
   private
 
-  def update_ldap_setting_from_params
-    @ldap_setting.safe_attributes = params[:ldap_setting] if params[:ldap_setting]
-  end
+    def update_ldap_setting_from_params
+      %w(user group).each do |e|
+        params[:ldap_setting]["#{e}_fields_to_sync"] = params["#{e}_fields_to_sync"]
+        params[:ldap_setting]["#{e}_ldap_attrs"] = params["#{e}_ldap_attrs"]
+      end if params[:ldap_setting]
+      @ldap_setting.safe_attributes = params[:ldap_setting] if params[:ldap_setting]
+    end
 
-  def find_ldap_setting
-    @ldap_setting = LdapSetting.find_by_auth_source_ldap_id(params[:id])
-  rescue ActiveRecord::RecordNotFound
-    render_404
-  end
+    def find_ldap_setting
+      @ldap_setting = LdapSetting.find_by_auth_source_ldap_id(params[:id])
+    rescue ActiveRecord::RecordNotFound
+      render_404
+    end
 end

@@ -8,7 +8,8 @@
   <th><%=l(:field_nested_groups)%></th>
   <th><%=l(:field_create_groups)%></th>
   <th><%=l(:field_create_users)%></th>
-  <th><%=l(:field_sync_user_attributes)%></th>
+  <th><%=l(:field_sync_user_fields)%></th>
+  <th><%=l(:field_sync_group_fields)%></th>
   <th></th>
 </tr></thead>
 
@@ -19,7 +20,8 @@
     <td align="center"><%= checked_image config.nested_groups.present? %></td>
     <td align="center"><%= checked_image config.create_groups? %></td>
     <td align="center"><%= checked_image config.create_users? %></td>
-    <td align="center"><%= checked_image config.sync_user_attributes? %></td>
+    <td align="center"><%= checked_image config.sync_user_fields? %></td>
+    <td align="center"><%= checked_image config.sync_group_fields? %></td>
     <td class="buttons">
       <%= link_to l(:button_test), edit_ldap_setting_path(config, :tab => 'Test'), :class => 'icon icon-test' %>
       <%= change_status_link(config) %>
@@ -28,5 +30,3 @@
 <% end %>
 </table>
 </div>
-
-<p class="pagination"><%= pagination_links_full @ldap_settings_pages %></p>
