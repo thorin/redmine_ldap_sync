@@ -1,10 +1,4 @@
-* Redmine administrators group
 * Dynamic groups
-* Synchronization of group and user custom attributes
-* Detect authenticate as user (ldap_sync requires a ldap user)
-* Default values for users and groups' required attributes
 * LDAP sync test page
 * Better disable ldap synchronization image
-* Refactorization
-
-* Remove attribute Sync User Attributes (same as selecting any of the user fields)
+* Code cleaning

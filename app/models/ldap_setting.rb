@@ -90,11 +90,11 @@ class LdapSetting
   end
 
   def user_ldap_attrs_to_sync
-    user_fields_to_sync.map {|f| user_ldap_attrs[f] || send(f) }
+    (user_fields_to_sync||[]).map {|f| user_ldap_attrs[f] || send(f) }
   end
 
   def group_ldap_attrs_to_sync
-    group_fields_to_sync.map {|f| group_ldap_attrs[f] }
+    (group_fields_to_sync||[]).map {|f| group_ldap_attrs[f] }
   end
 
   def ldap_attributes(*names)
@@ -103,13 +103,13 @@ class LdapSetting
 
   def group_field(ldap_attr)
     ldap_attr = ldap_attr.to_s
-    group_ldap_attrs.find { |(k, v)| v.downcase == ldap_attr}.try(:first) 
+    group_ldap_attrs.find {|(k, v)| v.downcase == ldap_attr }.try(:first) 
   end
 
   def user_field(ldap_attr)
     ldap_attr = ldap_attr.to_s
-    result = @user_standard_ldap_attrs.invert[ldap_attr]
-    result ||= user_ldap_attrs.find { |(k, v)| v.downcase == ldap_attr}.try(:first) 
+    result = @user_standard_ldap_attrs.find {|(k, v)| v.downcase == ldap_attr }.try(:first)
+    result ||= user_ldap_attrs.find {|(k, v)| v.downcase == ldap_attr }.try(:first) 
   end
 
   def test
@@ -222,7 +222,7 @@ class LdapSetting
       end
       fields_to_sync.each do |f|
         if f =~ /\A\d+\z/ && (attrs.blank? || attrs[f].blank?)
-          field_name = fields.find{|c| c.respond_to?(:id) && c.id.to_s == f}.name
+          field_name = fields.find{|c| c.respond_to?(:id) && c.id.to_s == f }.name
           errors.add :base, l(:error_must_have_ldap_attribute, field_name)
         end
       end
@@ -231,8 +231,8 @@ class LdapSetting
   private
 
     def strip_names
-      LDAP_ATTRIBUTES.each { |a| @attributes[a].strip! unless @attributes[a].nil? }
-      CLASS_NAMES.each { |a| @attributes[a].strip! unless @attributes[a].nil? }
+      LDAP_ATTRIBUTES.each {|a| @attributes[a].strip! unless @attributes[a].nil? }
+      CLASS_NAMES.each {|a| @attributes[a].strip! unless @attributes[a].nil? }
     end
 
     def attribute(attr)

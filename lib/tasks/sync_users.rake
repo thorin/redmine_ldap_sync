@@ -6,10 +6,14 @@ namespace :redmine do
       task :sync_users => :environment do |t, args|
         init_task
 
-        $activate_users = !ENV['ACTIVATE_USERS'].nil?
+        AuthSourceLdap.activate_users! unless ENV['ACTIVATE_USERS'].nil?
         AuthSourceLdap.all.each do |as|
-          puts "Synchronizing AuthSource #{as.name} users..."
-          as.sync_users
+          unless as.connect_as_user? 
+            puts "Synchronizing '#{as.name}' users..."
+            as.sync_users
+          else
+            puts "Cannot synchronize '#{as.name}' groups: no account/password configured"
+          end
         end
       end
 
@@ -18,8 +22,12 @@ namespace :redmine do
         init_task
 
         AuthSourceLdap.all.each do |as|
-          puts "Synchronizing AuthSource #{as.name} groups..."
-          as.sync_groups
+          unless as.connect_as_user? 
+            puts "Synchronizing '#{as.name}' groups..."
+            as.sync_groups
+          else
+            puts "Cannot synchronize '#{as.name}' groups: no account/password configured"
+          end
         end
       end
 
@@ -27,7 +35,7 @@ namespace :redmine do
       task :sync_all => [:sync_groups, :sync_users]
 
       def init_task
-        $running_rake = true
+        AuthSourceLdap.running_rake!
 
         if defined?(ActiveRecord::Base)
           ActiveRecord::Base.logger = Logger.new(STDOUT)

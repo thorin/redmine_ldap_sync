@@ -1,4 +1,4 @@
-module LdapSync::Infectors::AuthSourceLdap module ClassMethods; end
+module LdapSync::Infectors::AuthSourceLdap
 
   module InstanceMethods
     public
@@ -73,44 +73,11 @@ module LdapSync::Infectors::AuthSourceLdap module ClassMethods; end
       end
     end
 
+    def connect_as_user?
+      self.account.include?('$login')
+    end
+
     private
-      def find_or_create_group(groupname, group_data = nil)
-        group = ::Group.where("LOWER(lastname) = ?", groupname.downcase).first
-        return group unless group.nil? && setting.create_groups?
-
-        group = ::Group.new(:lastname => groupname, :auth_source_id => self.id) do |g|
-          g.set_default_values
-          g.synced_fields = get_group_fields(groupname, group_data)
-        end
-
-        if group.save
-          return group, true
-        else
-          error "Could not create group '#{groupname}': \"#{group.errors.full_messages.join('", "')}\""; nil
-        end
-      end
-
-      def find_or_create_user(username)
-        user = ::User.where("LOWER(login) = ?", username.downcase).first
-        if user.present? && user.auth_source_id != self.id
-          trace "-- Skipping user '#{user.login}': it already exists on a different auth_source"
-          return nil
-        end
-        return user unless user.nil? && setting.create_users?
-
-        user = ::User.new do |u|
-          u.login = username
-          u.set_default_values
-          u.synced_fields = get_user_fields(username)
-        end
-
-        if user.save
-          return user, true
-        else
-          trace "-- Could not create user '#{user.login}': \"#{user.errors.full_messages.join('", "')}\""; nil
-        end
-      end
-
       def sync_user_groups(user)
         return unless setting.active?
 
@@ -119,7 +86,7 @@ module LdapSync::Infectors::AuthSourceLdap module ClassMethods; end
         end
 
         changes = groups_changes(user)
-        user.groups << changes[:added].map {|g| find_or_create_group(g) }.compact
+        user.groups << changes[:added].map {|g| find_or_create_group(g).first }.compact
 
         deleted = Group.where("LOWER(lastname) in (?)", changes[:deleted].to_a).all
         user.groups.delete(*deleted) unless deleted.blank?
@@ -143,11 +110,11 @@ module LdapSync::Infectors::AuthSourceLdap module ClassMethods; end
           if user.member_of_group?(setting.required_group)
             if user.locked?
               user.activate!
-              trace "   -> activated: is a member of group '#{setting.required_group}'"
+              trace "   -> activated: member of group '#{setting.required_group}'"
             end
           elsif user.active?
             user.lock!
-            trace "   -> locked: is not a member of group '#{setting.required_group}'"
+            trace "   -> locked: not member of group '#{setting.required_group}'"
           end
         elsif activate_users? && user.locked?
           user.activate!
@@ -161,12 +128,12 @@ module LdapSync::Infectors::AuthSourceLdap module ClassMethods; end
         if user.member_of_group?(setting.admin_group)
           unless user.admin?
             user.set_admin!
-            trace "   -> granted admin privileges: is a member of group '#{setting.admin_group}'"
+            trace "   -> granted admin privileges: member of group '#{setting.admin_group}'"
           end
         else
           if user.admin?
             user.unset_admin!
-            trace "   -> revoked admin privileges: is not a member of group '#{setting_group}'"
+            trace "   -> revoked admin privileges: not member of group '#{setting.admin_group}'"
           end
         end
       end
@@ -186,15 +153,59 @@ module LdapSync::Infectors::AuthSourceLdap module ClassMethods; end
           find_user(ldap, username, setting.user_ldap_attrs_to_sync)
         end        
 
-        user_data.each_with_object({}) {|(a, v), h| h[setting.user_field(a)] = v.first unless a == :dn }
+        user_data.each_with_object({}) do |(attr, value), fields| 
+          f = setting.user_field(attr)
+          fields[f] = value.first unless f.nil?
+        end
       end
 
       def get_group_fields(groupname, group_data = nil)
         group_data ||= with_ldap_connection do |ldap|
-          find_group(ldap, groupname, [attrs(:groupname), *setting.group_ldap_attrs_to_sync])
+          find_group(ldap, groupname, [n(:groupname), *setting.group_ldap_attrs_to_sync])
         end
 
-        group_data.each_with_object({}) {|(a, v), h| h[setting.group_field(a)] = v.first unless a == :dn }
+        group_data.each_with_object({}) do |(attr, value), fields| 
+          f = setting.group_field(attr)
+          fields[f] = value.first unless f.nil? 
+        end
+      end
+
+      def find_or_create_group(groupname, group_data = nil)
+        group = ::Group.where("LOWER(lastname) = ?", groupname.downcase).first
+        return group, false unless group.nil? && setting.create_groups?
+
+        group = ::Group.new(:lastname => groupname, :auth_source_id => self.id) do |g|
+          g.set_default_values
+          g.synced_fields = get_group_fields(groupname, group_data)
+        end
+
+        if group.save
+          return group, true
+        else
+          error "Could not create group '#{groupname}': \"#{group.errors.full_messages.join('", "')}\""
+          return nil, false
+        end
+      end
+
+      def find_or_create_user(username)
+        user = ::User.where("LOWER(login) = ?", username.downcase).first
+        if user.present? && user.auth_source_id != self.id
+          trace "-- Skipping user '#{user.login}': it already exists on a different auth_source"
+          return nil
+        end
+        return user unless user.nil? && setting.create_users?
+
+        user = ::User.new do |u|
+          u.login = username
+          u.set_default_values
+          u.synced_fields = get_user_fields(username)
+        end
+
+        if user.save
+          return user, true
+        else
+          trace "-- Could not create user '#{user.login}': \"#{user.errors.full_messages.join('", "')}\""; nil
+        end
       end
 
       def ldap_users
@@ -232,8 +243,8 @@ module LdapSync::Infectors::AuthSourceLdap module ClassMethods; end
           # Find which of the user's current groups are in ldap
           user_groups   = user.groups.select {|g| groupname_pattern =~ g.to_s}
           names_filter  = user_groups.map {|g| Net::LDAP::Filter.eq( setting.groupname, g.to_s )}.reduce(:|)
-          find_all_groups(ldap, names_filter, n(:groupname)) do |group|
-            changes[:deleted] << group.first
+          find_all_groups(ldap, names_filter, n(:groupname)) do |(group)|
+            changes[:deleted] << group
           end if names_filter
 
           case setting.group_membership
@@ -246,26 +257,28 @@ module LdapSync::Infectors::AuthSourceLdap module ClassMethods; end
 
             # Find the groups to which the user belongs to
             member_filter = Net::LDAP::Filter.eq( setting.member, user_dn )
-            find_all_groups(ldap, member_filter, n(:groupname)) do |(group,*_)|
-              changes[:added] << group if groupname_pattern =~ group
+            find_all_groups(ldap, member_filter, n(:groupname)) do |(group)|
+              changes[:added] << group
             end if user_dn
 
           else # 'on_members'
             groups_base_dn = setting.groups_base_dn
 
-            groups = find_user(ldap, user.login, n(:user_groups)).select {|(g,*_)| g.end_with?(groups_base_dn)}
+            groups = find_user(ldap, user.login, n(:user_groups)).select {|g| g.end_with?(groups_base_dn) }
 
             names_filter = groups.map{|g| Net::LDAP::Filter.eq( setting.groupid, g )}.reduce(:|)
-            find_all_groups(ldap, names_filter, n(:groupname)) do |(group,*_)|
-              changes[:added] << group if groupname_pattern =~ group
+            find_all_groups(ldap, names_filter, n(:groupname)) do |(group)|
+              changes[:added] << group
             end if names_filter
           end
 
           changes[:added] = changes[:added].inject(Set.new) do |closure, group|
             closure + closure_cache.fetch(group) do
-              get_group_closure(ldap, group).select { |g| groupname_pattern =~ g }
+              get_group_closure(ldap, group).select {|g| groupname_pattern =~ g }
             end
           end if setting.nested_groups_enabled?
+
+          changes[:added].delete_if {|group| groupname_pattern !~ group }
         end
 
         changes[:deleted] -= changes[:added]
@@ -274,7 +287,6 @@ module LdapSync::Infectors::AuthSourceLdap module ClassMethods; end
         changes
       ensure
         reset_parents_cache! unless running_rake?
-        #reset_ldap_settings! unless running_rake?
       end
 
       def get_group_closure(ldap, group, closure=Set.new)
@@ -422,14 +434,6 @@ module LdapSync::Infectors::AuthSourceLdap module ClassMethods; end
         word.present? ? "#{n} #{word}#{'s' if n != 1}" : n.to_s
       end
 
-      def activate_users?
-        defined?($activate_users) && $activate_users
-      end
-
-      def running_rake?
-        defined? $running_rake
-      end
-
       def groups_changes_summary(groups)
         return unless running_rake?
 
@@ -460,21 +464,38 @@ module LdapSync::Infectors::AuthSourceLdap module ClassMethods; end
 
         return yield thread[:local_ldap_con] if thread[:local_ldap_con].present?
 
-        login ||= self.account
-        password ||= self.account_password
-        ldap_con = initialize_ldap_con(self.account, self.account_password)
+        ldap_con = if self.account && self.account.include?('$login')
+          initialize_ldap_con(self.account.sub('$login', Net::LDAP::DN.escape(login)), password)
+        else
+          initialize_ldap_con(self.account, self.account_password)
+        end
+
         ldap_con.open do |ldap|
           yield thread[:local_ldap_con] = ldap
         end
       end
 
+      def activate_users?; self.activate_users; end
+      def running_rake?; self.running_rake; end
+  end
+
+  module ClassMethods
+    def activate_users!
+      self.activate_users = true
+    end
+
+    def running_rake!
+      self.running_rake = true
+    end
   end
 
   def self.included(receiver)
     receiver.extend(ClassMethods)
     receiver.send(:include, InstanceMethods)
-    receiver.class_eval do
+
+    receiver.instance_eval do
       delegate :has_fixed_group?, :fixed_group, :to => :setting, :allow_nil => true
+      cattr_accessor :activate_users, :running_rake
       unloadable
     end
   end
