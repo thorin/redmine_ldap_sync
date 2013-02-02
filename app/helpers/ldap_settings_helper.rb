@@ -34,21 +34,6 @@ module LdapSettingsHelper
     ]
   end
 
-  def multiselect(object, method, choices, options={})
-    values = object.send(method)
-    values = [] unless values.is_a?(Array)
-    field_name = "#{object.class.name.underscore}[#{method}][]"
-
-    content_tag("label", l(options[:label] || "field_" + method.to_s)) +
-      choices.collect do |choice|
-        text, value = (choice.is_a?(Array) ? choice : [l("field_#{choice}"), choice])
-        content_tag("label",
-          check_box_tag(field_name, value, values.include?(value), :id => nil) + text.to_s,
-          :class => (options[:inline] ? 'inline' : 'block')
-         )
-      end.join.html_safe
-  end
-
   def group_fields
     has_group_ldap_attrs = @ldap_setting.has_group_ldap_attrs?
 
@@ -70,7 +55,7 @@ module LdapSettingsHelper
     (User::STANDARD_FIELDS + UserCustomField.all).map do |f|
       id = f.is_a?(String) ? f : f.id
 
-      ldap_attribute = if f.is_a?(String) 
+      ldap_attribute = if f.is_a?(String)
         @ldap_setting.auth_source_ldap.send("attr_#{f}")
       else
         has_user_ldap_attrs ? @ldap_setting.user_ldap_attrs[id.to_s] : ''

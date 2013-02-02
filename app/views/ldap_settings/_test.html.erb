@@ -3,11 +3,14 @@
 <div class="box tabular settings">
   <%= labelled_fields_for f.object.test do |t| -%>
   <p><%= t.label :users %><%= t.text_field :users %>
-     <%= t.button l(:button_execute), :name => 'commit', :id => 'commit-test', :value => 'Test', :remote => true %></p>
+     <%= link_to l(:button_execute), { :action => 'test', :format => 'text' },
+          :remote => true,
+          :method => 'put',
+          :id => 'commit-test' %></p>
   <fieldset>
     <legend><%=l(:label_result)%></legend>
 
-    <pre>
+    <pre id="test-result">
       <%= t.object.result %>
     </pre>
   </fieldset>

@@ -4,6 +4,9 @@ module LdapSync::Infectors::AuthSourceLdap
     public
 
     def sync_groups
+      if connect_as_user?
+        trace "   -> Cannot synchronize: no account/password configured"; return
+      end
       unless setting.active?
         trace "   -> Ldap sync is disabled: skipping"; return
       end
@@ -12,13 +15,14 @@ module LdapSync::Infectors::AuthSourceLdap
       end
 
       with_ldap_connection do |ldap|
-        groupname_pattern   = /#{setting.groupname_pattern}/
+        groupname_pattern  = /#{setting.groupname_pattern}/
 
-        find_all_groups(ldap, nil, [n(:groupname), *setting.group_ldap_attrs.values]) do |group_data|
+        find_all_groups(ldap, nil, [n(:groupname), *setting.group_ldap_attrs_to_sync]) do |group_data|
           groupname = group_data[n(:groupname)].first
           next unless groupname_pattern =~ groupname
 
           group, is_new_group = find_or_create_group(groupname, group_data)
+          next if group.nil?
 
           trace "-- #{is_new_group ? 'Creating': 'Updating'} group '#{group.name}'..."
           sync_group_fields(group, group_data) unless is_new_group
@@ -27,9 +31,11 @@ module LdapSync::Infectors::AuthSourceLdap
     end
 
     def sync_users
+      if connect_as_user?
+        trace "   -> Cannot synchronize: no account/password configured"; return
+      end
       unless setting.active?
-        trace "   -> Ldap sync is disabled: skipping"
-        return
+        trace "   -> Ldap sync is disabled: skipping"; return
       end
 
       @closure_cache = new_memory_cache if setting.nested_groups_enabled?
@@ -62,19 +68,13 @@ module LdapSync::Infectors::AuthSourceLdap
         end
 
         sync_user_groups(user)
-
+        sync_user_status(user)
 
         return if user.locked?
 
-        if setting.has_admin_group?
-        end
         sync_admin_privilege(user)
         sync_user_fields(user) unless is_new_user
       end
-    end
-
-    def connect_as_user?
-      self.account.include?('$login')
     end
 
     private
@@ -151,9 +151,9 @@ module LdapSync::Infectors::AuthSourceLdap
       def get_user_fields(username)
         user_data = with_ldap_connection do |ldap|
           find_user(ldap, username, setting.user_ldap_attrs_to_sync)
-        end        
+        end
 
-        user_data.each_with_object({}) do |(attr, value), fields| 
+        user_data.each_with_object({}) do |(attr, value), fields|
           f = setting.user_field(attr)
           fields[f] = value.first unless f.nil?
         end
@@ -164,9 +164,9 @@ module LdapSync::Infectors::AuthSourceLdap
           find_group(ldap, groupname, [n(:groupname), *setting.group_ldap_attrs_to_sync])
         end
 
-        group_data.each_with_object({}) do |(attr, value), fields| 
+        group_data.each_with_object({}) do |(attr, value), fields|
           f = setting.group_field(attr)
-          fields[f] = value.first unless f.nil? 
+          fields[f] = value.first unless f.nil?
         end
       end
 
@@ -199,6 +199,7 @@ module LdapSync::Infectors::AuthSourceLdap
           u.login = username
           u.set_default_values
           u.synced_fields = get_user_fields(username)
+          u.auth_source_id = self.id
         end
 
         if user.save
@@ -225,7 +226,8 @@ module LdapSync::Infectors::AuthSourceLdap
               end
             end
           end
-          users[:disabled] += self.users.active.collect(&:login) - users.values.sum.to_a
+
+          users[:disabled] += self.users.active.map {|u| u.login.downcase } - users.values.flat_map {|l| l.map(&:downcase) }
 
           trace "-- Found #{users[:disabled].length + users[:enabled].length} users"
           @ldap_users = users
@@ -262,9 +264,9 @@ module LdapSync::Infectors::AuthSourceLdap
             end if user_dn
 
           else # 'on_members'
-            groups_base_dn = setting.groups_base_dn
+            groups_base_dn = setting.groups_base_dn.downcase
 
-            groups = find_user(ldap, user.login, n(:user_groups)).select {|g| g.end_with?(groups_base_dn) }
+            groups = find_user(ldap, user.login, n(:user_groups))
 
             names_filter = groups.map{|g| Net::LDAP::Filter.eq( setting.groupid, g )}.reduce(:|)
             find_all_groups(ldap, names_filter, n(:groupname)) do |(group)|
@@ -282,7 +284,8 @@ module LdapSync::Infectors::AuthSourceLdap
         end
 
         changes[:deleted] -= changes[:added]
-        changes[:added]   -= user.groups.collect(&:lastname)
+        user_groups = user.groups.map {|g| g.lastname.downcase }
+        changes[:added].delete_if {|group| user_groups.include?(group.downcase) }
 
         changes
       ensure
@@ -471,10 +474,15 @@ module LdapSync::Infectors::AuthSourceLdap
         end
 
         ldap_con.open do |ldap|
-          yield thread[:local_ldap_con] = ldap
+          begin
+            yield thread[:local_ldap_con] = ldap
+          ensure
+            thread[:local_ldap_con] = nil
+          end
         end
       end
 
+      def connect_as_user?; self.account.include?('$login'); end
       def activate_users?; self.activate_users; end
       def running_rake?; self.running_rake; end
   end

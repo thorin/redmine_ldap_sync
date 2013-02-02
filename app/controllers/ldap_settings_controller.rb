@@ -47,7 +47,7 @@ class LdapSettingsController < ApplicationController
     end
   end
 
-  # PUT /ldap_settings/1/disable
+  # PUT /ldap_settings/1/enable
   def enable
     @ldap_setting.active = true
 
@@ -62,18 +62,7 @@ class LdapSettingsController < ApplicationController
 
   # GET /ldap_settings/1/test
   def test
-    # validates :groups_base_dn ---- find object on ldap
-    # validates :class_user ---- find this class on ldap
-    # validates :class_group ---- find this class on ldap
-    # validates :groupname ---- validate that a group has this attribute
-    # validates :member ---- validate that a group has this attribute
-    # validates :user_memberid ---- validate that a user has this attribute
-    # validates :user_groups ---- validate that a user has this attribute
-    # validates :groupid ---- validate that a group has this attribute
-    # validates :parent_group ---- valitade that a group has this attribute
-    # validates :group_parentid ---- valitade that a group has this attribute
-    # validates :member_group ---- valitade that a group has this attribute
-    # validates :group_memberid ---- valitade that a group has this attribute
+    # Update @test with test message
   end
 
   # PUT /ldap_settings/1
@@ -82,7 +71,7 @@ class LdapSettingsController < ApplicationController
       if @ldap_setting.save
         format.html { flash[:notice] = l(:text_ldap_setting_successfully_updated); redirect_to_referer_or ldap_settings_path }
       else
-        format.html { render :action => "edit" }
+        format.html { render 'edit' }
       end
     end
   end
@@ -99,7 +88,6 @@ class LdapSettingsController < ApplicationController
 
     def find_ldap_setting
       @ldap_setting = LdapSetting.find_by_auth_source_ldap_id(params[:id])
-    rescue ActiveRecord::RecordNotFound
-      render_404
+      render_404 if @ldap_setting.nil?
     end
 end

@@ -1,5 +1,5 @@
 module LdapSync::DryRun::User
-  
+
   module ClassMethods
     def create(attributes)
       user = User.new(attributes)

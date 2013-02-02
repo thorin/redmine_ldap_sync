@@ -8,12 +8,8 @@ namespace :redmine do
 
         AuthSourceLdap.activate_users! unless ENV['ACTIVATE_USERS'].nil?
         AuthSourceLdap.all.each do |as|
-          unless as.connect_as_user? 
-            puts "Synchronizing '#{as.name}' users..."
-            as.sync_users
-          else
-            puts "Cannot synchronize '#{as.name}' groups: no account/password configured"
-          end
+          puts "Synchronizing '#{as.name}' users..."
+          as.sync_users
         end
       end
 
@@ -22,12 +18,8 @@ namespace :redmine do
         init_task
 
         AuthSourceLdap.all.each do |as|
-          unless as.connect_as_user? 
-            puts "Synchronizing '#{as.name}' groups..."
-            as.sync_groups
-          else
-            puts "Cannot synchronize '#{as.name}' groups: no account/password configured"
-          end
+          puts "Synchronizing '#{as.name}' groups..."
+          as.sync_groups
         end
       end
 

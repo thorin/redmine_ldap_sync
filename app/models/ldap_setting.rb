@@ -1,4 +1,4 @@
-class LdapSetting 
+class LdapSetting
   include Redmine::SafeAttributes
   include Redmine::I18n
 
@@ -16,7 +16,7 @@ class LdapSetting
   OTHERS = %w( account_disabled_test user_fields_to_sync group_fields_to_sync user_ldap_attrs group_ldap_attrs fixed_group admin_group required_group group_search_filter groupname_pattern groups_base_dn )
 
   validates_presence_of :auth_source_ldap_id
-  validates_presence_of :groups_base_dn, :class_user, :class_group, :groupname, :if => :active?
+  validates_presence_of :groups_base_dn, :class_user, :class_group, :groupname
   validates_presence_of :member, :user_memberid, :if => :membership_on_groups?
   validates_presence_of :user_groups, :groupid, :if => :membership_on_members?
   validates_presence_of :parent_group, :group_parentid, :if => :nested_on_members?
@@ -55,10 +55,6 @@ class LdapSetting
     return @active if defined? @active
 
     @active = active.in?(true, '1', 'yes')
-  end
-
-  def sync_user_attributes?
-    self.active? && sync_user_attributes.in?(true, '1', 'yes')
   end
 
   def nested_groups_enabled?
@@ -103,13 +99,13 @@ class LdapSetting
 
   def group_field(ldap_attr)
     ldap_attr = ldap_attr.to_s
-    group_ldap_attrs.find {|(k, v)| v.downcase == ldap_attr }.try(:first) 
+    group_ldap_attrs.find {|(k, v)| v.downcase == ldap_attr }.try(:first)
   end
 
   def user_field(ldap_attr)
     ldap_attr = ldap_attr.to_s
     result = @user_standard_ldap_attrs.find {|(k, v)| v.downcase == ldap_attr }.try(:first)
-    result ||= user_ldap_attrs.find {|(k, v)| v.downcase == ldap_attr }.try(:first) 
+    result ||= user_ldap_attrs.find {|(k, v)| v.downcase == ldap_attr }.try(:first)
   end
 
   def test
@@ -204,7 +200,7 @@ class LdapSetting
       field_ids = fields.map {|f| f.id.to_s }
       ldap_attrs.each do |k, v|
         if !k.in? field_ids
-          errors.add :user_group_fields, :invalid
+          errors.add :user_group_fields, :invalid unless errors.added? :user_group_fields, :invalid
 
         elsif v.present? && v !~ /\A[a-z][a-z0-9-]*\z/i
           field_name = fields.find {|f| f.id == k.to_i }.name
@@ -218,7 +214,7 @@ class LdapSetting
 
       fields_ids = fields.map {|f| f.respond_to?(:id) ? f.id.to_s : f }
       if fields_to_sync.any? {|f| !f.in? fields_ids  }
-        errors.add(:user_group_fields, :invalid)
+        errors.add(:user_group_fields, :invalid) unless errors.added? :user_group_fields, :invalid
       end
       fields_to_sync.each do |f|
         if f =~ /\A\d+\z/ && (attrs.blank? || attrs[f].blank?)

@@ -1,6 +1,6 @@
 resources :ldap_settings, :path => 'admin/ldap_sync', :only => [:show, :edit, :update, :index]  do
   member do
-    get 'test'
+    put 'test'
     put 'disable'
     put 'enable'
   end
