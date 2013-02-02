@@ -10,7 +10,7 @@ __Features__:
  * Detects and disables users that have been removed from LDAP.
  * Detects and disables users that have been marked as disabled on Active
  Directory (see [MS KB Article 305144][uacf] for more details).
- * Can detect and include nested groups. Upon login the nested groups are 
+ * Can detect and include nested groups. Upon login the nested groups are
  retrieve from disk cache. This cache will only be updated by running the rake
  task.
 
@@ -25,7 +25,7 @@ work with other directories.
 Installation & Upgrade
 ----------------------
 
-For both upgrade and installation please follow the plugin installation 
+For both upgrade and installation please follow the plugin installation
 procedure described at http://www.redmine.org/wiki/redmine/Plugins
 
 Usage
@@ -38,146 +38,107 @@ able to set for each LDAP authentication.
 
 **LDAP settings:**
 
-+ _Active_ - Enable/Disable user/group synchronization for this LDAP
-  authentication.
-+ _Group base DN_ - The path to where the groups located. Eg,
++ **Base settings** - Preloads the configuration with predefined settings.
++ **Group base DN** - The path to where the groups are located. Eg,
   `ou=people,dc=smokeyjoe,dc=com`.
-+ _Group name attribute (group)_ - The ldap attribute from where to fetch the
-  group's name. Eg, `sAMAccountName`.
-+ _Group membership_ - Specifies how to determine the user's group membership.
++ **Groups objectclass** - The groups object class.
++ **Users objectclass** - The users object class.
++ **Group name pattern** - (optional) An RegExp that should match up with the
+  name of the groups that should be imported. Eg, `\.team$`.
++ **Group search filter** - (optional) An LDAP search filter to be applied
+  whenever search for groups.
++ **Account disabled test** - A ruby boolean expression that should evaluate an
+  account's flags (the variable `flags`) and return `true` if the account is
+  disabled. Eg., `flags.to**i & 2 != 0` or flags.include? 'D'`.
++ **Group membership** - Specifies how to determine the user's group membership.
   The possible values are:
   - **On the group class**: membership determined from the list of users
     contained on the group.
   - **On the user class**: membership determined from the list of groups
     contained on the user.
-+ _Members attribute (group)_ - The ldap attribute from where to fetch the
++ **Enable nested groups** - Enables and specifies how to identify the groups
+  nesting. When enabled the plugin will look for the groups' parent groups, and
+  so on, and add those groups to the users. The possible values are:
+  - **Membership on the parent class** - group membership determined from the
+    list of groups contained on the parent group.
+  - **Membership on the member class** - group membership determined from the
+    list of groups contained on the member group.
+
+**LDAP attributes:**
++ **Group name (group)** - The ldap attribute from where to fetch the
+  group's name. Eg, `sAMAccountName`.
++ **Account flags (user)** - The ldap attribute containing the account disabled
+  flag. Eg., `userAccountControl`.
++ **Members (group)** - The ldap attribute from where to fetch the
   group's members. Visible if the group membership is __on the group class__.
   Eg, `member`.
-+ _Memberid attribute (user)_ - The ldap attribute from where to fetch the
++ **Memberid (user)** - The ldap attribute from where to fetch the
   user's memberid. This attribute must match with the __members attribute__.
   Visible if the group membership is __on the group class__. Eg, `dn`.
-+ _Groups attribute (user)_ - The ldap attribute from where to fetch the user's
++ **Groups (user)** - The ldap attribute from where to fetch the user's
   groups. Visible if the group membership is __on the user class__. Eg,
   `memberof`.
-+ _Groupid attribute (group)_ - The ldap attribute from where to fetch the
++ **Groupid (group)** - The ldap attribute from where to fetch the
   group's groupid. This attribute must match with the __groups attribute__.
   Visible if the group membership is __on the user class__. Eg,
   `distinguishedName`.
-+ _Groups objectclass_ - The groups object class.
-+ _Users objectclass_ - The users object class.
-+ _Group name pattern_ - (optional) An RegExp that should match up with the name
-  of the groups that should be imported. Eg, `\.team$`.
-+ _Group search filter_ - (optional) An LDAP search filter to be applied
-  whenever search for groups.
-+ _Enable nested groups_ - Enables and specifies how to identify the groups 
-nesting. When enabled the plugin will look for the groups' parent groups, and
-so on, and add those groups to the users.
-  - **Membership on the parent class** - group membership determined from the 
-    list of groups contained on the parent group.
-  - **Membership on the member class** - group membership determined from the 
-    list of groups contained on the member group.
-+ _Member groups attribute (group)_ - The ldap attribute from where to fetch the
-group's member groups. Visible if the nested groups __membership is on the 
-parent class__. Eg, `member`.
-+ _Parent groups attribute (group)_ - The ldap attribute from where to fetch the
-group's parent groups. Visible if the nested groups __membership is on the 
-member class__. Eg, `memberOf`.
-+ _Memberid attribute (group)_ - The ldap attribute from where to fetch the 
-member group's memberid. This attribute must match with the __member groups 
-attribute__. Eg, `distinguishedName`.
-+ _Parentid attribute (group)_ - The ldap attribute from where to fetch the 
-parent group's id. This attribute must match with the __parent groups 
-attribute__. Eg, `distinguishedName`.
-+ _Account flags (user)_ - The ldap attribute containing the account disabled
-flag. Eg., `userAccountControl`.
-+ _Account disabled test_ - A ruby boolean expression that should evaluate an
-account's flags (the variable `flags`) and return `true` if the account is 
-disabled. Eg., `flags.to_i & 2 != 0` or flags.include? 'D'`.
++ **Member groups (group)** - The ldap attribute from where to fetch the
+  group's member groups. Visible if the nested groups __membership is on the
+  parent class__. Eg, `member`.
++ **Memberid attribute (group)** - The ldap attribute from where to fetch the
+  member group's memberid. This attribute must match with the __member groups
+  attribute__. Eg, `distinguishedName`.
++ **Parent groups (group)** - The ldap attribute from where to fetch
+  the group's parent groups. Visible if the nested groups __membership is on
+  the member class__. Eg, `memberOf`.
++ **Parentid attribute (group)** - The ldap attribute from where to fetch the
+  parent group's id. This attribute must match with the __parent groups
+  attribute__. Eg, `distinguishedName`.
 
-**Synchronization Actions:**
+**Synchronization actions:**
 
-+ _Users must be members of_ - (optional) A group to wich the users must belong
-  to to have access enabled to redmine.
-+ _Add users to group_ - (optional) A group to wich all the users created from
-  this LDAP authentication will added upon creation. The group should not exist
- on LDAP.
-+ _Create new groups_ - If enabled, groups that don't already exist on redmine
-  will be created.
-+ _Create new users_ - If enabled, users that don't already exist on redmine
++ **Users must be members of** - (optional) A group to wich the users must
+  belong to to have access enabled to redmine.
++ Administrators group** - (optional) All members of this group will become
+  redmine administrators.
++ **Add users to group** - (optional) A group to wich all the users created
+  from this LDAP authentication will added upon creation. This group should not
+  exist on LDAP.
++ **Create new groups** - If enabled, groups that don't already exist on
+  redmine will be created.
++ **Create new users** - If enabled, users that don't already exist on redmine
   will be created when running the rake task.
-+ _Sync users attributes_ - If enabled, the selected attributes will
-  synchronized both on the rake tasks and after every login.
-+ _Attributes to be synced_ - The attributes to be synchronized: "First name",
-  "Last name" and/or "Email"
++ **User/Group fields:**
+  - **Synchronize** - If enabled, the selected attribute will be synchronized
+    both on the rake tasks and after every login.
+  - **LDAP attribute** - The ldap attribute to be used as reference on the
+    synchronization.
+  - **Default value** - Shows the value that will be used as default.
 
-### Full user/group synchronization with rake
+### Rake tasks
 
-To do the full user synchronization execute the following:
+The following tasks are available:
 
-    rake redmine:plugins:redmine_ldap_sync:sync_users RAILS_ENV=production
+    # rake -T redmine:plugins:ldap_sync
+    rake redmine:plugins:ldap_sync:sync_all     # Synchronize both redmine's users and groups with LDAP
+    rake redmine:plugins:ldap_sync:sync_groups  # Synchronize redmine's groups fields with those on LDAP
+    rake redmine:plugins:ldap_sync:sync_users   # Synchronize redmine's users fields and groups with those on LDAP
 
-
-An alternative is to do it periodically with a cron task:
+This tasks can be used to do periodic synchronization.
+For example:
 
     # Synchronize users with ldap @ every 60 minutes
-    35 *            * * *   root /usr/bin/rake -f /opt/redmine/Rakefile --silent redmine:plugins:redmine_ldap_sync:sync_users RAILS_ENV=production 2>&- 1>&-
+    35 *            * * *   root /usr/bin/rake -f /opt/redmine/Rakefile --silent redmine:plugins:ldap_sync:sync_users RAILS_ENV=production 2>&- 1>&-
 
-LDAP Configuration Examples
----------------------------
-### Active Directory
-+ _Users objectclass_ = user
-+ _Groups objectclass_ = group
-+ _Account disabled test_ = flags.to_i & 2 != 0
-+ _Group membership_ = on the group class | on the user class
-+ _Nested groups_ = membership on the parent class | membership on the member class
-+ _Group name (group)_ = sAMAccountName
-+ _Account control flags (user)_ = userAccountControl
-+ _Member users (group)_ = member
-+ _Memberid (user)_ = dn
-+ _Groups (user)_ = memberof
-+ _Groupid (group)_ = distinguishedName
-+ _Member groups (group)_ - member
-+ _Memberid (group)_ - distinguishedName
-+ _Parent groups (group)_ - memberof
-+ _Parentid (group)_ - distinguishedName
+The tasks recognize two environment variables:
++ **DRY_RUN** - Performs a run without changing the database.
++ **ACTIVATE_USERS** - Activates users if they're active on LDAP.
 
-### OpenDS
-+ _Users objectclass_ = person
-+ _Groups objectclass_ = groupOfUniqueNames
-+ _Group membership_ = on the user class
-+ _Nested groups_ = disabled
-+ _Group name (group)_ = cn
-+ _Groups (user)_ = isMemberOf
-+ _Groupid (group)_ = entryDN
+### Base settings
 
-### Lotus Notes LDAP (tested against Lotus Notes 8.5.2)
-+ _Users objectclass_ = dominoPerson
-+ _Groups objectclass_ = dominoGroup
-+ _Group membership_ = on the group class
-+ _Nested groups_ = disabled
-+ _Group name (group)_ = cn
-+ _Members (group)_ = member
-+ _Memberid (user)_ = dn
-
-### Open LDAP (with posixGroups)
-+ _Users objectclass_ = person
-+ _Groups objectclass_ = posixGroup
-+ _Group membership_ = on the group class
-+ _Nested groups_ = disabled
-+ _Group name (group)_ = cn
-+ _Members (group)_ = member
-+ _Memberid (user)_ = dn
-
-### Samba LDAP
-+ _Users objectclass_ = sambaSamAccount
-+ _Groups objectclass_ = sambaGroupMapping
-+ _Account disabled test_ = flags.include? 'D'
-+ _Group membership_ = on the group class 
-+ _Nested groups_ = disabled
-+ _Group name (group)_ = cn
-+ _Account control flags (user)_ = sambaAcctFlags
-+ _Members (group)_ = member
-+ _Memberid (user)_ = dn
+The base settings read from the plain YAML file `config/base_settings.yml`.
+Please be aware that those settings weren't tested and may not work.
+Saying so, I'll need your help to make these settings more accurate.
 
 License
 -------
