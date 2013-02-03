@@ -40,9 +40,9 @@ es:
   field_groupid: "Groupid (grupo)"
   field_account_flags: "Indicadores de cuenta (usuario)"
 
-  field_required_group: "Usuarios deben ser miembros del grupo"
+  field_required_group: "Bloquear si no pertenece al grupo"
   field_admin_group: "Administradores son miembros del grupo"
-  field_fixed_group: "Añadir usuarios al grupo"
+  field_fixed_group: "Añadir nuevos usuarios al grupo"
 
   field_user_group_fields: "Campos usuario/grupo"
   field_firstname: "Nombre"
