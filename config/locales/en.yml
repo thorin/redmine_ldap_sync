@@ -11,6 +11,8 @@ en:
 
   button_test: "Test"
   button_execute: "Execute"
+  button_enable: "Enable"
+  button_disable: "Disable"
 
   field_nested_groups: "Nested groups"
   field_create_groups: "Create groups"
@@ -60,4 +62,4 @@ en:
   option_custom: "Customized"
 
   error_invalid_ldap_attribute: "%{value} has an invalid LDAP attribute"
-  error_must_have_ldap_attribute: "%{value} must have an LDAP attribute to be synchronized"
+  error_must_have_ldap_attribute: "%{value} must have an LDAP attribute for it to be synchronized"

@@ -34,7 +34,7 @@ namespace :redmine do
           ActiveRecord::Base.logger.level = Logger::WARN
         end
 
-        if ENV['DRY_RUN'].present?
+        unless ENV['DRY_RUN'].nil?
           puts "\n!!! Dry-run execution !!!\n"
 
           User.send :include, LdapSync::DryRun::User
