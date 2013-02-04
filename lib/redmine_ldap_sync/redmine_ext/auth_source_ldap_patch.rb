@@ -28,7 +28,7 @@ module RedmineLdapSync
               end
             end.compact
 
-            deleted = Group.where("LOWER(lastname) in (?)", changes[:deleted].to_a).all
+            deleted = Group.where("LOWER(lastname) in (?)", changes[:deleted].map(&:downcase)).all
             user.groups.delete(*deleted) unless deleted.nil?
 
             changes
