@@ -15,7 +15,9 @@ module RedmineLdapSync
             changes = groups_changes(user)
             user.groups << changes[:added].map do |groupname|
               if create_groups?
-                group = Group.find_or_create_by_lastname(groupname, :auth_source_id => self.id)
+                group = Group.where("LOWER(lastname) = ?", groupname.downcase).first
+
+                group ||= Group.create(groupname, :auth_source_id => self.id)
                 if group.valid?
                   group
                 else
@@ -26,7 +28,7 @@ module RedmineLdapSync
               end
             end.compact
 
-            deleted = Group.find_all_by_lastname(changes[:deleted].to_a)
+            deleted = Group.where("LOWER(lastname) in (?)", changes[:deleted].to_a).all
             user.groups.delete(*deleted) unless deleted.nil?
 
             changes
@@ -39,7 +41,7 @@ module RedmineLdapSync
             @closure_cache = new_memory_cache if nested_groups_enabled?
 
             ldap_users[:disabled].each do |login|
-              user = User.find_by_login_and_auth_source_id(login, self.id)
+              user = User.where("LOWER(login) = ? AND auth_source_id = ?", login.downcase, self.id).first
 
               if user.present? && user.active?
                 user.lock!
@@ -51,7 +53,7 @@ module RedmineLdapSync
 
             ldap_users[:enabled].each do |login|
               user_is_fresh = false
-              user = User.find_by_login(login)
+              user = User.where("LOWER(login) = ?", login.downcase).first
 
               user = User.create(get_user_dn(login, '').except(:dn)) do |u|
                 u.login = login
@@ -142,7 +144,9 @@ module RedmineLdapSync
               end
             end
 
-            users[:disabled] += self.users.active.collect(&:login) - users.values.sum.to_a
+            users_on_local    = self.users.active.map {|u| u.login.downcase }
+            users_on_ldap     = users.values.flat_map {|l| l.map(&:downcase) }
+            users[:disabled]  += users_on_local - users_on_ldap
 
             @ldap_users = users
           end
@@ -195,7 +199,8 @@ module RedmineLdapSync
             end
 
             changes[:deleted] -= changes[:added]
-            changes[:added]   -= user.groups.collect(&:lastname)
+            user_groups = user.groups.map {|g| g.lastname.downcase }
+            changes[:added].delete_if {|group| user_groups.include?(group.downcase) }
 
             changes
           ensure
