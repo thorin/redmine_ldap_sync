@@ -88,7 +88,7 @@ module LdapSync::Infectors::AuthSourceLdap
         changes = groups_changes(user)
         user.groups << changes[:added].map {|g| find_or_create_group(g).first }.compact
 
-        deleted = Group.where("LOWER(lastname) in (?)", changes[:deleted].to_a).all
+        deleted = ::Group.where("LOWER(lastname) in (?)", changes[:deleted].to_a).all
         user.groups.delete(*deleted) unless deleted.blank?
 
         trace groups_changes_summary(changes)
@@ -227,7 +227,9 @@ module LdapSync::Infectors::AuthSourceLdap
             end
           end
 
-          users[:disabled] += self.users.active.map {|u| u.login.downcase } - users.values.flat_map {|l| l.map(&:downcase) }
+          users_on_local = self.users.active.map {|u| u.login.downcase }
+          users_on_ldap = users.values.flat_map {|l| l.map(&:downcase) }
+          users[:disabled] += users_on_local - users_on_ldap
 
           trace "-- Found #{users[:disabled].length + users[:enabled].length} users"
           @ldap_users = users
@@ -264,8 +266,6 @@ module LdapSync::Infectors::AuthSourceLdap
             end if user_dn
 
           else # 'on_members'
-            groups_base_dn = setting.groups_base_dn.downcase
-
             groups = find_user(ldap, user.login, n(:user_groups))
 
             names_filter = groups.map{|g| Net::LDAP::Filter.eq( setting.groupid, g )}.reduce(:|)
@@ -279,6 +279,7 @@ module LdapSync::Infectors::AuthSourceLdap
               get_group_closure(ldap, group).select {|g| groupname_pattern =~ g }
             end
           end if setting.nested_groups_enabled?
+          # changes[:added] += get_dynamic_groups(user_dn) if setting.has_dynamic_groups?
 
           changes[:added].delete_if {|group| groupname_pattern !~ group }
         end
