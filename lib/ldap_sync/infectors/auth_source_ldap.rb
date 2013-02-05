@@ -88,8 +88,8 @@ module LdapSync::Infectors::AuthSourceLdap
         changes = groups_changes(user)
         user.groups << changes[:added].map {|g| find_or_create_group(g).first }.compact
 
-        deleted = ::Group.where("LOWER(lastname) in (?)", changes[:deleted].to_a).all
-        user.groups.delete(*deleted) unless deleted.blank?
+        deleted = ::Group.where("LOWER(lastname) in (?)", changes[:deleted].map(&:downcase)).all
+        user.groups.delete(*deleted) if deleted.present?
 
         trace groups_changes_summary(changes)
       end

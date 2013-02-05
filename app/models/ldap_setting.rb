@@ -31,7 +31,7 @@ class LdapSetting
   validate :validate_user_fields_to_sync, :validate_user_ldap_attrs
   validate :validate_group_fields_to_sync, :validate_group_ldap_attrs
 
-  before_validation :strip_names
+  before_validation :strip_names, :set_ldap_attrs, :set_fields_to_sync
 
   # after_save :validate_auth_ldap_id (if account.include? "$login" :cannot_sync_users_and_groups )
 
@@ -195,7 +195,9 @@ class LdapSetting
     end
 
     def validate_ldap_attrs(ldap_attrs, fields)
-      return unless ldap_attrs.present?
+      if ldap_attrs.nil?
+        errors.add(:user_group_fields, :invalid); return
+      end
 
       field_ids = fields.map {|f| f.id.to_s }
       ldap_attrs.each do |k, v|
@@ -210,7 +212,9 @@ class LdapSetting
     end
 
     def validate_fields(fields_to_sync, fields, attrs)
-      return unless fields_to_sync.present?
+      if fields_to_sync.nil?
+        errors.add(:user_group_fields, :invalid); return
+      end
 
       fields_ids = fields.map {|f| f.respond_to?(:id) ? f.id.to_s : f }
       if fields_to_sync.any? {|f| !f.in? fields_ids  }
@@ -225,6 +229,16 @@ class LdapSetting
     end
 
   private
+
+    def set_fields_to_sync
+      self.user_fields_to_sync ||= []
+      self.group_fields_to_sync ||= []
+    end
+
+    def set_ldap_attrs
+      self.user_ldap_attrs ||= {}
+      self.group_ldap_attrs ||= {}
+    end
 
     def strip_names
       LDAP_ATTRIBUTES.each {|a| @attributes[a].strip! unless @attributes[a].nil? }

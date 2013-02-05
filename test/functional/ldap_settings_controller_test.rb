@@ -13,6 +13,11 @@ class LdapSettingsControllerTest < ActionController::TestCase
     get :index
     assert_response :success
     assert_not_nil assigns(:ldap_settings)
+
+    assert_select "table tr", 3
+    assert_select "a:content(LDAP test server)", 1
+    assert_select "td:content(127.0.0.1)", 1
+    assert_select "td:content(127.0.0.2)", 1
   end
 
   def test_should_get_base_settings_js

@@ -1,7 +1,7 @@
 require File.expand_path('../../test_helper', __FILE__)
 
 class AuthSourceLdapTest < ActiveSupport::TestCase
-  fixtures :auth_sources, :users, :settings, :custom_fields
+  fixtures :auth_sources, :users, :groups_users, :settings, :custom_fields
 
   setup do
     Setting.clear_cache
@@ -81,6 +81,25 @@ class AuthSourceLdapTest < ActiveSupport::TestCase
       assert_equal user_count + 6, User.count, "User.count"
       assert_equal group_count + 8, Group.count, "Group.count"
       assert_equal custom_value_count + 22, CustomValue.count, "CustomValue.count"
+    end
+
+    should "create users and groups without sync attrs" do
+      CustomField.delete_all
+      @ldap_setting.user_fields_to_sync = nil
+      @ldap_setting.group_fields_to_sync = nil
+      @ldap_setting.user_ldap_attrs = nil
+      @ldap_setting.group_ldap_attrs = nil
+      assert @ldap_setting.save
+      puts @ldap_setting.errors.messages.inspect
+      Setting.clear_cache
+
+      user_count = User.count
+      group_count = Group.count
+
+      @auth_source.sync_users
+
+      assert_equal user_count + 6, User.count, "User.count"
+      assert_equal group_count + 8, Group.count, "Group.count"
     end
 
     should "not sync users when disabled" do
@@ -188,7 +207,7 @@ class AuthSourceLdapTest < ActiveSupport::TestCase
 
   context "#sync_user" do
     setup do
-      @user = User.find_by_login 'loadgeek'
+      @user = users(:loadgeek)
     end
     should "not sync fields with no attrs to sync" do
       @ldap_setting.user_fields_to_sync = []
@@ -201,6 +220,15 @@ class AuthSourceLdapTest < ActiveSupport::TestCase
       assert_equal @user.lastname, 'Misc'
       assert_equal @user.custom_field_values[0].value, nil
       assert_equal @user.custom_field_values[1].value, nil
+    end
+
+    should "delete groups" do
+      assert_include 'rynever', @user.groups.map(&:name)
+
+      @auth_source.sync_user(@user)
+
+      @user.reload
+      assert_not_include 'rynever', @user.groups.map(&:name)
     end
 
     should "not create groups without create groups" do
@@ -275,10 +303,11 @@ class AuthSourceLdapTest < ActiveSupport::TestCase
       @ldap_setting.save
       @user.lock!
 
+      groups_before = @user.groups
       @auth_source.sync_user(@user)
       assert_equal 'miscuser8@foo.bar', @user.mail
       assert_false @user.admin?
-      assert_empty @user.groups
+      assert_equal groups_before, @user.groups
     end
 
     should "add to fixed group" do
@@ -345,12 +374,10 @@ class AuthSourceLdapTest < ActiveSupport::TestCase
     end
 
     should "synchronize existing users" do
-      assert_not_nil user = User.find_by_login('loadgeek')
+      assert_not_nil user = users(:loadgeek)
       assert_equal 'miscuser8@foo.bar', user.mail
 
-      user = User.try_to_login('loadgeek', 'password')
-
-      assert_not_nil user = User.find_by_login('loadgeek')
+      assert_not_nil user = User.try_to_login('loadgeek', 'password')
 
       user_groups = Set.new(user.groups.map(&:name))
       assert_equal Set.new(%w(therss ldap.users Bluil Issekin Iardum)), user_groups
