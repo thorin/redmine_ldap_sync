@@ -247,8 +247,8 @@ module LdapSync::Infectors::AuthSourceLdap
           # Find which of the user's current groups are in ldap
           user_groups   = user.groups.select {|g| groupname_pattern =~ g.to_s}
           names_filter  = user_groups.map {|g| Net::LDAP::Filter.eq( setting.groupname, g.to_s )}.reduce(:|)
-          find_all_groups(ldap, names_filter, n(:groupname)) do |(group)|
-            changes[:deleted] << group
+          find_all_groups(ldap, names_filter, n(:groupname)) do |group|
+            changes[:deleted] << group.first
           end if names_filter
 
           case setting.group_membership
@@ -261,16 +261,16 @@ module LdapSync::Infectors::AuthSourceLdap
 
             # Find the groups to which the user belongs to
             member_filter = Net::LDAP::Filter.eq( setting.member, user_dn )
-            find_all_groups(ldap, member_filter, n(:groupname)) do |(group)|
-              changes[:added] << group
+            find_all_groups(ldap, member_filter, n(:groupname)) do |group|
+              changes[:added] << group.first
             end if user_dn
 
           else # 'on_members'
             groups = find_user(ldap, user.login, n(:user_groups))
 
             names_filter = groups.map{|g| Net::LDAP::Filter.eq( setting.groupid, g )}.reduce(:|)
-            find_all_groups(ldap, names_filter, n(:groupname)) do |(group)|
-              changes[:added] << group
+            find_all_groups(ldap, names_filter, n(:groupname)) do |group|
+              changes[:added] << group.first
             end if names_filter
           end
 
