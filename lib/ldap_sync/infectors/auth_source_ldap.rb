@@ -153,9 +153,10 @@ module LdapSync::Infectors::AuthSourceLdap
           find_user(ldap, username, setting.user_ldap_attrs_to_sync)
         end
 
-        user_data.each_with_object({}) do |(attr, value), fields|
+        user_data.inject({}) do |fields, (attr, value)|
           f = setting.user_field(attr)
           fields[f] = value.first unless f.nil?
+          fields
         end
       end
 
@@ -164,9 +165,10 @@ module LdapSync::Infectors::AuthSourceLdap
           find_group(ldap, groupname, [n(:groupname), *setting.group_ldap_attrs_to_sync])
         end
 
-        group_data.each_with_object({}) do |(attr, value), fields|
+        group_data.inject({}) do |fields, (attr, value)|
           f = setting.group_field(attr)
           fields[f] = value.first unless f.nil?
+          fields
         end
       end
 
