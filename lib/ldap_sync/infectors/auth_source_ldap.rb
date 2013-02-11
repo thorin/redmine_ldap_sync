@@ -228,7 +228,7 @@ module LdapSync::Infectors::AuthSourceLdap
           end
 
           users_on_local = self.users.active.map {|u| u.login.downcase }
-          users_on_ldap = users.values.flat_map {|l| l.map(&:downcase) }
+          users_on_ldap = users.values.sum.map(&:downcase)
           users[:disabled] += users_on_local - users_on_ldap
 
           trace "-- Found #{users[:disabled].length + users[:enabled].length} users"
