@@ -16,7 +16,7 @@
   <fieldset class="box" id="ldap_attributes">
     <legend><%=l(:label_attribute_plural)%></legend>
 
-    <p><%= f.text_field :groupname, :default => 'dn', :required => true, :size => 15 %></p>
+    <p><%= f.text_field :groupname, :default => 'samaccountname', :required => true, :size => 15 %></p>
     <p><%= f.text_field :account_flags, :default => 'useraccountcontrol', :size => 15 %></p>
 
     <div class="membership on_groups" style="display:none;">
