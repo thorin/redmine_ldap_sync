@@ -25,7 +25,7 @@ class LdapSetting
   validates_inclusion_of :nested_groups, :in => ['on_members', 'on_parents', '']
   validates_inclusion_of :group_membership, :in => ['on_groups', 'on_members']
 
-  validates_format_of *LDAP_ATTRIBUTES, :with => /\A[a-z][a-z0-9-]*\z/i, :allow_blank => true
+  validates_format_of *(LDAP_ATTRIBUTES + [{:with => /\A[a-z][a-z0-9-]*\z/i, :allow_blank => true}])
 
   validate :validate_group_filter
   validate :validate_user_fields_to_sync, :validate_user_ldap_attrs
@@ -38,7 +38,7 @@ class LdapSetting
   attribute_method_affix :prefix => 'has_', :suffix => '?'
   attribute_method_suffix '?', '='
 
-  safe_attributes *LDAP_ATTRIBUTES, *CLASS_NAMES, *FLAGS, *COMBOS, *OTHERS
+  safe_attributes *(LDAP_ATTRIBUTES + CLASS_NAMES + FLAGS + COMBOS + OTHERS)
   define_attribute_methods LDAP_ATTRIBUTES + CLASS_NAMES + FLAGS + COMBOS + OTHERS
 
   [:login, *User::STANDARD_FIELDS].each {|f| module_eval("def #{f}; auth_source_ldap.attr_#{f}; end") }
@@ -216,13 +216,13 @@ class LdapSetting
         errors.add(:user_group_fields, :invalid); return
       end
 
-      fields_ids = fields.map {|f| f.respond_to?(:id) ? f.id.to_s : f }
+      fields_ids = fields.map {|f| f.is_a?(String) ? f : f.id.to_s }
       if fields_to_sync.any? {|f| !f.in? fields_ids  }
         errors.add(:user_group_fields, :invalid) unless errors.added? :user_group_fields, :invalid
       end
       fields_to_sync.each do |f|
         if f =~ /\A\d+\z/ && (attrs.blank? || attrs[f].blank?)
-          field_name = fields.find{|c| c.respond_to?(:id) && c.id.to_s == f }.name
+          field_name = fields.find{|c| !c.is_a?(String) && c.id.to_s == f }.name
           errors.add :base, l(:error_must_have_ldap_attribute, field_name)
         end
       end
