@@ -5,9 +5,9 @@ module LdapSettingsHelper
 
   def change_status_link(config)
     if config.active?
-      link_to l(:button_disable), disable_ldap_setting_path(config), method: :put, :class => 'icon icon-disable'
+      link_to l(:button_disable), disable_ldap_setting_path(config), :method => :put, :class => 'icon icon-disable'
     else
-      link_to l(:button_enable), enable_ldap_setting_path(config), method: :put, :class => 'icon icon-enable'
+      link_to l(:button_enable), enable_ldap_setting_path(config), :method => :put, :class => 'icon icon-enable'
     end
   end
 
