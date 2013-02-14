@@ -130,7 +130,7 @@ module RedmineLdapSync
             return @ldap_users if @ldap_users
 
             ldap_con = initialize_ldap_con(self.account, self.account_password)
-            users = {:enabled => [], :disabled => []}
+            users = {:enabled => Set.new, :disabled => Set.new}
 
             if settings[:account_flags].blank?
               users[:enabled] = find_all_users(ldap_con, [:login])
