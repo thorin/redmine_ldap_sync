@@ -11,7 +11,7 @@ Redmine::Plugin.register :redmine_ldap_sync do
   version '1.3.0'
   requires_redmine :version_or_higher => '2.0.0'
 
-  
+
   settings :default => HashWithIndifferentAccess.new(), :partial => 'settings/ldap_sync_settings'
 end
 
@@ -29,5 +29,8 @@ RedmineApp::Application.config.after_initialize do
   end
   unless ActiveSupport::Cache::FileStore.include? RedmineLdapSync::CoreExt::FileStorePatch
     ActiveSupport::Cache::FileStore.send(:include, RedmineLdapSync::CoreExt::FileStorePatch)
+  end
+  unless String.include? RedmineLdapSync::CoreExt::StringPatch
+    String.send(:include, RedmineLdapSync::CoreExt::StringPatch)
   end
 end
