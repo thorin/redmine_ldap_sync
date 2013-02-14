@@ -130,25 +130,25 @@ module RedmineLdapSync
             return @ldap_users if @ldap_users
 
             ldap_con = initialize_ldap_con(self.account, self.account_password)
-            users = {:enabled => Set.new, :disabled => Set.new}
+            changes = {:enabled => Set.new, :disabled => Set.new}
 
             if settings[:account_flags].blank?
-              users[:enabled] = find_all_users(ldap_con, [:login])
+              changes[:enabled] = find_all_users(ldap_con, [:login])
             else
               find_all_users(ldap_con, [:login, :account_flags]) do |entry|
                 if account_disabled?(entry[:account_flags])
-                  users[:disabled] << entry[:login]
+                  changes[:disabled] << entry[:login]
                 else
-                  users[:enabled] << entry[:login]
+                  changes[:enabled] << entry[:login]
                 end
               end
             end
 
             users_on_local    = self.users.active.map {|u| u.login.downcase }
-            users_on_ldap     = users.values.sum.map(&:downcase)
-            users[:disabled]  += users_on_local - users_on_ldap
+            users_on_ldap     = changes.values.sum.map(&:downcase)
+            changes[:disabled]  += users_on_local - users_on_ldap
 
-            @ldap_users = users
+            @ldap_users = changes
           end
 
           def groups_changes(user)
