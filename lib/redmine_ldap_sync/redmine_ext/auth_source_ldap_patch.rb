@@ -345,7 +345,7 @@ module RedmineLdapSync
           end
 
           def sync_user_attributes?
-            ldapsync_active? && settings[:sync_user_attributes]
+            ldapsync_active? && settings[:sync_user_attributes] && settings[:attributes_to_sync].present?
           end
 
           def create_groups?
