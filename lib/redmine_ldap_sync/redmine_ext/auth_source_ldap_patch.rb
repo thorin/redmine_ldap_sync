@@ -13,7 +13,7 @@ module RedmineLdapSync
             end
 
             changes = groups_changes(user)
-            user.groups << changes[:added].map do |groupname|
+            added = changes[:added].map do |groupname|
               if create_groups?
                 group = Group.where("LOWER(lastname) = ?", groupname.downcase).first
 
@@ -27,11 +27,12 @@ module RedmineLdapSync
                 Group.find_by_lastname(groupname)
               end
             end.compact
+            user.groups << added
 
             deleted = Group.where("LOWER(lastname) in (?)", changes[:deleted].map(&:downcase)).all
             user.groups.delete(*deleted) unless deleted.nil?
 
-            changes
+            {:added => added, :deleted => deleted, :not_created => (changes[:added].size - added.size)}
           end
 
           def sync_users
@@ -44,8 +45,13 @@ module RedmineLdapSync
               user = User.where("LOWER(login) = ? AND auth_source_id = ?", login.downcase, self.id).first
 
               if user.present? && user.active?
-                user.lock!
-                puts "-- Locked user '#{user.login}'"
+                if user.lock!
+                  puts "-- Locked active user '#{user.login}'"
+                else
+                  puts "-- Failed to lock user '#{user.login}'"
+                end
+              elsif user.present?
+                puts "-- Not locking locked user '#{user.login}'"
               end
             end
 
@@ -74,15 +80,13 @@ module RedmineLdapSync
               puts "-- Creating user '#{user.login}'..." if user_is_fresh
               puts "-- Updating user '#{user.login}'..." if !user_is_fresh
 
-              groups = sync_groups(user)
-              if groups[:added].present? || groups[:deleted].present?
-                a = groups[:added].size; d = groups[:deleted].size
-                print "   -> "
-                print "#{pluralize(a, 'group')} added" if a > 0
-                print " and " if a > 0 && d > 0
-                print "#{pluralize(d, a == 0 ? 'group' : nil)} deleted" if d > 0
-                puts
-              end
+              changes = sync_groups(user)
+              a = changes[:added].size; d = changes[:deleted].size; nc = changes[:not_created]
+              chs = []
+              chs << "#{pluralize(a, 'group')} added" if a > 0
+              chs << "#{pluralize(d, a == 0 ? 'group' : nil)} deleted" if d > 0
+              chs << "#{pluralize(nc, (a + d) == 0 ? 'group' : nil)} not created" if nc > 0
+              puts "   -> #{chs.join(', ')}" if chs.size > 0
 
               sync_user_attributes(user) unless user_is_fresh
 
@@ -144,9 +148,15 @@ module RedmineLdapSync
               end
             end
 
-            users_on_local    = self.users.active.map {|u| u.login.downcase }
-            users_on_ldap     = changes.values.sum.map(&:downcase)
-            changes[:disabled]  += users_on_local - users_on_ldap
+            users_on_local  = self.users.active.map {|u| u.login.downcase }
+            users_on_ldap   = changes.values.sum.map(&:downcase)
+            deleted_users   = users_on_local - users_on_ldap
+            changes[:disabled]  += deleted_users
+
+            msg = "-- Found #{changes[:enabled].size} users active"
+            msg << ", #{changes[:disabled].size - deleted_users.size} locked"
+            msg << " and #{deleted_users.size} deleted on ldap"
+            puts msg
 
             @ldap_users = changes
           end
