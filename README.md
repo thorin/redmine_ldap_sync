@@ -49,7 +49,7 @@ able to set for each LDAP authentication.
   whenever search for groups.
 + **Account disabled test** - A ruby boolean expression that should evaluate an
   account's flags (the variable `flags`) and return `true` if the account is
-  disabled. Eg., `flags.to**i & 2 != 0` or flags.include? 'D'`.
+  disabled. Eg., `flags.to**i & 2 != 0` or `flags.include? 'D'`.
 + **Group membership** - Specifies how to determine the user's group membership.
   The possible values are:
   - **On the group class**: membership determined from the list of users
@@ -99,7 +99,7 @@ able to set for each LDAP authentication.
 
 + **Users must be members of** - (optional) A group to wich the users must
   belong to to have access enabled to redmine.
-+ Administrators group** - (optional) All members of this group will become
++ **Administrators group** - (optional) All members of this group will become
   redmine administrators.
 + **Add users to group** - (optional) A group to wich all the users created
   from this LDAP authentication will added upon creation. This group should not
