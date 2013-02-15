@@ -141,9 +141,9 @@ module RedmineLdapSync
             else
               find_all_users(ldap_con, [:login, :account_flags]) do |entry|
                 if account_disabled?(entry[:account_flags])
-                  changes[:disabled] << entry[:login]
+                  changes[:disabled] << entry[:login] if entry[:login]
                 else
-                  changes[:enabled] << entry[:login]
+                  changes[:enabled] << entry[:login] if entry[:login]
                 end
               end
             end
