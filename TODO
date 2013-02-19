@@ -1,5 +1,7 @@
+* Change ldap_setting id from name to auth_source_id
+* Detect account_flag changes on login and block user access
+* New option "Sync on login" => groups and fields; fields; disabled
 * Settings test page
-* Dynamic groups
-* Code cleaning
 * Improve png for disable ldap synchronization
+* Code cleaning
 * Performance tests

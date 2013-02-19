@@ -59,11 +59,14 @@ homeDirectory: /home/loadgeek
 objectClass: posixAccount
 objectClass: person
 objectClass: inetOrgPerson
+objectClass: pwdPolicy
 givenName: Christian
 sn: Earheart
 description: Earheart User
 userPassword: {SSHA}Si9/UcgqKWBlN/+SQb+X1IHZnokzaicm
 loginShell: /bin/sh
+pwdAttribute: 2.5.4.35
+pwdLockout: TRUE
 o: 4005
 o: 4007
 o: 4009
@@ -270,3 +273,14 @@ uid: Iardum
 cn: Iardum
 member: cn=Therss,ou=Group,dc=redmine,dc=org
 o: 4009
+
+
+dn: cn=MicroUsers,ou=Group,dc=redmine,dc=org
+objectclass: groupOfURLs
+cn: MicroUsers
+memberURL: ldap:///ou=Person,dc=redmine,dc=org??sub?(uid=*micro*)
+
+dn: cn=TweetUsers,ou=Group,dc=redmine,dc=org
+objectclass: groupOfURLs
+cn: TweetUsers
+memberURL: ldap:///ou=Person,dc=redmine,dc=org??sub?(uid=*tweet*)

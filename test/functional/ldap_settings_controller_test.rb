@@ -32,12 +32,12 @@ class LdapSettingsControllerTest < ActionController::TestCase
   end
 
   def test_should_get_edit
-    get :edit, id: @auth_source.id
+    get :edit, :id => @auth_source.id
     assert_response :success
   end
 
   def test_should_get_404
-    get :edit, id: 999
+    get :edit, :id => 999
     assert_response :not_found
   end
 
@@ -76,53 +76,53 @@ class LdapSettingsControllerTest < ActionController::TestCase
   end
 
   def test_should_fail_with_error
-    put :update, id: @ldap_setting.id, ldap_setting: {
-      auth_source_ldap_id: @auth_source_id,
-      active: true,
-      groupname: 'cn',
-      groups_base_dn: 'groups_base_dn',
-      class_group: 'group',
-      class_user: nil,                     # Missing required field
-      group_membership: 'on_members',
-      groupid: 'groupid',
-      nested_groups: '',
-      user_groups: 'memberof'
+    put :update, :id => @ldap_setting.id, :ldap_setting => {
+      :auth_source_ldap_id => @auth_source_id,
+      :active => true,
+      :groupname => 'cn',
+      :groups_base_dn => 'groups_base_dn',
+      :class_group => 'group',
+      :class_user => nil,                     # Missing required field
+      :group_membership => 'on_members',
+      :groupid => 'groupid',
+      :nested_groups => '',
+      :user_groups => 'memberof'
     }
     assert assigns(:ldap_setting).errors.added?(:class_user, :blank), "An error must be reported for :class_user"
     assert_response :success
   end
 
   def test_should_update_ldap_setting
-    put :update, id: @ldap_setting.id, ldap_setting: {
-      auth_source_ldap_id: @auth_source_id,
-      active: true,
-      account_disabled_test: '',
-      account_flags: '',
-      attributes_to_sync: '',
-      class_group: 'group',
-      class_user: 'user',
-      create_groups: '',
-      create_users: '',
-      fixed_group: '',
-      group_memberid: '',
-      group_membership: 'on_members',
-      group_parentid: '',
-      group_search_filter: '',
-      groupid: 'groupid',
-      groupname: 'cn',
-      groupname_pattern: '',
-      groups_base_dn: 'groups_base_dn',
-      member: '',
-      member_group: '',
-      nested_groups: '',
-      parent_group: '',
-      required_group: '',
-      user_fields_to_sync: [],
-      group_fields_to_sync: [],
-      user_ldap_attrs: {},
-      group_ldap_attrs: {},
-      user_groups: 'memberof',
-      user_memberid: ''
+    put :update, :id => @ldap_setting.id, :ldap_setting => {
+      :auth_source_ldap_id => @auth_source_id,
+      :active => true,
+      :account_disabled_test => '',
+      :account_flags => '',
+      :attributes_to_sync => '',
+      :class_group => 'group',
+      :class_user => 'user',
+      :create_groups => '',
+      :create_users => '',
+      :fixed_group => '',
+      :group_memberid => '',
+      :group_membership => 'on_members',
+      :group_parentid => '',
+      :group_search_filter => '',
+      :groupid => 'groupid',
+      :groupname => 'cn',
+      :groupname_pattern => '',
+      :groups_base_dn => 'groups_base_dn',
+      :member => '',
+      :member_group => '',
+      :nested_groups => '',
+      :parent_group => '',
+      :required_group => '',
+      :user_fields_to_sync => [],
+      :group_fields_to_sync => [],
+      :user_ldap_attrs => {},
+      :group_ldap_attrs => {},
+      :user_groups => 'memberof',
+      :user_memberid => ''
     }
     assert_redirected_to ldap_settings_path
     assert assigns(:ldap_setting).valid?

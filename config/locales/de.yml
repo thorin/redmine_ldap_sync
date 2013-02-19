@@ -24,7 +24,7 @@ de:
   field_group_membership: "Group membership"
   field_class_user: "Benutzerobjektklasse"
   field_class_group: "Gruppenobjektklasse"
-  field_account_disabled_test: "Account disabled test"
+  field_account_disabled_test: "Account Deaktivierungsbedingung"
 
   field_groupname_pattern: "Regular Expression für den Gruppenfilter"
   field_group_search_filter: "Gruppensuchfilfer"

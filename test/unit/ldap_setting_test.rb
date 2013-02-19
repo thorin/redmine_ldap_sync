@@ -179,7 +179,7 @@ class LdapSettingTest < ActiveSupport::TestCase
     assert !@ldap_setting.valid?
     assert !@ldap_setting.errors.added?(:user_group_fields, :invalid)
     assert_match /Uid Number/, @ldap_setting.errors.full_messages.join
-    assert_not_match /Description/, @ldap_setting.errors.full_messages.join
+    assert_no_match /Description/, @ldap_setting.errors.full_messages.join
 
     @ldap_setting.user_ldap_attrs = { '2' => 'description' }
     assert @ldap_setting.valid?
@@ -221,6 +221,30 @@ class LdapSettingTest < ActiveSupport::TestCase
     assert_match /Description/, @ldap_setting.errors.full_messages.join
 
     @ldap_setting.group_ldap_attrs = { '3' => 'description' }
+    assert @ldap_setting.valid?
+  end
+
+  def test_should_validate_dyngroups_cache_ttl
+    @ldap_setting.dyngroups_cache_ttl = nil
+    @ldap_setting.dyngroups = 'disabled'
+    assert @ldap_setting.valid?
+
+    @ldap_setting.dyngroups = 'enabled'
+    assert @ldap_setting.valid?
+
+    @ldap_setting.dyngroups = 'enabled_with_ttl'
+    assert !@ldap_setting.valid?
+    assert @ldap_setting.errors.added? :dyngroups_cache_ttl, :blank
+
+    @ldap_setting.dyngroups_cache_ttl = 'one'
+    assert !@ldap_setting.valid?
+    assert @ldap_setting.errors.added? :dyngroups_cache_ttl, :not_a_number
+
+    @ldap_setting.dyngroups_cache_ttl = '12.1'
+    assert !@ldap_setting.valid?
+    assert @ldap_setting.errors.added? :dyngroups_cache_ttl, :not_an_integer
+
+    @ldap_setting.dyngroups_cache_ttl = '50'
     assert @ldap_setting.valid?
   end
 

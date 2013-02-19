@@ -3,7 +3,7 @@ module LdapSync::Infectors::User
 
   module InstanceMethods
     def add_to_fixed_group
-      return unless auth_source.has_fixed_group?
+      return unless auth_source.try :has_fixed_group?
 
       self.groups << ::Group.find_or_create_by_lastname(auth_source.fixed_group)
     end

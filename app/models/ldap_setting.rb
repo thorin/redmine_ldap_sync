@@ -13,7 +13,7 @@ class LdapSetting
   CLASS_NAMES = %w( class_user class_group )
   FLAGS = %w( create_groups create_users active )
   COMBOS = %w( group_membership nested_groups )
-  OTHERS = %w( account_disabled_test user_fields_to_sync group_fields_to_sync user_ldap_attrs group_ldap_attrs fixed_group admin_group required_group group_search_filter groupname_pattern groups_base_dn )
+  OTHERS = %w( account_disabled_test user_fields_to_sync group_fields_to_sync user_ldap_attrs group_ldap_attrs fixed_group admin_group required_group group_search_filter groupname_pattern groups_base_dn dyngroups dyngroups_cache_ttl )
 
   validates_presence_of :auth_source_ldap_id
   validates_presence_of :groups_base_dn, :class_user, :class_group, :groupname
@@ -21,11 +21,14 @@ class LdapSetting
   validates_presence_of :user_groups, :groupid, :if => :membership_on_members?
   validates_presence_of :parent_group, :group_parentid, :if => :nested_on_members?
   validates_presence_of :member_group, :group_memberid, :if => :nested_on_parents?
+  validates_presence_of :dyngroups_cache_ttl, :if => :dyngroups_enabled_with_ttl?
 
   validates_inclusion_of :nested_groups, :in => ['on_members', 'on_parents', '']
   validates_inclusion_of :group_membership, :in => ['on_groups', 'on_members']
 
-  validates_format_of *LDAP_ATTRIBUTES, :with => /\A[a-z][a-z0-9-]*\z/i, :allow_blank => true
+  validates_format_of *(LDAP_ATTRIBUTES + [{ :with => /\A[a-z][a-z0-9-]*\z/i, :allow_blank => true }])
+
+  validates_numericality_of :dyngroups_cache_ttl, :only_integer => true, :allow_blank => true
 
   validate :validate_group_filter
   validate :validate_user_fields_to_sync, :validate_user_ldap_attrs
@@ -38,7 +41,7 @@ class LdapSetting
   attribute_method_affix :prefix => 'has_', :suffix => '?'
   attribute_method_suffix '?', '='
 
-  safe_attributes *LDAP_ATTRIBUTES, *CLASS_NAMES, *FLAGS, *COMBOS, *OTHERS
+  safe_attributes *(LDAP_ATTRIBUTES + CLASS_NAMES + FLAGS + COMBOS + OTHERS)
   define_attribute_methods LDAP_ATTRIBUTES + CLASS_NAMES + FLAGS + COMBOS + OTHERS
 
   [:login, *User::STANDARD_FIELDS].each {|f| module_eval("def #{f}; auth_source_ldap.attr_#{f}; end") }
@@ -83,6 +86,14 @@ class LdapSetting
 
   def sync_group_fields?
     has_group_fields_to_sync?
+  end
+
+  def sync_dyngroups?
+    has_dyngroups? && dyngroups != 'disabled'
+  end
+
+  def dyngroups_enabled_with_ttl?
+    dyngroups == 'enabled_with_ttl'
   end
 
   def user_ldap_attrs_to_sync
@@ -216,13 +227,13 @@ class LdapSetting
         errors.add(:user_group_fields, :invalid); return
       end
 
-      fields_ids = fields.map {|f| f.respond_to?(:id) ? f.id.to_s : f }
+      fields_ids = fields.map {|f| f.is_a?(String) ? f : f.id.to_s }
       if fields_to_sync.any? {|f| !f.in? fields_ids  }
         errors.add(:user_group_fields, :invalid) unless errors.added? :user_group_fields, :invalid
       end
       fields_to_sync.each do |f|
         if f =~ /\A\d+\z/ && (attrs.blank? || attrs[f].blank?)
-          field_name = fields.find{|c| c.respond_to?(:id) && c.id.to_s == f }.name
+          field_name = fields.find{|c| !c.is_a?(String) && c.id.to_s == f }.name
           errors.add :base, l(:error_must_have_ldap_attribute, field_name)
         end
       end

@@ -4,6 +4,7 @@ class AuthSourceLdapTest < ActiveSupport::TestCase
   fixtures :auth_sources, :users, :groups_users, :settings, :custom_fields
 
   setup do
+    clear_ldap_cache!
     Setting.clear_cache
     @auth_source = auth_sources(:auth_sources_001)
     @ldap_setting = LdapSetting.find_by_auth_source_ldap_id(@auth_source.id)
@@ -28,7 +29,7 @@ class AuthSourceLdapTest < ActiveSupport::TestCase
     should "not sync groups without fields_to_sync and create_groups" do
       @ldap_setting.group_fields_to_sync = []
       @ldap_setting.create_groups = false
-      @ldap_setting.save
+      assert @ldap_setting.save
 
       assert_no_difference ['Group.count', 'CustomValue.count'] do
         @auth_source.sync_groups
@@ -37,7 +38,7 @@ class AuthSourceLdapTest < ActiveSupport::TestCase
 
     should "not sync groups with synchronization disabled" do
       @ldap_setting.active = false
-      @ldap_setting.save
+      assert @ldap_setting.save
 
       assert_no_difference ['Group.count', 'CustomValue.count'] do
         @auth_source.sync_groups
@@ -62,6 +63,31 @@ class AuthSourceLdapTest < ActiveSupport::TestCase
 
       assert_equal group_count, Group.count, "Group.count"
       assert_not_equal custom_value_count, CustomValue.count, "CustomValue.count"
+    end
+
+    should "sync dynamic groups and leave the cache fresh" do
+      @ldap_setting.dyngroups = 'enabled'
+      @ldap_setting.save
+      assert_false @auth_source.send(:dyngroups_fresh?)
+      clear_ldap_cache!
+
+      @auth_source.sync_groups
+
+      assert @auth_source.send(:dyngroups_fresh?)
+      assert @auth_source.send(:dyngroups_cache).fetch('uid=microunit')
+    end
+
+    should "dynamic groups cache should expire" do
+      @ldap_setting.dyngroups = 'enabled_with_ttl'
+      @ldap_setting.dyngroups_cache_ttl = '2'
+      @ldap_setting.save
+
+      @auth_source.sync_groups
+
+      $now = Time.now + 3.minutes
+      def Time.now; $now; end
+
+      assert_false @auth_source.send(:dyngroups_fresh?)
     end
   end
 
@@ -90,7 +116,6 @@ class AuthSourceLdapTest < ActiveSupport::TestCase
       @ldap_setting.user_ldap_attrs = nil
       @ldap_setting.group_ldap_attrs = nil
       assert @ldap_setting.save
-      puts @ldap_setting.errors.messages.inspect
       Setting.clear_cache
 
       user_count = User.count
@@ -203,6 +228,24 @@ class AuthSourceLdapTest < ActiveSupport::TestCase
       assert_include '-- Updating user \'loadgeek\'...', actual
       assert_include '-> 6 groups added', actual
     end
+
+    should "sync with dynamic groups" do
+      @ldap_setting.dyngroups = 'enabled'
+      @ldap_setting.save
+      @auth_source.sync_users
+
+      user = User.find_by_login('tweetmicro')
+      assert_include 'TweetUsers', user.groups.map(&:lastname)
+    end
+
+    should "sync without dynamic groups" do
+      @ldap_setting.dyngroups = ''
+      @ldap_setting.save
+      @auth_source.sync_users
+
+      user = User.find_by_login('tweetmicro')
+      assert_not_include 'TweetUsers', user.groups.map(&:lastname)
+    end
   end
 
   context "#sync_user" do
@@ -286,7 +329,7 @@ class AuthSourceLdapTest < ActiveSupport::TestCase
       @ldap_setting.admin_group = 'therss'
       @ldap_setting.save
 
-      assert_false @user.admin?
+      assert !@user.admin?
       @auth_source.sync_user(@user)
       assert @user.reload.admin?
 
@@ -295,7 +338,7 @@ class AuthSourceLdapTest < ActiveSupport::TestCase
 
       @auth_source = AuthSource.find(@auth_source.id)
       @auth_source.sync_user(@user)
-      assert_false @user.reload.admin?
+      assert !@user.reload.admin?
     end
 
     should "not sync fields or admin privilege if locked" do
@@ -306,7 +349,7 @@ class AuthSourceLdapTest < ActiveSupport::TestCase
       groups_before = @user.groups
       @auth_source.sync_user(@user)
       assert_equal 'miscuser8@foo.bar', @user.mail
-      assert_false @user.admin?
+      assert !@user.admin?
       assert_equal groups_before, @user.groups
     end
 
@@ -340,14 +383,6 @@ class AuthSourceLdapTest < ActiveSupport::TestCase
       AuthSourceLdap.activate_users!
       @auth_source.sync_user(@user)
       assert @user.active?
-    end
-
-    should "sync with dynamic groups" do
-      pending "not implemented yet"
-    end
-
-    should "sync without dynamic groups" do
-      pending "not implemented yet"
     end
   end
 

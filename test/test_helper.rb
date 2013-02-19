@@ -17,4 +17,8 @@ Rails.backtrace_cleaner.remove_silencers!
 #use fixtures from redmine
 class ActiveSupport::TestCase
   self.fixture_path = File.expand_path(File.dirname(__FILE__) + '/fixtures')
+
+  def clear_ldap_cache!
+    FileUtils.rm_rf Rails.root.join("tmp/ldap_cache")
+  end
 end

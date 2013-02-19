@@ -5,9 +5,9 @@ module LdapSettingsHelper
 
   def change_status_link(config)
     if config.active?
-      link_to l(:button_disable), disable_ldap_setting_path(config), method: :put, :class => 'icon icon-disable'
+      link_to l(:button_disable), disable_ldap_setting_path(config), :method => :put, :class => 'icon icon-disable'
     else
-      link_to l(:button_enable), enable_ldap_setting_path(config), method: :put, :class => 'icon icon-enable'
+      link_to l(:button_enable), enable_ldap_setting_path(config), :method => :put, :class => 'icon icon-enable'
     end
   end
 
@@ -31,6 +31,14 @@ module LdapSettingsHelper
     [
       [l(:option_group_membership_on_groups), :on_groups],
       [l(:option_group_membership_on_members), :on_members]
+    ]
+  end
+
+  def options_for_dyngroups
+    [
+      [l(:option_dyngroups_disabled), :disabled],
+      [l(:option_dyngroups_enabled), :enabled],
+      [l(:option_dyngroups_enabled_with_ttl), :enabled_with_ttl]
     ]
   end
 

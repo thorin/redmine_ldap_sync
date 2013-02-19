@@ -10,13 +10,12 @@ __Features__:
  * Detects and disables users that have been removed from LDAP.
  * Detects and disables users that have been marked as disabled on Active
  Directory (see [MS KB Article 305144][uacf] for more details).
- * Can detect and include nested groups. Upon login the nested groups are
- retrieve from disk cache. This cache will only be updated by running the rake
+ * Can detect and include nested groups. Upon login the nested groups are retrieved from disk cache. This can be updated by running the rake
  task.
 
 __Remarks__:
 
-* The plugin has only been tested with Active Directory and OpenLDAP but should
+* The plugin as only been tested with Active Directory and OpenLDAP but should
 work with other directories.
 * An user will only be removed from groups that exist on LDAP. This means that
  both ldap and non-ldap groups can coexist.
@@ -25,16 +24,15 @@ work with other directories.
 Installation & Upgrade
 ----------------------
 
-For both upgrade and installation please follow the plugin installation
-procedure described at http://www.redmine.org/wiki/redmine/Plugins
+For upgrade and installation steps please refer to the plugin installation
+procedure described on <http://www.redmine.org/wiki/redmine/Plugins>.
 
 Usage
 -----
 
 ### Configuration
 
-Open Administration > Plugins and on the plugin configuration page you'll be
-able to set for each LDAP authentication.
+Open `Administration > Ldap Synchronization` to access the plugin configuration:
 
 **LDAP settings:**
 
@@ -49,7 +47,7 @@ able to set for each LDAP authentication.
   whenever search for groups.
 + **Account disabled test** - A ruby boolean expression that should evaluate an
   account's flags (the variable `flags`) and return `true` if the account is
-  disabled. Eg., `flags.to**i & 2 != 0` or flags.include? 'D'`.
+  disabled. Eg., `flags.to_i & 2 != 0` or `flags.include? 'D'`.
 + **Group membership** - Specifies how to determine the user's group membership.
   The possible values are:
   - **On the group class**: membership determined from the list of users
@@ -99,7 +97,7 @@ able to set for each LDAP authentication.
 
 + **Users must be members of** - (optional) A group to wich the users must
   belong to to have access enabled to redmine.
-+ Administrators group** - (optional) All members of this group will become
++ **Administrators group** - (optional) All members of this group will become
   redmine administrators.
 + **Add users to group** - (optional) A group to wich all the users created
   from this LDAP authentication will added upon creation. This group should not
@@ -136,7 +134,7 @@ The tasks recognize two environment variables:
 
 ### Base settings
 
-The base settings read from the plain YAML file `config/base_settings.yml`.
+All the base settings are loaded from the plain YAML file `config/base_settings.yml`.
 Please be aware that those settings weren't tested and may not work.
 Saying so, I'll need your help to make these settings more accurate.
 

@@ -3,6 +3,20 @@ module LdapSync::Infectors::AuthSourceLdap
   module InstanceMethods
     public
 
+    # TODO:
+    # => extract method sync_group with commons between dynamic and
+    #    non-dynamic groups
+    # => Use FileStore to cache dynamic groups:
+    #    * use a main key with the specified TTL (as a ldap setting)
+    #    * this main file should have a race condition ttl
+    #    * when the main key expires sync all dynamic groups
+    # => Find if there's some way to apply the group_filter to the dynamic
+    #    groups
+    # => Update dynamic groups cache both on sync_user and sync_groups
+    # => Try not to update the cache twice on sync_all (maybe by setting a
+    #    flag on class variable)
+
+
     def sync_groups
       if connect_as_user?
         trace "   -> Cannot synchronize: no account/password configured"; return
@@ -10,22 +24,26 @@ module LdapSync::Infectors::AuthSourceLdap
       unless setting.active?
         trace "   -> Ldap sync is disabled: skipping"; return
       end
-      unless setting.sync_group_fields? || setting.create_groups?
+      unless setting.sync_group_fields? || setting.create_groups? || setting.sync_dyngroups?
         trace "   -> No attributes to sync: skipping"; return
       end
 
       with_ldap_connection do |ldap|
         groupname_pattern  = /#{setting.groupname_pattern}/
 
-        find_all_groups(ldap, nil, [n(:groupname), *setting.group_ldap_attrs_to_sync]) do |group_data|
-          groupname = group_data[n(:groupname)].first
-          next unless groupname_pattern =~ groupname
+        trace "** Synchronizing non-dynamic groups"
+        attrs = [n(:groupname), *setting.group_ldap_attrs_to_sync]
+        find_all_groups(ldap, nil, attrs) do |entry|
+          create_and_sync_group(entry, n(:groupname))
+        end if setting.sync_group_fields? || setting.create_groups?
 
-          group, is_new_group = find_or_create_group(groupname, group_data)
-          next if group.nil?
+        return unless setting.sync_dyngroups?
 
-          trace "-- #{is_new_group ? 'Creating': 'Updating'} group '#{group.name}'..."
-          sync_group_fields(group, group_data) unless is_new_group
+        trace "** Synchronizing dynamic groups"
+        find_all_dyngroups(ldap,
+          :attrs => [:cn, :member, *setting.group_ldap_attrs_to_sync],
+          :update_cache => !dyngroups_fresh?) do |entry|
+          create_and_sync_group(entry, :cn)
         end
       end
     end
@@ -45,8 +63,13 @@ module LdapSync::Infectors::AuthSourceLdap
           user = ::User.where("LOWER(login) = ? AND auth_source_id = ?", login.downcase, self.id).first
 
           if user.try(:active?)
-            user.lock!
-            trace "-- Locked user '#{user.login}'"
+            if user.lock!
+              trace "-- Locked active user '#{user.login}'"
+            else
+              trace "-- Failed to lock active user '#{user.login}'"
+            end
+          elsif user.present?
+            trace "-- Not locking locked user '#{user.login}'"
           end
         end
 
@@ -62,7 +85,7 @@ module LdapSync::Infectors::AuthSourceLdap
     def sync_user(user, is_new_user = false, attrs = {})
       with_ldap_connection(attrs[:login], attrs[:password]) do |_|
         if user.locked? && !(activate_users? || setting.has_required_group?)
-          trace "-- Not #{is_new_user ? 'Creating': 'Updating'} locked user '#{user.login}'"; return
+          trace "-- Not #{is_new_user ? 'creating': 'updating'} locked user '#{user.login}'"; return
         else
           trace "-- #{is_new_user ? 'Creating': 'Updating'} user '#{user.login}'..."
         end
@@ -78,6 +101,19 @@ module LdapSync::Infectors::AuthSourceLdap
     end
 
     private
+      def create_and_sync_group(group_data, attr_groupname)
+        groupname = group_data[attr_groupname].first
+        return unless /#{setting.groupname_pattern}/ =~ groupname
+
+        group, is_new_group = find_or_create_group(groupname, group_data)
+        return if group.nil?
+
+        trace "-- #{is_new_group ? 'Creating': 'Updating'} group '#{group.name}'..."
+        sync_group_fields(group, group_data) unless is_new_group
+
+        group
+      end
+
       def sync_user_groups(user)
         return unless setting.active?
 
@@ -86,12 +122,13 @@ module LdapSync::Infectors::AuthSourceLdap
         end
 
         changes = groups_changes(user)
-        user.groups << changes[:added].map {|g| find_or_create_group(g).first }.compact
+        added = changes[:added].map {|g| find_or_create_group(g).first }.compact
+        user.groups << added if added.present?
 
         deleted = ::Group.where("LOWER(lastname) in (?)", changes[:deleted].map(&:downcase)).all
         user.groups.delete(*deleted) if deleted.present?
 
-        trace groups_changes_summary(changes)
+        trace groups_changes_summary(changes, added, deleted)
       end
 
       def sync_user_fields(user)
@@ -153,20 +190,22 @@ module LdapSync::Infectors::AuthSourceLdap
           find_user(ldap, username, setting.user_ldap_attrs_to_sync)
         end
 
-        user_data.each_with_object({}) do |(attr, value), fields|
+        user_data.inject({}) do |fields, (attr, value)|
           f = setting.user_field(attr)
           fields[f] = value.first unless f.nil?
+          fields
         end
       end
 
       def get_group_fields(groupname, group_data = nil)
         group_data ||= with_ldap_connection do |ldap|
           find_group(ldap, groupname, [n(:groupname), *setting.group_ldap_attrs_to_sync])
-        end
+        end || {}
 
-        group_data.each_with_object({}) do |(attr, value), fields|
+        group_data.inject({}) do |fields, (attr, value)|
           f = setting.group_field(attr)
           fields[f] = value.first unless f.nil?
+          fields
         end
       end
 
@@ -213,26 +252,26 @@ module LdapSync::Infectors::AuthSourceLdap
         return @ldap_users if @ldap_users
 
         with_ldap_connection do |ldap|
-          users = { :enabled => Set.new, :disabled => Set.new }
+          changes = { :enabled => Set.new, :disabled => Set.new }
 
           unless setting.has_account_flags?
-            users[:enabled] += find_all_users(ldap, n(:login)).map(&:first)
+            changes[:enabled] += find_all_users(ldap, n(:login)).map(&:first)
           else
             find_all_users(ldap, ns(:login, :account_flags)) do |entry|
               if account_disabled?(entry[n(:account_flags)].first)
-                users[:disabled] << entry[n(:login)].first
+                changes[:disabled] << entry[n(:login)].first
               else
-                users[:enabled] << entry[n(:login)].first
+                changes[:enabled] << entry[n(:login)].first
               end
             end
           end
 
           users_on_local = self.users.active.map {|u| u.login.downcase }
-          users_on_ldap = users.values.flat_map {|l| l.map(&:downcase) }
-          users[:disabled] += users_on_local - users_on_ldap
+          users_on_ldap = changes.values.sum.map(&:downcase)
+          changes[:disabled] += users_on_local - users_on_ldap
 
-          trace "-- Found #{users[:disabled].length + users[:enabled].length} users"
-          @ldap_users = users
+          trace "-- Found #{changes[:disabled].length + changes[:enabled].length} users"
+          @ldap_users = changes
         end
 
       end
@@ -247,30 +286,35 @@ module LdapSync::Infectors::AuthSourceLdap
           # Find which of the user's current groups are in ldap
           user_groups   = user.groups.select {|g| groupname_pattern =~ g.to_s}
           names_filter  = user_groups.map {|g| Net::LDAP::Filter.eq( setting.groupname, g.to_s )}.reduce(:|)
-          find_all_groups(ldap, names_filter, n(:groupname)) do |(group)|
-            changes[:deleted] << group
+          find_all_groups(ldap, names_filter, n(:groupname)) do |group|
+            changes[:deleted] << group.first
           end if names_filter
 
+          user_dn = nil
           case setting.group_membership
           when 'on_groups'
             # Find user's memberid
-            user_dn = user.login
-            unless setting.user_memberid == setting.login
-              user_dn = find_user(ldap, user.login, n(:user_memberid)).first
+            memberid = user.login
+            if setting.user_memberid != setting.login
+              entry = find_user(ldap, user.login, ns(:user_memberid))
+              memberid = entry[n(:user_memberid)].first
+              user_dn = entry[:dn].first
             end
 
             # Find the groups to which the user belongs to
-            member_filter = Net::LDAP::Filter.eq( setting.member, user_dn )
-            find_all_groups(ldap, member_filter, n(:groupname)) do |(group)|
-              changes[:added] << group
-            end if user_dn
+            member_filter = Net::LDAP::Filter.eq( setting.member, memberid )
+            find_all_groups(ldap, member_filter, n(:groupname)) do |group|
+              changes[:added] << group.first
+            end if memberid
 
           else # 'on_members'
-            groups = find_user(ldap, user.login, n(:user_groups))
+            entry = find_user(ldap, user.login, ns(:user_groups))
+            groups = entry[n(:user_groups)]
+            user_dn = entry[:dn].first
 
             names_filter = groups.map{|g| Net::LDAP::Filter.eq( setting.groupid, g )}.reduce(:|)
-            find_all_groups(ldap, names_filter, n(:groupname)) do |(group)|
-              changes[:added] << group
+            find_all_groups(ldap, names_filter, n(:groupname)) do |group|
+              changes[:added] << group.first
             end if names_filter
           end
 
@@ -279,7 +323,11 @@ module LdapSync::Infectors::AuthSourceLdap
               get_group_closure(ldap, group).select {|g| groupname_pattern =~ g }
             end
           end if setting.nested_groups_enabled?
-          # changes[:added] += get_dynamic_groups(user_dn) if setting.has_dynamic_groups?
+
+          if setting.sync_dyngroups?
+            user_dn ||= find_user(ldap, user.login, :dn).first
+            changes[:added] += get_dynamic_groups(user_dn)
+          end
 
           changes[:added].delete_if {|group| groupname_pattern !~ group }
         end
@@ -291,6 +339,12 @@ module LdapSync::Infectors::AuthSourceLdap
         changes
       ensure
         reset_parents_cache! unless running_rake?
+      end
+
+      def get_dynamic_groups(user_dn)
+        reload_dyngroups! unless dyngroups_fresh?
+
+        dyngroups_cache.fetch(member_key(user_dn)) || []
       end
 
       def get_group_closure(ldap, group, closure=Set.new)
@@ -326,8 +380,9 @@ module LdapSync::Infectors::AuthSourceLdap
         result.first if !block_given? && result.present?
       end
 
-      def find_all_groups(ldap, extra_filter, attrs, &block)
-        group_filter = Net::LDAP::Filter.eq( :objectclass, setting.class_group )
+      def find_all_groups(ldap, extra_filter, attrs, options = {}, &block)
+        object_class = options[:class] || setting.class_group
+        group_filter = Net::LDAP::Filter.eq( :objectclass, object_class )
         group_filter &= Net::LDAP::Filter.construct( setting.group_search_filter ) if setting.group_search_filter.present?
         group_filter &= extra_filter if extra_filter
         groups_base_dn = setting.groups_base_dn
@@ -337,6 +392,27 @@ module LdapSync::Infectors::AuthSourceLdap
                      :attributes => attrs,
                      :return_result => block_given? ? false : true},
                     &block)
+      end
+
+      def find_all_dyngroups(ldap, options = {})
+        options = options.reverse_merge(:attrs => [:cn, :member], :update_cache => false)
+        users_base_dn = self.base_dn.downcase
+
+        dyngroups = Hash.new{|h,k| h[k] = []}
+
+        find_all_groups(ldap, nil, options[:attrs], :class => 'groupOfURLs') do |entry|
+          yield entry if block_given?
+
+          if options[:update_cache]
+            entry[:member].each do |member|
+              next unless (member.downcase.ends_with?(users_base_dn))
+
+              dyngroups[member_key(member)] << entry[:cn].first
+            end
+          end
+        end
+
+        update_dyngroups_cache!(dyngroups) if options[:update_cache]
       end
 
       def find_user(ldap, login, attrs, &block)
@@ -383,6 +459,10 @@ module LdapSync::Infectors::AuthSourceLdap
         setting.ldap_attributes(*args)
       end
 
+      def member_key(member)
+        member[0...-self.base_dn.length-1]
+      end
+
       def new_memory_cache
         cache = Hash.new
         def cache.fetch(key, &block)
@@ -406,17 +486,56 @@ module LdapSync::Infectors::AuthSourceLdap
         root_path
       end
 
+      def reload_dyngroups!
+        with_ldap_connection {|c| find_all_dyngroups(c, :update_cache => true) }
+      end
+
+      def dyngroups_fresh?
+        if running_rake?
+          !dyngroups_updated?
+        else
+          opts = {}
+          if setting.dyngroups_enabled_with_ttl?
+            # We do a TTL bump here to reduce the load on LDAP
+            opts[:race_condition_ttl] = 5.minutes
+            opts[:expires_in] = setting.dyngroups_cache_ttl.to_f.minutes
+          end
+
+          expired = false
+          dyngroups_cache.fetch(:cache_control, opts) { expired = true }
+          !expired
+        end
+      end
+
       def closure_cache
-        @closure_cache ||= ActiveSupport::Cache.lookup_store(:file_store, cache_root)
+        @closure_cache ||= ActiveSupport::Cache.lookup_store(:file_store, "#{cache_root}/nested_groups")
+      end
+
+      def dyngroups_cache
+        @dyngroups_cache ||= ActiveSupport::Cache.lookup_store(:file_store, "#{cache_root}/dyngroups")
       end
 
       def update_closure_cache!
-        disk_cache = ActiveSupport::Cache.lookup_store(:file_store, cache_root)
+        disk_cache = ActiveSupport::Cache.lookup_store(:file_store, "#{cache_root}/nested_groups")
         mem_cache = @closure_cache
 
         # Match all the entries we want to delete
         disk_cache.delete_unless {|k| mem_cache.has_key?(k) }
         mem_cache.each {|k, v| disk_cache.write(k, v) }
+      end
+
+      def update_dyngroups_cache!(mem_cache)
+        opts = {}
+        if setting.dyngroups_enabled_with_ttl?
+          opts[:race_condition_ttl] = 5.minutes
+          opts[:expires_in] = setting.dyngroups_cache_ttl.to_f.minutes
+        end
+        dyngroups_cache.write(:cache_control, true, opts)
+
+        dyngroups_cache.delete_unless {|k| k == 'cache_control' || mem_cache.has_key?(k) }
+        mem_cache.each {|k, v| dyngroups_cache.write(k, v) }
+
+        self.dyngroups_updated = true
       end
 
       def setting
@@ -438,16 +557,19 @@ module LdapSync::Infectors::AuthSourceLdap
         word.present? ? "#{n} #{word}#{'s' if n != 1}" : n.to_s
       end
 
-      def groups_changes_summary(groups)
+      def groups_changes_summary(groups, added, deleted)
         return unless running_rake?
 
-        if groups[:added].present? || groups[:deleted].present?
-          a = groups[:added].size; d = groups[:deleted].size
-          msg = "   -> "
-          msg << "#{pluralize(a, 'group')} added" if a > 0
-          msg << " and " if a > 0 && d > 0
-          msg << "#{pluralize(d, a == 0 ? 'group' : nil)} deleted" if d > 0
-          msg
+        a = added.size; d = deleted.size; nc = groups[:added].size - a
+        chg = []
+        chg << "#{pluralize(a, 'group')} added" if a > 0
+        chg << "#{pluralize(d, a == 0 ? 'group' : nil)} deleted" if d > 0
+        chg << "#{pluralize(nc, a + d == 0 ? 'group' : nil)} not created" if nc > 0
+
+        if chg.size == 1
+          "   -> #{chg[0]}"
+        elsif chg.size > 1
+          "   -> #{[chg[0...-1].join(', '), chg[-1]].join(' and ')}"
         end
       end
 
@@ -483,6 +605,7 @@ module LdapSync::Infectors::AuthSourceLdap
         end
       end
 
+      def dyngroups_updated?; self.dyngroups_updated; end
       def connect_as_user?; self.account.include?('$login'); end
       def activate_users?; self.activate_users; end
       def running_rake?; self.running_rake; end
@@ -504,7 +627,7 @@ module LdapSync::Infectors::AuthSourceLdap
 
     receiver.instance_eval do
       delegate :has_fixed_group?, :fixed_group, :to => :setting, :allow_nil => true
-      cattr_accessor :activate_users, :running_rake
+      cattr_accessor :activate_users, :running_rake, :dyngroups_updated
       unloadable
     end
   end
