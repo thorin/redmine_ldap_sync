@@ -227,13 +227,13 @@ class LdapSetting
         errors.add(:user_group_fields, :invalid); return
       end
 
-      fields_ids = fields.map {|f| f.is_a?(String) ? f : f.id.to_s }
+      fields_ids = fields.map {|f| f.respond_to?(:id) ? f.id.to_s : f }
       if fields_to_sync.any? {|f| !f.in? fields_ids  }
         errors.add(:user_group_fields, :invalid) unless errors.added? :user_group_fields, :invalid
       end
       fields_to_sync.each do |f|
         if f =~ /\A\d+\z/ && (attrs.blank? || attrs[f].blank?)
-          field_name = fields.find{|c| !c.is_a?(String) && c.id.to_s == f }.name
+          field_name = fields.find{|c| c.respond_to?(:id) && c.id.to_s == f }.name
           errors.add :base, l(:error_must_have_ldap_attribute, field_name)
         end
       end

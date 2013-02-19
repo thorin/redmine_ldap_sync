@@ -10,12 +10,13 @@ __Features__:
  * Detects and disables users that have been removed from LDAP.
  * Detects and disables users that have been marked as disabled on Active
  Directory (see [MS KB Article 305144][uacf] for more details).
- * Can detect and include nested groups. Upon login the nested groups are retrieved from disk cache. This can be updated by running the rake
+ * Can detect and include nested groups. Upon login the nested groups are
+ retrieve from disk cache. This cache will only be updated by running the rake
  task.
 
 __Remarks__:
 
-* The plugin as only been tested with Active Directory and OpenLDAP but should
+* The plugin has only been tested with Active Directory and OpenLDAP but should
 work with other directories.
 * An user will only be removed from groups that exist on LDAP. This means that
  both ldap and non-ldap groups can coexist.
@@ -47,7 +48,7 @@ Open `Administration > Ldap Synchronization` to access the plugin configuration:
   whenever search for groups.
 + **Account disabled test** - A ruby boolean expression that should evaluate an
   account's flags (the variable `flags`) and return `true` if the account is
-  disabled. Eg., `flags.to_i & 2 != 0` or `flags.include? 'D'`.
+  disabled. Eg., `flags.to**i & 2 != 0` or `flags.include? 'D'`.
 + **Group membership** - Specifies how to determine the user's group membership.
   The possible values are:
   - **On the group class**: membership determined from the list of users

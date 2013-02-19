@@ -84,8 +84,8 @@ class AuthSourceLdapTest < ActiveSupport::TestCase
 
       @auth_source.sync_groups
 
-      $now = Time.now + 3.minutes
-      def Time.now; $now; end
+      now = Time.current + 3.minutes
+      Time.stubs(:now).returns(now)
 
       assert_false @auth_source.send(:dyngroups_fresh?)
     end
