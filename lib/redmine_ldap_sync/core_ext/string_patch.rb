@@ -1,13 +1,12 @@
 module RedmineLdapSync::CoreExt::StringPatch
   def raw_utf8_encoded
-    if self.respond_to?(:encode)
+    if self.respond_to?(:encode) && self.encoding.name != 'ASCII-8BIT'
       # Strings should be UTF-8 encoded according to LDAP.
       # However, the BER code is not necessarily valid UTF-8
-      # self.encode('UTF-8', invalid: :replace, undef: :replace, replace: '' ).force_encoding('ASCII-8BIT')
-      begin
+      if self.encoding.name != 'UTF-8'
         self.encode('UTF-8').force_encoding('ASCII-8BIT')
-      rescue Encoding::UndefinedConversionError
-        self
+      else
+        self.force_encoding('ASCII-8BIT')
       end
     else
       self
