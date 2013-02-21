@@ -21,7 +21,7 @@ module LdapSettingsHelper
 
   def options_for_nested_groups
     [
-      [l(:option_disabled_nested_groups), ''],
+      [l(:option_nested_groups_disabled), ''],
       [l(:option_nested_groups_on_parents), :on_parents],
       [l(:option_nested_groups_on_members), :on_members]
     ]
@@ -36,9 +36,17 @@ module LdapSettingsHelper
 
   def options_for_dyngroups
     [
-      [l(:option_dyngroups_disabled), :disabled],
+      [l(:option_dyngroups_disabled), ''],
       [l(:option_dyngroups_enabled), :enabled],
       [l(:option_dyngroups_enabled_with_ttl), :enabled_with_ttl]
+    ]
+  end
+
+  def options_for_sync_on_login
+    [
+      [l(:option_sync_on_login_user_fields_and_groups), :user_fields_and_groups],
+      [l(:option_sync_on_login_user_fields), :user_fields],
+      [l(:option_sync_on_login_disabled), '']
     ]
   end
 

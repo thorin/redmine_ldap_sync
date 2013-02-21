@@ -1,13 +1,14 @@
 <% f = tab[:form] %>
 <%= error_messages_for 'ldap_setting' %>
 <div class="box tabular settings">
+  <p><%= f.select :sync_on_login, options_for_sync_on_login %></p>
   <p><%= f.text_field :required_group %></p>
   <p><%= f.text_field :admin_group %></p>
   <p><%= f.text_field :fixed_group, :size => 15  %></p>
   <p><%= f.check_box :create_users %></p>
   <p><%= f.check_box :create_groups %></p>
   <p><%= f.select :dyngroups, options_for_dyngroups %>
-    <span id="dyngroups-cache-ttl"><%= f.text_field :dyngroups_cache_ttl, :required => true, :size => 5 %> <%= l(:label_minutes) %></p>
+    <span id="dyngroups-cache-ttl"><%= f.text_field :dyngroups_cache_ttl, :required => true, :size => 5 %> <%= l(:label_minutes) %></span>
   </p>
   <div class="paragraph">
     <label><%= l(:field_user_group_fields) %></label>

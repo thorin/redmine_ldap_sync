@@ -39,9 +39,9 @@ module LdapSync::Infectors::User
   module ClassMethods
     def try_to_login_with_ldap_sync(login, password)
       user = try_to_login_without_ldap_sync(login, password)
-      return user unless user.try(:auth_source).respond_to?(:sync_user)
+      return user unless user.sync_on_login?
 
-      user.auth_source.sync_user(user, false, :login => login, :password => password, :test_flags => true)
+      user.auth_source.sync_user(user, false, :login => login, :password => password, :try_to_login => true)
 
       user if user.active?
     rescue => text
@@ -55,6 +55,7 @@ module LdapSync::Infectors::User
 
     receiver.instance_eval do
       after_create :add_to_fixed_group
+      delegate :sync_on_login?, :to => :auth_source, :allow_nil => true
     end
     receiver.class_eval do
       class << self

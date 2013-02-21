@@ -8,6 +8,7 @@ pt:
   label_default_value: "Valor por omissão"
   label_test: "Teste"
   label_result: "Resultado"
+  label_minutes: "minutos"
 
   button_test: "Testar"
   button_execute: "Executar"
@@ -17,6 +18,9 @@ pt:
   field_nested_groups: "Hierarquia de grupos"
   field_create_groups: "Criar grupos"
   field_create_users: "Criar util."
+  field_sync_on_login: "Sincronizar no login"
+  field_dyngroups: "Grupos dinamicos"
+  field_dyngroups_cache_ttl: "Cache TTL"
   field_sync_user_fields: "Sinc. dados util."
   field_sync_group_fields: "Sinc. dados grupos"
 
@@ -49,23 +53,20 @@ pt:
   field_lastname: "Apelido"
   field_mail: "E-mail"
 
-  field_redmine_ldap_sync_required_group: "Devem ser membros de"
-  field_redmine_ldap_sync_fixed_group: "Adicionar ao grupo"
-  field_redmine_ldap_sync_create_groups: "Criar novos grupos"
-  field_redmine_ldap_sync_create_users: "Criar novos utilizadores"
-  field_redmine_ldap_sync_sync_user_attributes: "Actualizar dados"
-  field_redmine_ldap_sync_attributes_to_sync: "Campos a actualizar"
-
-  field_redmine_ldap_sync_firstname: "Nome"
-  field_redmine_ldap_sync_lastname: "Apelido"
-  field_redmine_ldap_sync_mail: "Email"
-
   option_group_membership_on_groups: "No grupo"
   option_group_membership_on_members: "No utilizador"
 
-  option_disabled_nested_groups: "Desactivada"
+  option_nested_groups_disabled: "Desactivada"
   option_nested_groups_on_parents: "Relação no grupo pai"
   option_nested_groups_on_members: "Relação no grupo membro"
+
+  option_dyngroups_disabled: "Desactivado"
+  option_dyngroups_enabled: "Activo"
+  option_dyngroups_enabled_with_ttl: "Activo com um TTL"
+
+  option_sync_on_login_disabled: "Desactivado"
+  option_sync_on_login_user_fields: "Dados dos utilizadores"
+  option_sync_on_login_user_fields_and_groups: "Dados e grupos dos utilizadores"
 
   text_ldap_setting_successfully_updated: "Definições LDAP actualizadas com sucesso."
 

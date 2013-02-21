@@ -4,6 +4,7 @@ redmine_ldap_setting:
   value: |
     --- !ruby/hash:ActiveSupport::HashWithIndifferentAccess
     1: !ruby/hash:ActiveSupport::HashWithIndifferentAccess
+      active: true
       groups_base_dn: OU=Group,DC=redmine,DC=org
       class_user: posixAccount
       class_group: groupOfNames
@@ -26,7 +27,8 @@ redmine_ldap_setting:
       fixed_group: ldap.users
       create_groups: '1'
       create_users: '1'
-      active: true
+      sync_on_login: 'user_fields_and_groups'
+      dyngroups: ''
       admin_group: Itora
       group_fields_to_sync:
        - '3'

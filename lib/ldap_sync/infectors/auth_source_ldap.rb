@@ -68,26 +68,26 @@ module LdapSync::Infectors::AuthSourceLdap
       update_closure_cache! if setting.nested_groups_enabled?
     end
 
-    def sync_user(user, is_new_user = false, attrs = {})
-      with_ldap_connection(attrs[:login], attrs[:password]) do |ldap|
+    def sync_user(user, is_new_user = false, options = {})
+      with_ldap_connection(options[:login], options[:password]) do |ldap|
         if user.locked? && !(activate_users? || setting.has_required_group?)
           trace "-- Not #{is_new_user ? 'creating': 'updating'} locked user '#{user.login}'"; return
         else
           trace "-- #{is_new_user ? 'Creating': 'Updating'} user '#{user.login}'..."
         end
 
-        user_data, flags = if attrs[:test_flags] && setting.has_account_flags?
+        user_data, flags = if options[:try_to_login] && setting.has_account_flags? && setting.sync_fields_on_login?
           user_data = find_user(ldap, user.login, setting.user_ldap_attrs_to_sync + ns(:account_flags))
           [user_data, user_data[n(:account_flags)].first]
         end
 
-        sync_user_groups(user)
+        sync_user_groups(user) unless options[:try_to_login] && !setting.sync_groups_on_login?
         sync_user_status(user, flags)
 
         return if user.locked?
 
         sync_admin_privilege(user)
-        sync_user_fields(user, user_data) unless is_new_user
+        sync_user_fields(user, user_data) unless is_new_user || (options[:try_to_login] && !setting.sync_fields_on_login?)
       end
     end
 
@@ -625,7 +625,7 @@ module LdapSync::Infectors::AuthSourceLdap
     receiver.send(:include, InstanceMethods)
 
     receiver.instance_eval do
-      delegate :has_fixed_group?, :fixed_group, :to => :setting, :allow_nil => true
+      delegate :has_fixed_group?, :fixed_group, :sync_on_login?, :to => :setting, :allow_nil => true
       cattr_accessor :activate_users, :running_rake, :dyngroups_updated
       unloadable
     end

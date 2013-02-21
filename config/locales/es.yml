@@ -8,6 +8,7 @@ es:
   label_default_value: "Valor por defecto"
   label_test: "Probar"
   label_result: "Resultado"
+  label_minutes: "minutos"
 
   button_test: "Probar"
   button_execute: "Ejecutar"
@@ -17,6 +18,9 @@ es:
   field_nested_groups: "Grupos anidados"
   field_create_groups: "Crear grupos"
   field_create_users: "Crear usuarios"
+  field_sync_on_login: "Sincronizar el inicio de sesión"
+  field_dyngroups: "Grupos dinámicos"
+  field_dyngroups_cache_ttl: "Caché TTL"
   field_sync_user_fields: "Sinc atrib usuarios"
   field_sync_group_fields: "Sinc atrib grupos"
 
@@ -52,9 +56,17 @@ es:
   option_group_membership_on_groups: "En la clase grupo"
   option_group_membership_on_members: "En la clase usuario"
 
-  option_disabled_nested_groups: "Deshabilitado"
+  option_nested_groups_disabled: "Deshabilitado"
   option_nested_groups_on_parents: "Pertenencia en el padre"
   option_nested_groups_on_members: "Pertenencia en el miembro"
+
+  option_dyngroups_disabled: "Deshabilitado"
+  option_dyngroups_enabled: "Habilitado"
+  option_dyngroups_enabled_with_ttl: "Habilitado con un TTL"
+
+  option_sync_on_login_disabled: "Deshabilitado"
+  option_sync_on_login_user_fields: "Campos de los usuarios"
+  option_sync_on_login_user_fields_and_groups: "Campos y grupos de los usuarios"
 
   text_ldap_setting_successfully_updated: "Ldap configuration successfully updated."
 

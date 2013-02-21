@@ -387,6 +387,10 @@ class AuthSourceLdapTest < ActiveSupport::TestCase
   end
 
   context "#try_login" do
+    setup do
+      @loadgeek = users(:loadgeek)
+    end
+
     should "add to fixed group, create and synchronize a new user" do
       @ldap_setting.active = true
       @ldap_setting.fixed_group = 'ldap.users'
@@ -409,8 +413,7 @@ class AuthSourceLdapTest < ActiveSupport::TestCase
     end
 
     should "synchronize existing users" do
-      assert_not_nil user = users(:loadgeek)
-      assert_equal 'miscuser8@foo.bar', user.mail
+      assert_equal 'miscuser8@foo.bar', @loadgeek.mail
 
       assert_not_nil user = User.try_to_login('loadgeek', 'password')
 
@@ -443,6 +446,32 @@ class AuthSourceLdapTest < ActiveSupport::TestCase
 
       assert_not_nil user = User.try_to_login('microunit', 'password')
       assert_equal 'microunit@fakemail.com', user.mail
+    end
+
+    should "not sync or lock if sync on login is disabled" do
+      @ldap_setting.sync_on_login = ''
+      @ldap_setting.save
+
+      groups = @loadgeek.groups
+
+      user = User.try_to_login('loadgeek', 'password')
+      assert_equal 'miscuser8@foo.bar', user.mail
+      assert_equal ['rynever'], user.groups.map(&:lastname)
+    end
+
+    should "not sync groups if sync groups on login is disabled" do
+      @ldap_setting.sync_on_login = 'user_fields'
+      @ldap_setting.save
+
+      assert_nil User.try_to_login('tweetmicro', 'password')
+
+
+      assert_not_nil user = User.try_to_login('loadgeek', 'password')
+
+      assert_equal ['rynever'], user.groups.map(&:lastname)
+      assert_equal 'loadgeek@fakemail.com', user.mail
+      assert_equal 'pt', user.custom_field_values[0].value
+      assert_equal '301', user.custom_field_values[1].value
     end
   end
 

@@ -86,7 +86,9 @@ class LdapSettingsControllerTest < ActionController::TestCase
       :group_membership => 'on_members',
       :groupid => 'groupid',
       :nested_groups => '',
-      :user_groups => 'memberof'
+      :user_groups => 'memberof',
+      :sync_on_login => '',
+      :dyngroups => ''
     }
     assert assigns(:ldap_setting).errors.added?(:class_user, :blank), "An error must be reported for :class_user"
     assert_response :success
@@ -122,7 +124,9 @@ class LdapSettingsControllerTest < ActionController::TestCase
       :user_ldap_attrs => {},
       :group_ldap_attrs => {},
       :user_groups => 'memberof',
-      :user_memberid => ''
+      :user_memberid => '',
+      :sync_on_login => '',
+      :dyngroups => ''
     }
     assert_redirected_to ldap_settings_path
     assert assigns(:ldap_setting).valid?

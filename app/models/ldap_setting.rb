@@ -12,8 +12,8 @@ class LdapSetting
   LDAP_ATTRIBUTES = %w( groupname member user_memberid user_groups groupid parent_group group_parentid member_group group_memberid account_flags )
   CLASS_NAMES = %w( class_user class_group )
   FLAGS = %w( create_groups create_users active )
-  COMBOS = %w( group_membership nested_groups )
-  OTHERS = %w( account_disabled_test user_fields_to_sync group_fields_to_sync user_ldap_attrs group_ldap_attrs fixed_group admin_group required_group group_search_filter groupname_pattern groups_base_dn dyngroups dyngroups_cache_ttl )
+  COMBOS = %w( group_membership nested_groups sync_on_login dyngroups )
+  OTHERS = %w( account_disabled_test user_fields_to_sync group_fields_to_sync user_ldap_attrs group_ldap_attrs fixed_group admin_group required_group group_search_filter groupname_pattern groups_base_dn dyngroups_cache_ttl )
 
   validates_presence_of :auth_source_ldap_id
   validates_presence_of :groups_base_dn, :class_user, :class_group, :groupname
@@ -25,6 +25,8 @@ class LdapSetting
 
   validates_inclusion_of :nested_groups, :in => ['on_members', 'on_parents', '']
   validates_inclusion_of :group_membership, :in => ['on_groups', 'on_members']
+  validates_inclusion_of :sync_on_login, :in => ['user_fields', 'user_fields_and_groups', '']
+  validates_inclusion_of :dyngroups, :in => ['enabled', 'enabled_with_ttl', '']
 
   validates_format_of *(LDAP_ATTRIBUTES + [{ :with => /\A[a-z][a-z0-9-]*\z/i, :allow_blank => true }])
 
@@ -35,8 +37,6 @@ class LdapSetting
   validate :validate_group_fields_to_sync, :validate_group_ldap_attrs
 
   before_validation :strip_names, :set_ldap_attrs, :set_fields_to_sync
-
-  # after_save :validate_auth_ldap_id (if account.include? "$login" :cannot_sync_users_and_groups )
 
   attribute_method_affix :prefix => 'has_', :suffix => '?'
   attribute_method_suffix '?', '='
@@ -89,11 +89,23 @@ class LdapSetting
   end
 
   def sync_dyngroups?
-    has_dyngroups? && dyngroups != 'disabled'
+    has_dyngroups?
   end
 
   def dyngroups_enabled_with_ttl?
     dyngroups == 'enabled_with_ttl'
+  end
+
+  def sync_on_login?
+    has_sync_on_login?
+  end
+
+  def sync_groups_on_login?
+    sync_on_login == 'user_fields_and_groups'
+  end
+
+  def sync_fields_on_login?
+    has_sync_on_login?
   end
 
   def user_ldap_attrs_to_sync
