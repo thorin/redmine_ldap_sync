@@ -41,7 +41,7 @@ module LdapSync::Infectors::User
       user = try_to_login_without_ldap_sync(login, password)
       return user unless user.try(:auth_source).respond_to?(:sync_user)
 
-      user.auth_source.sync_user(user, false, :login => login, :password => password)
+      user.auth_source.sync_user(user, false, :login => login, :password => password, :test_flags => true)
 
       user if user.active?
     rescue => text

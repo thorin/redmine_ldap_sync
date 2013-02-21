@@ -104,9 +104,9 @@ class AuthSourceLdapTest < ActiveSupport::TestCase
 
       @auth_source.sync_users
 
-      assert_equal user_count + 6, User.count, "User.count"
+      assert_equal user_count + 5, User.count, "User.count"
       assert_equal group_count + 8, Group.count, "Group.count"
-      assert_equal custom_value_count + 22, CustomValue.count, "CustomValue.count"
+      assert_equal custom_value_count + 20, CustomValue.count, "CustomValue.count"
     end
 
     should "create users and groups without sync attrs" do
@@ -123,7 +123,7 @@ class AuthSourceLdapTest < ActiveSupport::TestCase
 
       @auth_source.sync_users
 
-      assert_equal user_count + 6, User.count, "User.count"
+      assert_equal user_count + 5, User.count, "User.count"
       assert_equal group_count + 8, Group.count, "Group.count"
     end
 
@@ -234,7 +234,7 @@ class AuthSourceLdapTest < ActiveSupport::TestCase
       @ldap_setting.save
       @auth_source.sync_users
 
-      user = User.find_by_login('tweetmicro')
+      user = User.find_by_login('tweetsave')
       assert_include 'TweetUsers', user.groups.map(&:lastname)
     end
 
@@ -243,7 +243,7 @@ class AuthSourceLdapTest < ActiveSupport::TestCase
       @ldap_setting.save
       @auth_source.sync_users
 
-      user = User.find_by_login('tweetmicro')
+      user = User.find_by_login('tweetsave')
       assert_not_include 'TweetUsers', user.groups.map(&:lastname)
     end
   end
@@ -424,11 +424,12 @@ class AuthSourceLdapTest < ActiveSupport::TestCase
     end
 
     should "deny access to just now locked users" do
-      @ldap_setting.required_group = 'Itora'
+      @ldap_setting.required_group = 'Issekin'
       @ldap_setting.save
-      assert_nil User.try_to_login('systemhack', 'password')
 
-      pending "Should block users locked by account_flags"
+      assert User.try_to_login('loadgeek', 'password')
+
+      assert_nil User.try_to_login('systemhack', 'password')
       assert_nil User.try_to_login('tweetmicro', 'password')
     end
 

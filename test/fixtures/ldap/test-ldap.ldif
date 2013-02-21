@@ -79,6 +79,7 @@ preferredLanguage: ar
 uidNumber: 302
 gidNumber: 100
 homeDirectory: /home/tweetmicro
+description: Tweetmicro user [disabled]
 objectClass: posixAccount
 objectClass: person
 objectClass: inetOrgPerson

@@ -69,20 +69,25 @@ module LdapSync::Infectors::AuthSourceLdap
     end
 
     def sync_user(user, is_new_user = false, attrs = {})
-      with_ldap_connection(attrs[:login], attrs[:password]) do |_|
+      with_ldap_connection(attrs[:login], attrs[:password]) do |ldap|
         if user.locked? && !(activate_users? || setting.has_required_group?)
           trace "-- Not #{is_new_user ? 'creating': 'updating'} locked user '#{user.login}'"; return
         else
           trace "-- #{is_new_user ? 'Creating': 'Updating'} user '#{user.login}'..."
         end
 
+        user_data, flags = if attrs[:test_flags] && setting.has_account_flags?
+          user_data = find_user(ldap, user.login, setting.user_ldap_attrs_to_sync + ns(:account_flags))
+          [user_data, user_data[n(:account_flags)].first]
+        end
+
         sync_user_groups(user)
-        sync_user_status(user)
+        sync_user_status(user, flags)
 
         return if user.locked?
 
         sync_admin_privilege(user)
-        sync_user_fields(user) unless is_new_user
+        sync_user_fields(user, user_data) unless is_new_user
       end
     end
 
@@ -117,10 +122,10 @@ module LdapSync::Infectors::AuthSourceLdap
         trace groups_changes_summary(changes, added, deleted)
       end
 
-      def sync_user_fields(user)
+      def sync_user_fields(user, user_data = nil)
         return unless setting.active? && setting.sync_user_fields?
 
-        user.synced_fields = get_user_fields(user.login)
+        user.synced_fields = get_user_fields(user.login, user_data)
         if user.save
           user
         else
@@ -128,8 +133,11 @@ module LdapSync::Infectors::AuthSourceLdap
         end
       end
 
-      def sync_user_status(user)
-        if setting.has_required_group?
+      def sync_user_status(user, flags = nil)
+        if flags && account_disabled?(flags)
+          user.lock!
+          trace "   -> locked: user disabled on ldap with flags '#{flags}'"
+        elsif setting.has_required_group?
           if user.member_of_group?(setting.required_group)
             if user.locked?
               user.activate!
@@ -171,8 +179,8 @@ module LdapSync::Infectors::AuthSourceLdap
         end
       end
 
-      def get_user_fields(username)
-        user_data = with_ldap_connection do |ldap|
+      def get_user_fields(username, user_data = nil)
+        user_data ||= with_ldap_connection do |ldap|
           find_user(ldap, username, setting.user_ldap_attrs_to_sync)
         end
 
@@ -216,7 +224,7 @@ module LdapSync::Infectors::AuthSourceLdap
         user = ::User.where("LOWER(login) = ?", username.downcase).first
         if user.present? && user.auth_source_id != self.id
           trace "-- Skipping user '#{user.login}': it already exists on a different auth_source"
-          return nil
+          return nil, false
         end
         return user unless user.nil? && setting.create_users?
 
