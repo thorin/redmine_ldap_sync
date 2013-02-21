@@ -3,7 +3,7 @@ redmine_ldap_setting:
   updated_on: <%= Time.now.to_s(:db) %>
   value: |
     --- !ruby/hash:ActiveSupport::HashWithIndifferentAccess
-    LDAP test server: !ruby/hash:ActiveSupport::HashWithIndifferentAccess
+    1: !ruby/hash:ActiveSupport::HashWithIndifferentAccess
       groups_base_dn: OU=Group,DC=redmine,DC=org
       class_user: posixAccount
       class_group: groupOfNames

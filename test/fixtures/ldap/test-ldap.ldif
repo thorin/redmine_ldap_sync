@@ -51,7 +51,7 @@ o: 4003
 dn: uid=LoadGeek,ou=Person,dc=redmine,dc=org
 mail: loadgeek@fakemail.com
 uid: LoadGeek
-cn: Christian Earheart
+cn: Christián Earheart
 preferredLanguage: pt
 uidNumber: 301
 gidNumber: 100
@@ -60,7 +60,7 @@ objectClass: posixAccount
 objectClass: person
 objectClass: inetOrgPerson
 objectClass: pwdPolicy
-givenName: Christian
+givenName: Christián
 sn: Earheart
 description: Earheart User
 userPassword: {SSHA}Si9/UcgqKWBlN/+SQb+X1IHZnokzaicm
@@ -174,29 +174,29 @@ member: uid=systemhack,ou=Person,dc=redmine,dc=org
 o: 4004
 
 
-dn: cn=Sayeldas,ou=Group,dc=redmine,dc=org
+dn: cn=Säyeldas,ou=Group,dc=redmine,dc=org
 objectClass: groupOfNames
 objectClass: posixAccount
 homeDirectory: /nonexistent
 gidNumber: 4003
 uidNumber: 4003
-uid: Sayeldas
-cn: Sayeldas
+uid: Säyeldas
+cn: Säyeldas
 member: uid=systemhack,ou=Person,dc=redmine,dc=org
 member: uid=edavis,ou=Person,dc=redmine,dc=org
 o: 4004
 o: 4008
 
-dn: cn=Briklor,ou=Group,dc=redmine,dc=org
+dn: cn=Briklør,ou=Group,dc=redmine,dc=org
 objectClass: groupOfNames
 objectClass: posixAccount
 homeDirectory: /nonexistent
 gidNumber: 4004
 uidNumber: 4004
-uid: Briklor
-cn: Briklor
+uid: Briklør
+cn: Briklør
 member: cn=Worathest,ou=Group,dc=redmine,dc=org
-member: cn=Sayeldas,ou=Group,dc=redmine,dc=org
+member: cn=Säyeldas,ou=Group,dc=redmine,dc=org
 o: 4005
 
 dn: cn=Bluil,ou=Group,dc=redmine,dc=org
@@ -207,7 +207,7 @@ gidNumber: 4005
 uidNumber: 4005
 uid: Bluil
 cn: Bluil
-member: cn=Briklor,ou=Group,dc=redmine,dc=org
+member: cn=Briklør,ou=Group,dc=redmine,dc=org
 member: uid=microunit,ou=Person,dc=redmine,dc=org
 member: uid=LoadGeek,ou=Person,dc=redmine,dc=org
 
@@ -244,20 +244,20 @@ gidNumber: 4008
 uidNumber: 4008
 uid: Enden
 cn: Enden
-member: cn=Sayeldas,ou=Group,dc=redmine,dc=org
+member: cn=Säyeldas,ou=Group,dc=redmine,dc=org
 member: uid=microunit,ou=Person,dc=redmine,dc=org
 member: uid=tweetmicro,ou=Person,dc=redmine,dc=org
 
 
-dn: cn=Therss,ou=Group,dc=redmine,dc=org
+dn: cn=Therß,ou=Group,dc=redmine,dc=org
 objectClass: groupOfNames
 objectClass: posixAccount
 homeDirectory: /nonexistent
 gidNumber: 4009
 uidNumber: 4009
-uid: Therss
-cn: Therss
-description: Therss Team Group
+uid: Therß
+cn: Therß
+description: Therß Team Group
 member: cn=Iardum,ou=Group,dc=redmine,dc=org
 member: uid=LoadGeek,ou=Person,dc=redmine,dc=org
 member: uid=microunit,ou=Person,dc=redmine,dc=org
@@ -271,7 +271,7 @@ gidNumber: 4010
 uidNumber: 4010
 uid: Iardum
 cn: Iardum
-member: cn=Therss,ou=Group,dc=redmine,dc=org
+member: cn=Therß,ou=Group,dc=redmine,dc=org
 o: 4009
 
 

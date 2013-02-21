@@ -1,4 +1,4 @@
-require File.expand_path('../../test_helper', __FILE__)
+﻿require File.expand_path('../../test_helper', __FILE__)
 
 class AuthSourceLdapTest < ActiveSupport::TestCase
   fixtures :auth_sources, :users, :groups_users, :settings, :custom_fields
@@ -22,8 +22,8 @@ class AuthSourceLdapTest < ActiveSupport::TestCase
       assert_equal group_count + 8, Group.count, "Group.count"
       assert_equal custom_value_count + 10, CustomValue.count, "CustomValue.count"
 
-      group = Group.find_by_lastname('therss')
-      assert_equal 'Therss Team Group', group.custom_field_values[0].value
+      group = Group.find_by_lastname('therß')
+      assert_equal 'Therß Team Group', group.custom_field_values[0].value
     end
 
     should "not sync groups without fields_to_sync and create_groups" do
@@ -164,7 +164,7 @@ class AuthSourceLdapTest < ActiveSupport::TestCase
       user = User.find_by_login 'systemhack'
       assert_not_nil user, 'User systemhack should exist'
       user_groups = Set.new(user.groups.map(&:name))
-      assert_equal Set.new(%w(Anbely Sayeldas Worathest)), user_groups
+      assert_equal Set.new(%w(Anbely Säyeldas Worathest)), user_groups
     end
 
     should "sync users and groups with nested groups on parents" do
@@ -177,7 +177,7 @@ class AuthSourceLdapTest < ActiveSupport::TestCase
       user = User.find_by_login 'systemhack'
       assert_not_nil user, 'User systemhack should exist'
       user_groups = Set.new(user.groups.map(&:name))
-      assert_equal Set.new(%w(Anbely Enden Sayeldas Briklor Worathest Bluil)), user_groups
+      assert_equal Set.new(%w(Anbely Enden Säyeldas Briklør Worathest Bluil)), user_groups
     end
 
     should "sync users and groups with nested groups on members" do
@@ -190,7 +190,7 @@ class AuthSourceLdapTest < ActiveSupport::TestCase
       user = User.find_by_login 'systemhack'
       assert_not_nil user, 'User systemhack should exist'
       user_groups = Set.new(user.groups.map(&:name))
-      assert_equal Set.new(%w(Anbely Enden Sayeldas Briklor Worathest Bluil)), user_groups
+      assert_equal Set.new(%w(Anbely Enden Säyeldas Briklør Worathest Bluil)), user_groups
     end
 
     should "lock disabled users" do
@@ -326,7 +326,7 @@ class AuthSourceLdapTest < ActiveSupport::TestCase
     end
 
     should "set or disable admin privilege" do
-      @ldap_setting.admin_group = 'therss'
+      @ldap_setting.admin_group = 'therß'
       @ldap_setting.save
 
       assert !@user.admin?
@@ -369,7 +369,7 @@ class AuthSourceLdapTest < ActiveSupport::TestCase
       @auth_source.sync_user(@user)
       assert @user.reload.locked?
 
-      @ldap_setting.required_group = 'therss'
+      @ldap_setting.required_group = 'therß'
       @ldap_setting.save
 
       @auth_source = AuthSource.find(@auth_source.id)
@@ -400,7 +400,7 @@ class AuthSourceLdapTest < ActiveSupport::TestCase
       assert_not_nil User.find_by_login 'systemhack'
 
       user_groups = Set.new(user.groups.map(&:name))
-      assert_equal Set.new(%w(ldap.users Sayeldas Briklor Bluil Enden Anbely Worathest)), user_groups
+      assert_equal Set.new(%w(ldap.users Säyeldas Briklør Bluil Enden Anbely Worathest)), user_groups
       assert_equal 'da', user.custom_field_values[0].value
       assert_equal '303', user.custom_field_values[1].value
       assert_equal 'systemhack@fakemail.com', user.mail
@@ -415,11 +415,11 @@ class AuthSourceLdapTest < ActiveSupport::TestCase
       assert_not_nil user = User.try_to_login('loadgeek', 'password')
 
       user_groups = Set.new(user.groups.map(&:name))
-      assert_equal Set.new(%w(therss ldap.users Bluil Issekin Iardum)), user_groups
+      assert_equal Set.new(%w(therß ldap.users Bluil Issekin Iardum)), user_groups
       assert_equal 'pt', user.custom_field_values[0].value
       assert_equal '301', user.custom_field_values[1].value
       assert_equal 'loadgeek@fakemail.com', user.mail
-      assert_equal 'Christian', user.firstname
+      assert_equal 'Christián', user.firstname
       assert_equal 'Earheart', user.lastname
     end
 

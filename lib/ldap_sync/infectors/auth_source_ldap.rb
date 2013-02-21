@@ -3,20 +3,6 @@ module LdapSync::Infectors::AuthSourceLdap
   module InstanceMethods
     public
 
-    # TODO:
-    # => extract method sync_group with commons between dynamic and
-    #    non-dynamic groups
-    # => Use FileStore to cache dynamic groups:
-    #    * use a main key with the specified TTL (as a ldap setting)
-    #    * this main file should have a race condition ttl
-    #    * when the main key expires sync all dynamic groups
-    # => Find if there's some way to apply the group_filter to the dynamic
-    #    groups
-    # => Update dynamic groups cache both on sync_user and sync_groups
-    # => Try not to update the cache twice on sync_all (maybe by setting a
-    #    flag on class variable)
-
-
     def sync_groups
       if connect_as_user?
         trace "   -> Cannot synchronize: no account/password configured"; return
@@ -268,9 +254,14 @@ module LdapSync::Infectors::AuthSourceLdap
 
           users_on_local = self.users.active.map {|u| u.login.downcase }
           users_on_ldap = changes.values.sum.map(&:downcase)
-          changes[:disabled] += users_on_local - users_on_ldap
+          deleted_users = users_on_local - users_on_ldap
+          changes[:disabled] += deleted_users
 
-          trace "-- Found #{changes[:disabled].length + changes[:enabled].length} users"
+          msg = "-- Found #{changes[:enabled].size} users active"
+          msg += ", #{changes[:disabled].size - deleted_users.size} locked"
+          msg += " and #{deleted_users.size} deleted on ldap"
+          trace msg
+
           @ldap_users = changes
         end
 

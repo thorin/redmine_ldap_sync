@@ -273,7 +273,7 @@ class LdapSetting
     end
 
     def self.settings(source)
-      Setting.plugin_redmine_ldap_sync.fetch(source.name, HashWithIndifferentAccess.new)
+      Setting.plugin_redmine_ldap_sync.fetch(source.id, HashWithIndifferentAccess.new)
     end
 
     def settings
@@ -281,6 +281,6 @@ class LdapSetting
     end
 
     def settings=(attrs)
-      Setting.plugin_redmine_ldap_sync = Setting.plugin_redmine_ldap_sync.merge!(@auth_source_ldap.name => attrs)
+      Setting.plugin_redmine_ldap_sync = Setting.plugin_redmine_ldap_sync.merge!(@auth_source_ldap.id => attrs)
     end
 end

@@ -148,9 +148,9 @@ users_009:
   mail_notification: only_my_events
   login: miscuser9
   type: User
-therss:
+therß:
   id: 10
-  lastname: therss
+  lastname: therß
   type: Group
 rynever:
   id: 11
