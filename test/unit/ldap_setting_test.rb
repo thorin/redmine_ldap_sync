@@ -14,7 +14,7 @@ class LdapSettingTest < ActiveSupport::TestCase
   # Replace this with your real tests.
   def test_save
     auth_source = auth_sources(:auth_sources_002)
-    assert !Setting.plugin_redmine_ldap_sync[auth_source.name]
+    assert !Setting.plugin_redmine_ldap_sync[auth_source.id]
     setting = LdapSetting.find_by_auth_source_ldap_id(auth_source.id)
     setting.safe_attributes = {
       'active' => true,
@@ -25,10 +25,12 @@ class LdapSettingTest < ActiveSupport::TestCase
       'group_membership' => 'on_members',
       'groupid' => 'groupid',
       'nested_groups' => '',
-      'user_groups' => 'memberof'
+      'user_groups' => 'memberof',
+      'sync_on_login' => '',
+      'dyngroups' => ''
     }
     assert setting.save, setting.errors.full_messages.join(', ')
-    assert Setting.plugin_redmine_ldap_sync[auth_source.name]
+    assert Setting.plugin_redmine_ldap_sync[auth_source.id]
   end
 
   def test_should_strip_ldap_attributes
@@ -226,11 +228,11 @@ class LdapSettingTest < ActiveSupport::TestCase
 
   def test_should_validate_dyngroups_cache_ttl
     @ldap_setting.dyngroups_cache_ttl = nil
-    @ldap_setting.dyngroups = 'disabled'
-    assert @ldap_setting.valid?
+    @ldap_setting.dyngroups = ''
+    assert @ldap_setting.valid?, @ldap_setting.errors.full_messages.join(', ')
 
     @ldap_setting.dyngroups = 'enabled'
-    assert @ldap_setting.valid?
+    assert @ldap_setting.valid?, @ldap_setting.errors.full_messages.join(', ')
 
     @ldap_setting.dyngroups = 'enabled_with_ttl'
     assert !@ldap_setting.valid?
@@ -246,6 +248,10 @@ class LdapSettingTest < ActiveSupport::TestCase
 
     @ldap_setting.dyngroups_cache_ttl = '50'
     assert @ldap_setting.valid?
+  end
+
+  def test_should_validate_sync_on_login
+    pending
   end
 
   def test_should_return_field_for_user_ldap_attr
