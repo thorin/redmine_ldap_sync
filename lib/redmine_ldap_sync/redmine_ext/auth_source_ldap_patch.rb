@@ -17,7 +17,7 @@ module RedmineLdapSync
               if create_groups?
                 group = Group.where("LOWER(lastname) = ?", groupname.downcase).first
 
-                group ||= Group.create(groupname, :auth_source_id => self.id)
+                group ||= Group.create(:lastname => groupname, :auth_source_id => self.id)
                 if group.valid?
                   group
                 else
