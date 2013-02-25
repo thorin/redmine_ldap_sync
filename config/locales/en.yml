@@ -10,6 +10,18 @@ en:
   label_result: "Result"
   label_minutes: "minutes"
 
+  label_not_executed: "Not executed"
+  label_no_fields: "No fields"
+  label_not_found: "Not found"
+  label_users_enabled: "Users enabled"
+  label_a_total_of: "a total of %{count}"
+  label_users_disabled_by_flag: "Users disabled by flag"
+  label_users_disabled_by_group: "Users disabled by group"
+  label_admin_users: "Admin users"
+  label_ldap_attributes_on_a_user: "LDAP attributes on a user"
+  label_ldap_attributes_on_a_group: "LDAP attributes on a group"
+  label_log_messages: "Log messages"
+
   button_test: "Test"
   button_execute: "Execute"
   button_enable: "Enable"

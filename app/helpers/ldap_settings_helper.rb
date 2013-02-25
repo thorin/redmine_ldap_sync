@@ -94,7 +94,33 @@ module LdapSettingsHelper
     options_for_select(options, current_base)
   end
 
+  def user_fields_list(user_fields, group_changes)
+    text = user_fields.map do |(k, v)|
+      "    #{user_field_name k} = #{v}\n"
+    end.join
+    groups = group_changes[:added].to_a.inspect
+    text << "    #{l(:label_group_plural)} = #{groups}\n"
+  end
+
+  def group_fields_list(fields)
+    return "    #{l(:label_no_fields)}\n" if fields.empty?
+
+    fields.map do |(k, v)|
+      "    #{group_field_name k} = #{v}\n"
+    end.join
+  end
+
   private
+    def user_field_name(field)
+      return l("field_#{field}") if field !~ /\A\d+\z/
+
+      UserCustomField.find_by_id(field.to_i).name
+    end
+
+    def group_field_name(field)
+      GroupCustomField.find_by_id(field.to_i).name
+    end
+
     def baseable_fields
       LdapSetting::LDAP_ATTRIBUTES + LdapSetting::CLASS_NAMES + LdapSetting::COMBOS + [ 'account_disabled_test' ]
     end

@@ -2,17 +2,16 @@
 <%= error_messages_for 'ldap_test' %>
 <div class="box tabular settings">
   <%= labelled_fields_for f.object.test do |t| -%>
-  <p><%= t.label :users %><%= t.text_field :users %>
-     <%= link_to l(:button_execute), { :action => 'test', :format => 'text' },
-          :remote => true,
-          :method => 'put',
-          :id => 'commit-test' %></p>
+  <p><%= t.label :test_users %><%= t.text_field :test_users %></p>
+  <p><%= t.label :test_groups %><%= t.text_field :test_groups %></p>
+  <p><%= link_to l(:button_execute), { :action => 'test', :format => 'text' },
+          :remote => true, :method => 'put', :id => 'commit-test' %></p>
+  <div class="autoscroll">
   <fieldset>
     <legend><%=l(:label_result)%></legend>
 
-    <pre id="test-result">
-      <%= t.object.result %>
-    </pre>
+      <pre id="test-result"><%=l :label_not_executed %></pre>
   </fieldset>
+  </div>
   <% end -%>
 </div>

@@ -137,8 +137,12 @@ class LdapSettingsControllerTest < ActionController::TestCase
     pending "not implemented yet"
 
     # validates :groups_base_dn ---- find object on ldap
+
     # validates :class_user ---- find this class on ldap
     # validates :class_group ---- find this class on ldap
+
+    # We can show a list of attributes on a group and user object
+    #
     # validates :groupname ---- validate that a group has this attribute
     # validates :member ---- validate that a group has this attribute
     # validates :user_memberid ---- validate that a user has this attribute
@@ -152,7 +156,12 @@ class LdapSettingsControllerTest < ActionController::TestCase
     # CALL an auth_source_method to get:
     # - the given users' groups
     # - the given users' fields
-    # - the total number of groups
-    # - the total number of users
+    # - the users' group's fields
+    # - the total number of groups and list of those groups
+    # - the total number of users and list of those users
+    # - the total number of admin users (and a list of those users) [if enabled]
+    # - the total number of disabled users by flag (and a list of those users) [if enabled]
+    # - the total number of users disabled by group (and a list of those users) [if enabled]
+    # - the total number of dynamic groups and the members of those groups [if enabled]
   end
 end

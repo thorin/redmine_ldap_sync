@@ -38,6 +38,8 @@ class LdapSetting
 
   before_validation :strip_names, :set_ldap_attrs, :set_fields_to_sync
 
+  delegate :base_dn, :account, :account_password, :filter, :ldap_filter, :to => :auth_source_ldap
+
   attribute_method_affix :prefix => 'has_', :suffix => '?'
   attribute_method_suffix '?', '='
 
@@ -58,6 +60,11 @@ class LdapSetting
     return @active if defined? @active
 
     @active = active.in?(true, '1', 'yes')
+  end
+
+  def active=(value)
+    @active = value
+    @attributes[:active] = value
   end
 
   def nested_groups_enabled?
