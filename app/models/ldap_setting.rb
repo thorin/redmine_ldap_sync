@@ -32,6 +32,7 @@ class LdapSetting
 
   validates_numericality_of :dyngroups_cache_ttl, :only_integer => true, :allow_blank => true
 
+  validate :validate_account_disabled_test
   validate :validate_group_filter
   validate :validate_user_fields_to_sync, :validate_user_ldap_attrs
   validate :validate_group_fields_to_sync, :validate_group_ldap_attrs
@@ -202,6 +203,15 @@ class LdapSetting
 
   protected
 
+    def validate_account_disabled_test
+      if account_disabled_test.present?
+        eval("lambda { |flags| #{account_disabled_test} }")
+      end
+    rescue Exception => e
+      errors.add :account_disabled_test, :invalid
+      Rails.logger.error e.message + "\n " + e.backtrace.join("\n ")
+    end
+
     def validate_group_filter
       Net::LDAP::Filter.construct(group_search_filter) if group_search_filter.present?
     rescue Net::LDAP::LdapError
@@ -273,6 +283,10 @@ class LdapSetting
     def strip_names
       LDAP_ATTRIBUTES.each {|a| @attributes[a].strip! unless @attributes[a].nil? }
       CLASS_NAMES.each {|a| @attributes[a].strip! unless @attributes[a].nil? }
+    end
+
+    def attributes
+      @attributes
     end
 
     def attribute(attr)

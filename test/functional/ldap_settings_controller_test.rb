@@ -1,4 +1,4 @@
-require File.expand_path('../../test_helper', __FILE__)
+﻿require File.expand_path('../../test_helper', __FILE__)
 
 class LdapSettingsControllerTest < ActionController::TestCase
   fixtures :auth_sources, :users, :settings
@@ -134,34 +134,37 @@ class LdapSettingsControllerTest < ActionController::TestCase
   end
 
   def test_should_test
-    pending "not implemented yet"
+    put :test, :id => @ldap_setting.id, :format => 'text',
+      :ldap_setting => @ldap_setting.send(:attributes),
+      :ldap_test => { :test_users => 'example1', :test_groups => 'Therß' }
 
-    # validates :groups_base_dn ---- find object on ldap
+    assert_response :success
+    assert_equal 'text/plain', response.content_type
 
-    # validates :class_user ---- find this class on ldap
-    # validates :class_group ---- find this class on ldap
+    assert_match /User \"example1\":/,          response.body
+    assert_match /Group \"Therß\":/,            response.body
+    assert_match /Users enabled:/,              response.body
+    assert_match /Users disabled by flag:/,     response.body
+    assert_match /Admin users:/,                response.body
+    assert_match /Groups:/,                     response.body
+    assert_match /LDAP attributes on a user:/,  response.body
+    assert_match /LDAP attributes on a group:/, response.body
 
-    # We can show a list of attributes on a group and user object
-    #
-    # validates :groupname ---- validate that a group has this attribute
-    # validates :member ---- validate that a group has this attribute
-    # validates :user_memberid ---- validate that a user has this attribute
-    # validates :user_groups ---- validate that a user has this attribute
-    # validates :groupid ---- validate that a group has this attribute
-    # validates :parent_group ---- valitade that a group has this attribute
-    # validates :group_parentid ---- valitade that a group has this attribute
-    # validates :member_group ---- valitade that a group has this attribute
-    # validates :group_memberid ---- valitade that a group has this attribute
+    assert_not_match /ldap_test\.rb/, response.body, "Should not throw an error"
+  end
 
-    # CALL an auth_source_method to get:
-    # - the given users' groups
-    # - the given users' fields
-    # - the users' group's fields
-    # - the total number of groups and list of those groups
-    # - the total number of users and list of those users
-    # - the total number of admin users (and a list of those users) [if enabled]
-    # - the total number of disabled users by flag (and a list of those users) [if enabled]
-    # - the total number of users disabled by group (and a list of those users) [if enabled]
-    # - the total number of dynamic groups and the members of those groups [if enabled]
+  def test_should_validate_on_test
+    @ldap_setting.dyngroups = 'invalid'
+
+    put :test, :id => @ldap_setting.id, :format => 'text',
+      :ldap_setting => @ldap_setting.send(:attributes),
+      :ldap_test => { :test_users => 'example1', :test_groups => 'Therß' }
+
+    assert_response :success
+    assert_equal 'text/plain', response.content_type
+
+    assert_match /Validation errors .* Dynamic groups/m,   response.body
+
+    assert_not_match /ldap_test\.rb/, response.body, "Should not throw an error"
   end
 end

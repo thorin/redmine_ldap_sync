@@ -1,6 +1,8 @@
 class LdapTest
+  include Redmine::I18n
   include LdapSync::EntityManager
   include ActiveModel::Conversion
+  include ActiveModel::Validations
   extend ActiveModel::Naming
 
   attr_accessor :setting, :test_users, :test_groups, :messages, :user_attrs, :group_attrs, :users_at_ldap, :groups_at_ldap, :non_dynamic_groups, :dynamic_groups, :users_disabled_by_group, :admin_users, :user_changes
@@ -74,6 +76,14 @@ class LdapTest
   rescue Exception => e
     error(e.message + e.backtrace.join("\n  "))
   end
+
+  def self.human_attribute_name(attr, *args)
+    attr = attr.to_s.sub(/_id$/, '')
+
+    l("field_#{name.underscore.gsub('/', '_')}_#{attr}", :default => ["field_#{attr}".to_sym, attr])
+  end
+
+  def persisted?; true; end
 
   private
     def update_dyngroups_cache!(mem_cache)
