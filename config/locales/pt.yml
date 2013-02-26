@@ -10,6 +10,18 @@ pt:
   label_result: "Resultado"
   label_minutes: "minutos"
 
+  label_not_executed: "Não executado"
+  label_no_fields: "Sem dados"
+  label_not_found: "Não encontrado"
+  label_users_enabled: "Utilizadores activos"
+  label_a_total_of: "no total de %{count}"
+  label_users_disabled_by_flag: "Utilizadores inactivos por flag"
+  label_users_disabled_by_group: "Utilizadores inactivos por grupo"
+  label_admin_users: "Administradores redmine"
+  label_ldap_attributes_on_a_user: "Atributos LDAP num utilizador"
+  label_ldap_attributes_on_a_group: "Atributos LDAP num group"
+  label_log_messages: "Messagens de log"
+
   button_test: "Testar"
   button_execute: "Executar"
   button_enable: "Activar"
