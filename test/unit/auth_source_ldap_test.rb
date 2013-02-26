@@ -68,7 +68,7 @@ class AuthSourceLdapTest < ActiveSupport::TestCase
     should "sync dynamic groups and leave the cache fresh" do
       @ldap_setting.dyngroups = 'enabled'
       @ldap_setting.save
-      assert_false @auth_source.send(:dyngroups_fresh?)
+      assert !@auth_source.send(:dyngroups_fresh?)
       clear_ldap_cache!
 
       @auth_source.sync_groups
@@ -87,7 +87,7 @@ class AuthSourceLdapTest < ActiveSupport::TestCase
       now = Time.current + 3.minutes
       Time.stubs(:now).returns(now)
 
-      assert_false @auth_source.send(:dyngroups_fresh?)
+      assert !@auth_source.send(:dyngroups_fresh?)
     end
   end
 

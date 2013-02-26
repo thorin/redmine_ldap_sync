@@ -1,7 +1,7 @@
 ﻿require File.expand_path('../../test_helper', __FILE__)
 
 class LdapSettingsControllerTest < ActionController::TestCase
-  fixtures :auth_sources, :users, :settings
+  fixtures :auth_sources, :users, :settings, :custom_fields
 
   setup do
     @auth_source = auth_sources(:auth_sources_001)
