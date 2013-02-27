@@ -43,3 +43,95 @@ redmine_ldap_setting:
          '2': uidNumber
       group_ldap_attrs: !ruby/hash:ActiveSupport::HashWithIndifferentAccess
          '3': description
+redmine_ldap_setting:
+  name: plugin_redmine_ldap_sync
+  updated_on: <%= Time.now.to_s(:db) %>
+  value: |
+    --- !ruby/hash:ActiveSupport::HashWithIndifferentAccess
+    1: !ruby/hash:ActiveSupport::HashWithIndifferentAccess
+      active: true
+      groups_base_dn: OU=Group,DC=redmine,DC=org
+      class_user: posixAccount
+      class_group: groupOfNames
+      groupname_pattern: ''
+      group_search_filter: ''
+      account_disabled_test: flags.include? '[disabled]'
+      group_membership: on_groups
+      nested_groups: on_parents
+      groupname: cn
+      account_flags: description
+      member: member
+      user_memberid: dn
+      user_groups: o
+      groupid: gidNumber
+      parent_group: o
+      group_parentid: gidNumber
+      member_group: member
+      group_memberid: dn
+      required_group: ''
+      fixed_group: ldap.users
+      create_groups: '1'
+      create_users: '1'
+      sync_on_login: 'user_fields_and_groups'
+      dyngroups: ''
+      admin_group: Itora
+      group_fields_to_sync:
+       - '3'
+      user_fields_to_sync:
+       - firstname
+       - lastname
+       - mail
+       - '1'
+       - '2'
+      user_ldap_attrs: !ruby/hash:ActiveSupport::HashWithIndifferentAccess
+         '1': preferredLanguage
+         '2': uidNumber
+      group_ldap_attrs: !ruby/hash:ActiveSupport::HashWithIndifferentAccess
+         '3': description
+redmine_ldap_setting:
+  name: plugin_redmine_ldap_sync
+  updated_on: <%= Time.now.to_s(:db) %>
+  value: |
+    --- !ruby/hash:ActiveSupport::HashWithIndifferentAccess
+    1: !ruby/hash:ActiveSupport::HashWithIndifferentAccess
+      active: true
+      groups_base_dn: OU=Group,DC=redmine,DC=org
+      class_user: posixAccount
+      class_group: groupOfNames
+      groupname_pattern: ''
+      group_search_filter: ''
+      account_disabled_test: flags.include? '[disabled]'
+      group_membership: on_groups
+      nested_groups: on_parents
+      groupname: cn
+      account_flags: description
+      member: member
+      user_memberid: dn
+      user_groups: o
+      groupid: gidNumber
+      parent_group: o
+      group_parentid: gidNumber
+      member_group: member
+      group_memberid: dn
+      required_group: ''
+      fixed_group: ldap.users
+      create_groups: '1'
+      create_users: '1'
+      sync_on_login: 'user_fields_and_groups'
+      dyngroups: ''
+      admin_group: Itora
+      group_fields_to_sync:
+       - '3'
+      user_fields_to_sync:
+       - firstname
+       - lastname
+       - mail
+       - '1'
+       - '2'
+      user_ldap_attrs: !ruby/hash:ActiveSupport::HashWithIndifferentAccess
+         '1': preferredLanguage
+         '2': uidNumber
+      group_ldap_attrs: !ruby/hash:ActiveSupport::HashWithIndifferentAccess
+         '3': description
+    2: !ruby/hash:ActiveSupport::HashWithIndifferentAccess
+      active: true

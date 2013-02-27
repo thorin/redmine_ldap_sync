@@ -252,7 +252,28 @@ class LdapSettingTest < ActiveSupport::TestCase
   end
 
   def test_should_validate_sync_on_login
-    pending
+    @ldap_setting.sync_on_login = ''
+    assert @ldap_setting.valid?, @ldap_setting.errors.full_messages.join(', ')
+
+    @ldap_setting.sync_on_login = 'user_fields_and_groups'
+    assert @ldap_setting.valid?, @ldap_setting.errors.full_messages.join(', ')
+
+    @ldap_setting.sync_on_login = 'user_fields'
+    assert @ldap_setting.valid?, @ldap_setting.errors.full_messages.join(', ')
+
+    @ldap_setting.sync_on_login = 'invalid'
+    assert !@ldap_setting.valid?, @ldap_setting.errors.full_messages.join(', ')
+  end
+
+  def test_should_validate_account_disabled_test
+    @ldap_setting.account_disabled_test = ''
+    assert @ldap_setting.valid?, @ldap_setting.errors.full_messages.join(', ')
+
+    @ldap_setting.account_disabled_test = 'flags.include? "'
+    assert !@ldap_setting.valid?, @ldap_setting.errors.full_messages.join(', ')
+
+    @ldap_setting.account_disabled_test = 'flags.include? "D"'
+    assert @ldap_setting.valid?, @ldap_setting.errors.full_messages.join(', ')
   end
 
   def test_should_return_field_for_user_ldap_attr

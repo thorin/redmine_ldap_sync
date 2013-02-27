@@ -88,6 +88,8 @@ pt:
   field_base_settings: "Configuração base"
   option_custom: "Personalizado"
 
+  error_cannot_enable_with_invalid_settings: "Não é possivel activar a sincronização enquanto houverem erros na configuração. Deverá rever a configuração."
+
   errors:
     messages:
       invalid_ldap_attribute: "%{value} tem um atributo LDAP inválido"

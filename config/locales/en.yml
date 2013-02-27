@@ -88,6 +88,8 @@ en:
   field_base_settings: "Base settings"
   option_custom: "Customized"
 
+  error_cannot_enable_with_invalid_settings: "Cannot enable synchronization with invalid settings. Please revise the configuration."
+
   errors:
     messages:
       invalid_ldap_attribute: "%{field} has an invalid LDAP attribute"

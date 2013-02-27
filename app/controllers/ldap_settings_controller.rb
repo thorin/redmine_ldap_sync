@@ -36,15 +36,9 @@ class LdapSettingsController < ApplicationController
 
   # PUT /ldap_settings/1/disable
   def disable
-    @ldap_setting.active = false
+    @ldap_setting.disable!
 
-    respond_to do |format|
-      if @ldap_setting.save
-        format.html { flash[:notice] = l(:text_ldap_setting_successfully_updated); redirect_to_referer_or ldap_settings_path }
-      else
-        format.html { flash[:error] = @ldap_setting.errors.full_messages.join(', '); redirect_to_referer_or ldap_settings_path }
-      end
-    end
+    flash[:notice] = l(:text_ldap_setting_successfully_updated); redirect_to_referer_or ldap_settings_path
   end
 
   # PUT /ldap_settings/1/enable
@@ -55,7 +49,7 @@ class LdapSettingsController < ApplicationController
       if @ldap_setting.save
         format.html { flash[:notice] = l(:text_ldap_setting_successfully_updated); redirect_to_referer_or ldap_settings_path }
       else
-        format.html { flash[:error] = @ldap_setting.errors.full_messages.join(', '); redirect_to_referer_or ldap_settings_path }
+        format.html { flash[:error] = l(:error_cannot_enable_with_invalid_settings); redirect_to_referer_or ldap_settings_path }
       end
     end
   end

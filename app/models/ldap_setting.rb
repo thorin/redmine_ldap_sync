@@ -177,6 +177,11 @@ class LdapSetting
     self.settings = delete_unsafe_attributes(@attributes, User.current)
   end
 
+  def disable!
+    self.active = false
+    self.settings = settings.merge(:active => false)
+  end
+
   def read_attribute_for_validation(key)
     @attributes[key]
   end
