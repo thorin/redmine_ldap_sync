@@ -208,7 +208,8 @@ class LdapSetting
         eval("lambda { |flags| #{account_disabled_test} }")
       end
     rescue Exception => e
-      errors.add :account_disabled_test, :invalid
+      # TODO: Add some extra detail to the error (example the log error)
+      errors.add :account_disabled_test, :invalid_expression, :error_message => e.message
       Rails.logger.error e.message + "\n " + e.backtrace.join("\n ")
     end
 
@@ -236,7 +237,7 @@ class LdapSetting
 
     def validate_ldap_attrs(ldap_attrs, fields)
       if ldap_attrs.nil?
-        errors.add(:user_group_fields, :invalid); return
+        errors.add :user_group_fields, :invalid; return
       end
 
       field_ids = fields.map {|f| f.id.to_s }
@@ -246,24 +247,24 @@ class LdapSetting
 
         elsif v.present? && v !~ /\A[a-z][a-z0-9-]*\z/i
           field_name = fields.find {|f| f.id == k.to_i }.name
-          errors.add :base, l(:error_invalid_ldap_attribute, field_name)
+          errors.add :base, :invalid_ldap_attribute, :field => field_name
         end
       end
     end
 
     def validate_fields(fields_to_sync, fields, attrs)
       if fields_to_sync.nil?
-        errors.add(:user_group_fields, :invalid); return
+        errors.add :user_group_fields, :invalid; return
       end
 
       fields_ids = fields.map {|f| f.respond_to?(:id) ? f.id.to_s : f }
       if fields_to_sync.any? {|f| !f.in? fields_ids  }
-        errors.add(:user_group_fields, :invalid) unless errors.added? :user_group_fields, :invalid
+        errors.add :user_group_fields, :invalid unless errors.added? :user_group_fields, :invalid
       end
       fields_to_sync.each do |f|
         if f =~ /\A\d+\z/ && (attrs.blank? || attrs[f].blank?)
           field_name = fields.find{|c| c.respond_to?(:id) && c.id.to_s == f }.name
-          errors.add :base, l(:error_must_have_ldap_attribute, field_name)
+          errors.add :base, :must_have_ldap_attribute, :field => field_name
         end
       end
     end

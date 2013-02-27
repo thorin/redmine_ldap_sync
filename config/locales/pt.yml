@@ -85,5 +85,8 @@ pt:
   field_base_settings: "Configuração base"
   option_custom: "Personalizado"
 
-  error_invalid_ldap_attribute: "%{value} tem um atributo LDAP inválido"
-  error_must_have_ldap_attribute: "%{value} requere um atributo LDAP para ser sincronizado"
+  errors:
+    messages:
+      invalid_ldap_attribute: "%{value} tem um atributo LDAP inválido"
+      must_have_ldap_attribute: "%{value} requere um atributo LDAP para ser sincronizado"
+      invalid_expression: "é uma expressão não válida: %{error_message}"
