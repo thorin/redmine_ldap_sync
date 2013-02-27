@@ -1,4 +1,5 @@
-﻿require 'simplecov'
+# encoding: utf-8
+require 'simplecov'
 SimpleCov.start do
   add_group 'Controllers', 'app/controllers'
   add_group 'Models', 'app/models'

@@ -209,7 +209,7 @@ class LdapSetting
       end
     rescue Exception => e
       # TODO: Add some extra detail to the error (example the log error)
-      errors.add :account_disabled_test, :invalid_expression, :error_message => e.message
+      errors.add :account_disabled_test, :invalid_expression, :error_message => e.message.gsub(/^(\(eval\):1: )?(.*?)(lambda.*|$)/m, '\2')
       Rails.logger.error e.message + "\n " + e.backtrace.join("\n ")
     end
 
@@ -257,13 +257,13 @@ class LdapSetting
         errors.add :user_group_fields, :invalid; return
       end
 
-      fields_ids = fields.map {|f| f.respond_to?(:id) ? f.id.to_s : f }
+      fields_ids = fields.map {|f| f.is_a?(String) ? f : f.id.to_s }
       if fields_to_sync.any? {|f| !f.in? fields_ids  }
         errors.add :user_group_fields, :invalid unless errors.added? :user_group_fields, :invalid
       end
       fields_to_sync.each do |f|
         if f =~ /\A\d+\z/ && (attrs.blank? || attrs[f].blank?)
-          field_name = fields.find{|c| c.respond_to?(:id) && c.id.to_s == f }.name
+          field_name = fields.find{|c| !c.is_a?(String) && c.id.to_s == f }.name
           errors.add :base, :must_have_ldap_attribute, :field => field_name
         end
       end

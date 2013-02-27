@@ -1,4 +1,5 @@
-﻿require File.expand_path('../../test_helper', __FILE__)
+# encoding: utf-8
+require File.expand_path('../../test_helper', __FILE__)
 
 class AuthSourceLdapTest < ActiveSupport::TestCase
   fixtures :auth_sources, :users, :groups_users, :settings, :custom_fields
@@ -38,7 +39,7 @@ class AuthSourceLdapTest < ActiveSupport::TestCase
 
     should "not sync groups with synchronization disabled" do
       @ldap_setting.active = false
-      assert @ldap_setting.save
+      assert @ldap_setting.save, @ldap_setting.errors.full_messages.join(', ')
 
       assert_no_difference ['Group.count', 'CustomValue.count'] do
         @auth_source.sync_groups
@@ -47,7 +48,7 @@ class AuthSourceLdapTest < ActiveSupport::TestCase
 
     should "not sync groups with connect as user" do
       @auth_source.account = 'uid=$login,ou=Person,dc=redmine,dc=org'
-      @auth_source.save
+      assert @auth_source.save, @ldap_setting.errors.full_messages.join(', ')
 
       assert_no_difference ['Group.count', 'CustomValue.count'] do
         @auth_source.sync_groups
@@ -56,7 +57,7 @@ class AuthSourceLdapTest < ActiveSupport::TestCase
 
     should "only sync custom fields without create_groups" do
       @ldap_setting.create_groups = false
-      @ldap_setting.save
+      assert @ldap_setting.save, @ldap_setting.errors.full_messages.join(', ')
       group_count, custom_value_count = Group.count, CustomValue.count
 
       @auth_source.sync_groups
@@ -67,7 +68,7 @@ class AuthSourceLdapTest < ActiveSupport::TestCase
 
     should "sync dynamic groups and leave the cache fresh" do
       @ldap_setting.dyngroups = 'enabled'
-      @ldap_setting.save
+      assert @ldap_setting.save, @ldap_setting.errors.full_messages.join(', ')
       assert !@auth_source.send(:dyngroups_fresh?)
       clear_ldap_cache!
 
@@ -80,7 +81,7 @@ class AuthSourceLdapTest < ActiveSupport::TestCase
     should "dynamic groups cache should expire" do
       @ldap_setting.dyngroups = 'enabled_with_ttl'
       @ldap_setting.dyngroups_cache_ttl = '2'
-      @ldap_setting.save
+      assert @ldap_setting.save, @ldap_setting.errors.full_messages.join(', ')
 
       @auth_source.sync_groups
 
@@ -94,7 +95,7 @@ class AuthSourceLdapTest < ActiveSupport::TestCase
   context "#sync_users" do
     setup do
       @ldap_setting.fixed_group = nil
-      @ldap_setting.save
+      assert @ldap_setting.save, @ldap_setting.errors.full_messages.join(', ')
     end
 
     should "create users and groups" do
@@ -115,7 +116,7 @@ class AuthSourceLdapTest < ActiveSupport::TestCase
       @ldap_setting.group_fields_to_sync = nil
       @ldap_setting.user_ldap_attrs = nil
       @ldap_setting.group_ldap_attrs = nil
-      assert @ldap_setting.save
+      assert @ldap_setting.save, @ldap_setting.errors.full_messages.join(', ')
       Setting.clear_cache
 
       user_count = User.count
@@ -129,7 +130,7 @@ class AuthSourceLdapTest < ActiveSupport::TestCase
 
     should "not sync users when disabled" do
       @ldap_setting.active = false
-      @ldap_setting.save
+      assert @ldap_setting.save, @ldap_setting.errors.full_messages.join(', ')
 
       assert_no_difference ['User.count', 'Group.count', 'CustomValue.count'] do
         @auth_source.sync_users
@@ -147,7 +148,7 @@ class AuthSourceLdapTest < ActiveSupport::TestCase
 
     should "not create users without create users" do
       @ldap_setting.create_users = false
-      @ldap_setting.save
+      assert @ldap_setting.save, @ldap_setting.errors.full_messages.join(', ')
 
       assert_no_difference ['User.count'] do
         @auth_source.sync_users
@@ -156,7 +157,7 @@ class AuthSourceLdapTest < ActiveSupport::TestCase
 
     should "sync users and groups without nested groups" do
       @ldap_setting.nested_groups = ''
-      @ldap_setting.save
+      assert @ldap_setting.save, @ldap_setting.errors.full_messages.join(', ')
 
       assert_nil User.find_by_login 'systemhack'
       @auth_source.sync_users
@@ -169,7 +170,7 @@ class AuthSourceLdapTest < ActiveSupport::TestCase
 
     should "sync users and groups with nested groups on parents" do
       @ldap_setting.nested_groups = 'on_parents'
-      @ldap_setting.save
+      assert @ldap_setting.save, @ldap_setting.errors.full_messages.join(', ')
 
       assert_nil User.find_by_login 'systemhack'
       @auth_source.sync_users
@@ -182,7 +183,7 @@ class AuthSourceLdapTest < ActiveSupport::TestCase
 
     should "sync users and groups with nested groups on members" do
       @ldap_setting.nested_groups = 'on_members'
-      @ldap_setting.save
+      assert @ldap_setting.save, @ldap_setting.errors.full_messages.join(', ')
 
       assert_nil User.find_by_login 'systemhack'
       @auth_source.sync_users
@@ -200,7 +201,7 @@ class AuthSourceLdapTest < ActiveSupport::TestCase
 
       @ldap_setting.account_flags = 'description'
       @ldap_setting.account_disabled_test = "flags.include? 'Earheart'"
-      @ldap_setting.save
+      assert @ldap_setting.save, @ldap_setting.errors.full_messages.join(', ')
 
       @auth_source.sync_users
 
@@ -209,7 +210,7 @@ class AuthSourceLdapTest < ActiveSupport::TestCase
 
     should "not lock users when there's no account_flags" do
       @ldap_setting.account_flags = nil
-      @ldap_setting.save
+      assert @ldap_setting.save, @ldap_setting.errors.full_messages.join(', ')
 
       @auth_source.sync_users
 
@@ -231,7 +232,7 @@ class AuthSourceLdapTest < ActiveSupport::TestCase
 
     should "sync with dynamic groups" do
       @ldap_setting.dyngroups = 'enabled'
-      @ldap_setting.save
+      assert @ldap_setting.save, @ldap_setting.errors.full_messages.join(', ')
       @auth_source.sync_users
 
       user = User.find_by_login('tweetsave')
@@ -240,7 +241,7 @@ class AuthSourceLdapTest < ActiveSupport::TestCase
 
     should "sync without dynamic groups" do
       @ldap_setting.dyngroups = ''
-      @ldap_setting.save
+      assert @ldap_setting.save, @ldap_setting.errors.full_messages.join(', ')
       @auth_source.sync_users
 
       user = User.find_by_login('tweetsave')
@@ -254,7 +255,7 @@ class AuthSourceLdapTest < ActiveSupport::TestCase
     end
     should "not sync fields with no attrs to sync" do
       @ldap_setting.user_fields_to_sync = []
-      @ldap_setting.save
+      assert @ldap_setting.save, @ldap_setting.errors.full_messages.join(', ')
 
       @auth_source.sync_user(@user)
       @user.reload
@@ -276,7 +277,7 @@ class AuthSourceLdapTest < ActiveSupport::TestCase
 
     should "not create groups without create groups" do
       @ldap_setting.create_groups = false
-      @ldap_setting.save
+      assert @ldap_setting.save, @ldap_setting.errors.full_messages.join(', ')
 
       assert_nil Group.find_by_lastname 'Anbely'
       @auth_source.sync_user(@user)
@@ -293,7 +294,7 @@ class AuthSourceLdapTest < ActiveSupport::TestCase
 
     should "sync without nested groups" do
       @ldap_setting.nested_groups = ''
-      @ldap_setting.save
+      assert @ldap_setting.save, @ldap_setting.errors.full_messages.join(', ')
 
       assert_not_include 'Anbely', @user.groups.map(&:name)
       @auth_source.sync_user(@user)
@@ -303,7 +304,7 @@ class AuthSourceLdapTest < ActiveSupport::TestCase
 
     should "sync groups with membership on members" do
       @ldap_setting.group_membership = 'on_members'
-      @ldap_setting.save
+      assert @ldap_setting.save, @ldap_setting.errors.full_messages.join(', ')
 
       assert_nil Group.find_by_lastname 'Issekin'
       assert_not_include 'Issekin', @user.groups.map(&:name)
@@ -315,7 +316,7 @@ class AuthSourceLdapTest < ActiveSupport::TestCase
 
     should "sync groups with membership on groups" do
       @ldap_setting.group_membership = 'on_groups'
-      @ldap_setting.save
+      assert @ldap_setting.save, @ldap_setting.errors.full_messages.join(', ')
 
       assert_nil Group.find_by_lastname 'Issekin'
       assert_not_include 'Issekin', @user.groups.map(&:name)
@@ -327,14 +328,14 @@ class AuthSourceLdapTest < ActiveSupport::TestCase
 
     should "set or disable admin privilege" do
       @ldap_setting.admin_group = 'therß'
-      @ldap_setting.save
+      assert @ldap_setting.save, @ldap_setting.errors.full_messages.join(', ')
 
       assert !@user.admin?
       @auth_source.sync_user(@user)
       assert @user.reload.admin?
 
       @ldap_setting.admin_group = 'Itora'
-      @ldap_setting.save
+      assert @ldap_setting.save, @ldap_setting.errors.full_messages.join(', ')
 
       @auth_source = AuthSource.find(@auth_source.id)
       @auth_source.sync_user(@user)
@@ -343,7 +344,7 @@ class AuthSourceLdapTest < ActiveSupport::TestCase
 
     should "not sync fields or admin privilege if locked" do
       @ldap_setting.admin_group = 'Enden'
-      @ldap_setting.save
+      assert @ldap_setting.save, @ldap_setting.errors.full_messages.join(', ')
       @user.lock!
 
       groups_before = @user.groups
@@ -355,7 +356,7 @@ class AuthSourceLdapTest < ActiveSupport::TestCase
 
     should "add to fixed group" do
       @ldap_setting.fixed_group = 'Fixed Group'
-      @ldap_setting.save
+      assert @ldap_setting.save, @ldap_setting.errors.full_messages.join(', ')
 
       @auth_source.sync_user(@user)
       assert_include 'Fixed Group', @user.groups.map(&:name)
@@ -363,14 +364,14 @@ class AuthSourceLdapTest < ActiveSupport::TestCase
 
     should "unlock(lock) if (not) member of required group" do
       @ldap_setting.required_group = 'Worathest'
-      @ldap_setting.save
+      assert @ldap_setting.save, @ldap_setting.errors.full_messages.join(', ')
 
       assert @user.active?
       @auth_source.sync_user(@user)
       assert @user.reload.locked?
 
       @ldap_setting.required_group = 'therß'
-      @ldap_setting.save
+      assert @ldap_setting.save, @ldap_setting.errors.full_messages.join(', ')
 
       @auth_source = AuthSource.find(@auth_source.id)
       @auth_source.sync_user(@user)
@@ -395,7 +396,7 @@ class AuthSourceLdapTest < ActiveSupport::TestCase
       @ldap_setting.active = true
       @ldap_setting.fixed_group = 'ldap.users'
       @ldap_setting.nested_groups = 'on_parents'
-      @ldap_setting.save
+      assert @ldap_setting.save, @ldap_setting.errors.full_messages.join(', ')
 
       assert_nil User.find_by_login 'systemhack'
 
@@ -428,7 +429,7 @@ class AuthSourceLdapTest < ActiveSupport::TestCase
 
     should "deny access to just now locked users" do
       @ldap_setting.required_group = 'Issekin'
-      @ldap_setting.save
+      assert @ldap_setting.save, @ldap_setting.errors.full_messages.join(', ')
 
       assert User.try_to_login('loadgeek', 'password')
 
@@ -450,7 +451,7 @@ class AuthSourceLdapTest < ActiveSupport::TestCase
 
     should "not sync or lock if sync on login is disabled" do
       @ldap_setting.sync_on_login = ''
-      @ldap_setting.save
+      assert @ldap_setting.save, @ldap_setting.errors.full_messages.join(', ')
 
       groups = @loadgeek.groups
 
@@ -461,7 +462,7 @@ class AuthSourceLdapTest < ActiveSupport::TestCase
 
     should "not sync groups if sync groups on login is disabled" do
       @ldap_setting.sync_on_login = 'user_fields'
-      @ldap_setting.save
+      assert @ldap_setting.save, @ldap_setting.errors.full_messages.join(', ')
 
       assert_nil User.try_to_login('tweetmicro', 'password')
 

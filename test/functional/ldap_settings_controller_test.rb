@@ -1,4 +1,5 @@
-﻿require File.expand_path('../../test_helper', __FILE__)
+# encoding: utf-8
+require File.expand_path('../../test_helper', __FILE__)
 
 class LdapSettingsControllerTest < ActionController::TestCase
   fixtures :auth_sources, :users, :settings, :custom_fields
@@ -150,7 +151,7 @@ class LdapSettingsControllerTest < ActionController::TestCase
     assert_match /LDAP attributes on a user:/,  response.body
     assert_match /LDAP attributes on a group:/, response.body
 
-    assert_not_match /ldap_test\.rb/, response.body, "Should not throw an error"
+    assert_no_match /ldap_test\.rb/, response.body, "Should not throw an error"
   end
 
   def test_should_validate_on_test
@@ -165,6 +166,6 @@ class LdapSettingsControllerTest < ActionController::TestCase
 
     assert_match /Validation errors .* Dynamic groups/m,   response.body
 
-    assert_not_match /ldap_test\.rb/, response.body, "Should not throw an error"
+    assert_no_match /ldap_test\.rb/, response.body, "Should not throw an error"
   end
 end

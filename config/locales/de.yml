@@ -65,6 +65,9 @@ de:
   field_lastname: "Nachname"
   field_mail: "Email Adresse"
 
+  field_test_users: "Benutzer"
+  field_test_groups: "Gruppen"
+
   option_group_membership_on_groups: "On the group class"
   option_group_membership_on_members: "On the user class"
 
@@ -89,4 +92,4 @@ de:
     messages:
       invalid_ldap_attribute: "%{value} has an invalid LDAP attribute"
       must_have_ldap_attribute: "%{value} must have an LDAP attribute for it to be synchronized"
-      invalid_expression: "é uma expressão não válida: %{error_message}"
+      invalid_expression: "contains an invalid expression: %{error_message}"

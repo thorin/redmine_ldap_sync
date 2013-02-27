@@ -65,6 +65,9 @@ pt:
   field_lastname: "Apelido"
   field_mail: "E-mail"
 
+  field_test_users: "Utilizadores"
+  field_test_groups: "Grupos"
+
   option_group_membership_on_groups: "No grupo"
   option_group_membership_on_members: "No utilizador"
 
@@ -89,4 +92,4 @@ pt:
     messages:
       invalid_ldap_attribute: "%{value} tem um atributo LDAP inválido"
       must_have_ldap_attribute: "%{value} requere um atributo LDAP para ser sincronizado"
-      invalid_expression: "é uma expressão não válida: %{error_message}"
+      invalid_expression: "contém uma expressão não válida: %{error_message}"
