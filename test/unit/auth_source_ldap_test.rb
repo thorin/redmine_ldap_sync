@@ -392,6 +392,14 @@ class AuthSourceLdapTest < ActiveSupport::TestCase
       @loadgeek = users(:loadgeek)
     end
 
+    should "work with wrong credentials" do
+      assert_nil User.find_by_login 'invaliduser'
+
+      user = User.try_to_login('invaliduser', 'password')
+
+      assert_nil user
+    end
+
     should "add to fixed group, create and synchronize a new user" do
       @ldap_setting.active = true
       @ldap_setting.fixed_group = 'ldap.users'
