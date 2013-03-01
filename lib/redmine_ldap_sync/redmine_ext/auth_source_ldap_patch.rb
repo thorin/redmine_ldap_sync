@@ -137,7 +137,7 @@ module RedmineLdapSync
             changes = {:enabled => Set.new, :disabled => Set.new}
 
             if settings[:account_flags].blank?
-              changes[:enabled] = find_all_users(ldap_con, [:login])
+              changes[:enabled] += find_all_users(ldap_con, [:login])
             else
               find_all_users(ldap_con, [:login, :account_flags]) do |entry|
                 if account_disabled?(entry[:account_flags])
