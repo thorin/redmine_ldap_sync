@@ -15,7 +15,7 @@ class LdapSettingTest < ActiveSupport::TestCase
   # Replace this with your real tests.
   def test_save
     auth_source = auth_sources(:auth_sources_002)
-    assert !Setting.plugin_redmine_ldap_sync[auth_source.id]
+    assert !Setting.plugin_redmine_ldap_sync[auth_source.id]['user_groups']
     setting = LdapSetting.find_by_auth_source_ldap_id(auth_source.id)
     setting.safe_attributes = {
       'active' => true,
@@ -31,7 +31,7 @@ class LdapSettingTest < ActiveSupport::TestCase
       'dyngroups' => ''
     }
     assert setting.save, setting.errors.full_messages.join(', ')
-    assert Setting.plugin_redmine_ldap_sync[auth_source.id]
+    assert Setting.plugin_redmine_ldap_sync[auth_source.id]['user_groups']
   end
 
   def test_should_strip_ldap_attributes
@@ -273,6 +273,17 @@ class LdapSettingTest < ActiveSupport::TestCase
     assert !@ldap_setting.valid?, @ldap_setting.errors.full_messages.join(', ')
 
     @ldap_setting.account_disabled_test = 'flags.include? "D"'
+    assert @ldap_setting.valid?, @ldap_setting.errors.full_messages.join(', ')
+  end
+
+  def test_should_validate_groupname_pattern
+    @ldap_setting.groupname_pattern = ''
+    assert @ldap_setting.valid?, @ldap_setting.errors.full_messages.join(', ')
+
+    @ldap_setting.groupname_pattern = '?test$'
+    assert !@ldap_setting.valid?, @ldap_setting.errors.full_messages.join(', ')
+
+    @ldap_setting.groupname_pattern = '\?test$'
     assert @ldap_setting.valid?, @ldap_setting.errors.full_messages.join(', ')
   end
 

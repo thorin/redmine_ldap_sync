@@ -67,10 +67,13 @@ class LdapTest
       end
 
       find_all_groups(ldap, nil, n(:groupname)) do |entry|
-        non_dynamic_groups << entry.first
+        if !setting.has_groupname_pattern? || entry.first =~ /#{setting.groupname_pattern}/
+          non_dynamic_groups << entry.first
+        end
       end
       if setting.sync_dyngroups?
         find_all_dyngroups(ldap, :update_cache => true)
+        dynamic_groups.reject! {|(k, v)| k !~ /#{setting.groupname_pattern}/ } if setting.has_groupname_pattern?
       end
     end
   rescue Exception => e

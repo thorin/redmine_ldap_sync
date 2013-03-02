@@ -32,6 +32,7 @@ class LdapSetting
 
   validates_numericality_of :dyngroups_cache_ttl, :only_integer => true, :allow_blank => true
 
+  validate :validate_groupname_pattern
   validate :validate_account_disabled_test
   validate :validate_group_filter
   validate :validate_user_fields_to_sync, :validate_user_ldap_attrs
@@ -216,6 +217,12 @@ class LdapSetting
       # TODO: Add some extra detail to the error (example the log error)
       errors.add :account_disabled_test, :invalid_expression, :error_message => e.message.gsub(/^(\(eval\):1: )?(.*?)(lambda.*|$)/m, '\2')
       Rails.logger.error e.message + "\n " + e.backtrace.join("\n ")
+    end
+
+    def validate_groupname_pattern
+      /#{groupname_pattern}/ if groupname_pattern.present?
+    rescue Exception => e
+      errors.add :groupname_pattern, :invalid_regexp, :error_message => e.message #.gsub(/(.*)/, '\1')
     end
 
     def validate_group_filter

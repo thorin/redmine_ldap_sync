@@ -15,7 +15,6 @@ class LdapTestTest < ActiveSupport::TestCase
 
   def test_run_with_disabled_settings
     @ldap_setting.active = false;
-    assert @ldap_setting.save, @ldap_setting.errors.full_messages.join
     @ldap_test = LdapTest.new(@ldap_setting)
 
     assert @ldap_test.setting.active?
@@ -72,7 +71,6 @@ class LdapTestTest < ActiveSupport::TestCase
   def test_run_with_no_group_fields_and_user_fields
     @ldap_setting.group_fields_to_sync = []
     @ldap_setting.user_fields_to_sync = []
-    @ldap_setting.save
 
     @ldap_test.run_with_users_and_groups(['tweetsave'], ['Briklør', 'Therß'])
     assert_equal 0, @ldap_test.groups_at_ldap['Therß'][:fields].size
@@ -90,7 +88,6 @@ class LdapTestTest < ActiveSupport::TestCase
 
   def test_run_with_admin_group
     @ldap_setting.admin_group = 'Worathest'
-    @ldap_setting.save
 
     @ldap_test.run_with_users_and_groups(['tweetsave'], ['Therß'])
     assert_not_equal 0, @ldap_test.admin_users.size
@@ -100,7 +97,6 @@ class LdapTestTest < ActiveSupport::TestCase
 
   def test_run_with_required_group
     @ldap_setting.required_group = 'Bluil'
-    @ldap_setting.save
 
     @ldap_test.run_with_users_and_groups(['tweetsave'], ['Therß'])
     assert_not_equal 0, @ldap_test.users_disabled_by_group.size
@@ -110,7 +106,6 @@ class LdapTestTest < ActiveSupport::TestCase
 
   def test_run_with_dynamic_groups
     @ldap_setting.dyngroups = 'enabled'
-    @ldap_setting.save
 
     @ldap_test.run_with_users_and_groups(['microunit'], ['Enden'])
     assert_include 'MicroUsers', @ldap_test.users_at_ldap['microunit'][:groups][:added]
@@ -128,7 +123,6 @@ class LdapTestTest < ActiveSupport::TestCase
     @ldap_setting.user_fields_to_sync = []
     @ldap_setting.admin_group = ''
     @ldap_setting.required_group = ''
-    assert @ldap_setting.save, @ldap_setting.errors.full_messages.join
 
     @ldap_test.run_with_users_and_groups([], [])
     assert_not_equal 0, @ldap_test.messages.size
@@ -155,5 +149,15 @@ class LdapTestTest < ActiveSupport::TestCase
     @ldap_test.run_with_users_and_groups([], [])
 
     assert_match /ldap_test\.rb/, @ldap_test.messages, "Should not throw an error"
+  end
+
+  def test_should_filter_the_list_of_groups_with_the_groupname_pattern
+    @ldap_setting.groupname_pattern = "s$"
+    @ldap_setting.dyngroups = 'enabled'
+
+    @ldap_test.run_with_users_and_groups([], [])
+
+    assert_equal 3, @ldap_test.non_dynamic_groups.size + @ldap_test.dynamic_groups.size
+    assert_include 'Säyeldas', @ldap_test.non_dynamic_groups
   end
 end

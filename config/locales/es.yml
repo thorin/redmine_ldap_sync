@@ -95,3 +95,4 @@ es:
       invalid_ldap_attribute: "%{value} tiene un atributo LDAP no válido"
       must_have_ldap_attribute: "%{value} debe tener un atributo LDAP para que se pueda sincronizar"
       invalid_expression: "contiene una expresión no válida: %{error_message}"
+      invalid_regexp: "contiene una expresión regular no válida: %{error_message}"

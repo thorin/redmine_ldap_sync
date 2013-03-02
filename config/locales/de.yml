@@ -95,3 +95,4 @@ de:
       invalid_ldap_attribute: "%{value} has an invalid LDAP attribute"
       must_have_ldap_attribute: "%{value} must have an LDAP attribute for it to be synchronized"
       invalid_expression: "contains an invalid expression: %{error_message}"
+      invalid_regexp: "contains an invalid regular expression: %{error_message}"
