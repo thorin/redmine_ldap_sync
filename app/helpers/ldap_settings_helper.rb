@@ -94,8 +94,8 @@ module LdapSettingsHelper
     options_for_select(options, current_base)
   end
 
-  def user_fields_list(user_fields, group_changes)
-    text = user_fields.map do |(k, v)|
+  def user_fields_list(fields, group_changes)
+    text = fields.map do |(k, v)|
       "    #{user_field_name k} = #{v}\n"
     end.join
     groups = group_changes[:added].to_a.inspect
