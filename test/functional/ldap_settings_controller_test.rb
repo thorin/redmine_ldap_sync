@@ -66,7 +66,6 @@ class LdapSettingsControllerTest < ActionController::TestCase
     # When we do
     get :disable, :id => 2
     assert_redirected_to ldap_settings_path
-    puts flash.inspect
     assert_match /success/, flash[:notice]
 
     # We should have

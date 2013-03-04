@@ -18,6 +18,7 @@ en:
   label_users_disabled_by_flag: "Users disabled by flag"
   label_users_disabled_by_group: "Users disabled by group"
   label_admin_users: "Admin users"
+  label_dynamic_groups: "Dynamic groups"
   label_ldap_attributes_on_a_user: "LDAP attributes on a user"
   label_ldap_attributes_on_a_group: "LDAP attributes on a group"
   label_log_messages: "Log messages"

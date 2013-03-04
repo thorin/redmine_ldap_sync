@@ -18,6 +18,7 @@ es:
   label_users_disabled_by_flag: "Usuarios deshabilitados por indicadores"
   label_users_disabled_by_group: "Usuarios deshabilitados por grupo"
   label_admin_users: "Administradores redmine"
+  label_dynamic_grous: "Grupos dinámicos"
   label_ldap_attributes_on_a_user: "Atributos LDAP num usuario"
   label_ldap_attributes_on_a_group: "Atributos LDAP num grupo"
   label_log_messages: "Mensajes de log"
