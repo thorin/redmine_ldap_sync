@@ -28,14 +28,17 @@ es:
   button_enable: "Activar"
   button_disable: "Deshabilitar"
 
+  header_create_groups: "Crear grupos"
+  header_create_users: "Crear usuarios"
+  header_sync_user_fields: "Sinc atrib usuarios"
+  header_sync_group_fields: "Sinc atrib grupos"
+
   field_nested_groups: "Grupos anidados"
   field_create_groups: "Crear grupos"
   field_create_users: "Crear usuarios"
-  field_sync_on_login: "Sincronizar el inicio de sesión"
+  field_sync_on_login: "Sincronizar en el inicio de sesión"
   field_dyngroups: "Grupos dinámicos"
   field_dyngroups_cache_ttl: "Caché TTL"
-  field_sync_user_fields: "Sinc atrib usuarios"
-  field_sync_group_fields: "Sinc atrib grupos"
 
   field_groups_base_dn: "Base DN de grupos"
   field_group_membership: "Pertencia al grupo"

@@ -28,14 +28,17 @@ de:
   button_enable: "Enable"
   button_disable: "Disable"
 
+  header_create_groups: "Create groups"
+  header_create_users: "Create users"
+  header_sync_user_fields: "Benutzerattribute sync"
+  header_sync_group_fields: "Sync group fields"
+
   field_nested_groups: "Nested groups"
   field_create_groups: "Neue Gruppe erstellen"
   field_create_users: "Create users"
   field_sync_on_login: "Synchronize on login"
   field_dyngroups: "Dynamic groups"
   field_dyngroups_cache_ttl: "Cache TTL"
-  field_sync_user_fields: "Benutzerattribute syncronisieren"
-  field_sync_group_fields: "Sync group fields"
 
   field_groups_base_dn: "Gruppen DN"
   field_group_membership: "Group membership"

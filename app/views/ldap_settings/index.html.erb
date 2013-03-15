@@ -5,11 +5,10 @@
 <tr>
   <th><%=l(:field_name)%></th>
   <th><%=l(:field_host)%></th>
-  <th><%=l(:field_nested_groups)%></th>
-  <th><%=l(:field_create_groups)%></th>
-  <th><%=l(:field_create_users)%></th>
-  <th><%=l(:field_sync_user_fields)%></th>
-  <th><%=l(:field_sync_group_fields)%></th>
+  <th><%=l(:header_create_groups)%></th>
+  <th><%=l(:header_create_users)%></th>
+  <th><%=l(:header_sync_user_fields)%></th>
+  <th><%=l(:header_sync_group_fields)%></th>
   <th></th>
 </tr></thead>
 
@@ -17,7 +16,6 @@
   <tr id="ldap-config-<%= config.id %>" class="<%= config_css_classes(config) %>">
     <td><%= link_to h(config.name), edit_ldap_setting_path(config) %></td>
     <td align="center"><%= config.auth_source_ldap.host %></td>
-    <td align="center"><%= checked_image config.nested_groups.present? %></td>
     <td align="center"><%= checked_image config.create_groups? %></td>
     <td align="center"><%= checked_image config.create_users? %></td>
     <td align="center"><%= checked_image config.sync_user_fields? %></td>
