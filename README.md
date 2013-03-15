@@ -119,7 +119,7 @@ Open `Administration > Ldap Synchronization` to access the plugin configuration:
   - **Disabled**: No synchronization is done on login.
 + **Dynamic groups**[¹](#license) - Enables/Disables dynamic groups. The possible values are:
   - **Enabled**: While search for groups *Ldap Sync* will also search for dynamic groups.
-  - **Enabled with a ttl**: The dynamic groups cache[²](#license) will be expire every **t** minutes.
+  - **Enabled with a ttl**: The dynamic groups cache[²](#license) will expire every **t** minutes.
   - **Disabled**: *Ldap Sync* will not search for dynamic groups.
 
 ### Rake tasks
