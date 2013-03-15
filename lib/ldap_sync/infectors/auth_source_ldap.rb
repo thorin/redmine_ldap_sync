@@ -16,8 +16,6 @@ module LdapSync::Infectors::AuthSourceLdap
       end
 
       with_ldap_connection do |ldap|
-        groupname_pattern  = /#{setting.groupname_pattern}/
-
         trace "** Synchronizing non-dynamic groups"
         attrs = [n(:groupname), *setting.group_ldap_attrs_to_sync]
         find_all_groups(ldap, nil, attrs) do |entry|
@@ -47,7 +45,7 @@ module LdapSync::Infectors::AuthSourceLdap
 
       with_ldap_connection do |_|
         ldap_users[:disabled].each do |login|
-          user = ::User.where("LOWER(login) = ? AND auth_source_id = ?", login.downcase, self.id).first
+          user = self.users.where("LOWER(login) = ?", login.downcase).first
 
           if user.try(:active?)
             if user.lock!
@@ -95,7 +93,7 @@ module LdapSync::Infectors::AuthSourceLdap
     private
       def create_and_sync_group(group_data, attr_groupname)
         groupname = group_data[attr_groupname].first
-        return unless /#{setting.groupname_pattern}/ =~ groupname
+        return unless setting.groupname_regexp =~ groupname
 
         group, is_new_group = find_or_create_group(groupname, group_data)
         return if group.nil?
@@ -109,7 +107,7 @@ module LdapSync::Infectors::AuthSourceLdap
       def sync_user_groups(user)
         return unless setting.active?
 
-        if setting.has_fixed_group? && user.groups.none? { |g| g.to_s == setting.fixed_group }
+        if setting.has_fixed_group? && !user.member_of_group?(setting.fixed_group)
           user.add_to_fixed_group
         end
 
@@ -117,8 +115,9 @@ module LdapSync::Infectors::AuthSourceLdap
         added = changes[:added].map {|g| find_or_create_group(g).first }.compact
         user.groups << added if added.present?
 
-        deleted = ::Group.where("LOWER(lastname) in (?)", changes[:deleted].map(&:downcase)).all
-        user.groups.delete(*deleted) if deleted.present?
+        deleted_groups = changes[:deleted].map(&:downcase)
+        deleted = deleted_groups.any? ? ::Group.where("LOWER(lastname) in (?)", deleted_groups).all : []
+        user.groups.delete(*deleted) unless deleted.empty?
 
         trace groups_changes_summary(changes, added, deleted)
       end

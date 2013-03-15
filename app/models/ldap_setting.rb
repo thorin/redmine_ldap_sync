@@ -117,6 +117,16 @@ class LdapSetting
     has_sync_on_login?
   end
 
+  def account_disabled_proc
+    @account_disabled_proc ||= if has_account_disabled_test?
+      eval("lambda { |flags| #{account_disabled_test} }")
+    end
+  end
+
+  def groupname_regexp
+    @groupname_regexp ||= /#{groupname_pattern}/i
+  end
+
   def user_ldap_attrs_to_sync
     (user_fields_to_sync||[]).map {|f| user_ldap_attrs[f] || send(f) }
   end

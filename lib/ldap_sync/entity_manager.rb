@@ -52,10 +52,9 @@ module LdapSync::EntityManager
         deleted_users = users_on_local - users_on_ldap
         changes[:disabled] += deleted_users
 
-        msg = "-- Found #{changes[:enabled].size} users active"
-        msg += ", #{changes[:disabled].size - deleted_users.size} locked"
-        msg += " and #{deleted_users.size} deleted on ldap"
-        trace msg
+        trace "-- Found #{changes[:enabled].size} users active" \
+          ", #{changes[:disabled].size - deleted_users.size} locked" \
+          " and #{deleted_users.size} deleted on ldap"
 
         @ldap_users = changes
       end
@@ -66,12 +65,13 @@ module LdapSync::EntityManager
       return unless setting.active?
       changes = { :added => Set.new, :deleted => Set.new }
 
-      with_ldap_connection do |ldap|
-        groupname_pattern   = /#{setting.groupname_pattern}/
+      user_groups = user.groups.map {|g| g.lastname.downcase }
+      groupname_regexp = setting.groupname_regexp
 
+      with_ldap_connection do |ldap|
         # Find which of the user's current groups are in ldap
-        user_groups   = user.groups.select {|g| groupname_pattern =~ g.to_s}
-        names_filter  = user_groups.map {|g| Net::LDAP::Filter.eq( setting.groupname, g.to_s )}.reduce(:|)
+        filtered_groups = user_groups.select {|g| groupname_regexp =~ g }
+        names_filter    = filtered_groups.map {|g| Net::LDAP::Filter.eq( setting.groupname, g )}.reduce(:|)
         find_all_groups(ldap, names_filter, n(:groupname)) do |group|
           changes[:deleted] << group.first
         end if names_filter
@@ -106,7 +106,7 @@ module LdapSync::EntityManager
 
         changes[:added] = changes[:added].inject(Set.new) do |closure, group|
           closure + closure_cache.fetch(group) do
-            get_group_closure(ldap, group).select {|g| groupname_pattern =~ g }
+            get_group_closure(ldap, group).select {|g| groupname_regexp =~ g }
           end
         end if setting.nested_groups_enabled?
 
@@ -114,12 +114,10 @@ module LdapSync::EntityManager
           user_dn ||= find_user(ldap, user.login, :dn).first
           changes[:added] += get_dynamic_groups(user_dn)
         end
-
-        changes[:added].delete_if {|group| groupname_pattern !~ group }
       end
 
+      changes[:added].delete_if {|group| groupname_regexp !~ group }
       changes[:deleted] -= changes[:added]
-      user_groups = user.groups.map {|g| g.lastname.downcase }
       changes[:added].delete_if {|group| user_groups.include?(group.downcase) }
 
       changes
@@ -146,7 +144,7 @@ module LdapSync::EntityManager
 
           if group[n(:parent_group)].present?
             groups_filter = group[n(:parent_group)].map{|g| Net::LDAP::Filter.eq( setting.group_parentid, g )}.reduce(:|)
-            find_all_groups(ldap, groups_filter, ns(:groupname, :group_memberid, :parent_group))
+            cacheable_ber find_all_groups(ldap, groups_filter, ns(:groupname, :group_memberid, :parent_group))
           else
             Array.new
           end
@@ -154,7 +152,7 @@ module LdapSync::EntityManager
           group = find_group(ldap, groupname, ns(:groupname, :group_memberid)) if group.is_a? String
 
           member_filter = Net::LDAP::Filter.eq( setting.member_group, group[n(:group_memberid)].first )
-          find_all_groups(ldap, member_filter, ns(:groupname, :group_memberid))
+          cacheable_ber find_all_groups(ldap, member_filter, ns(:groupname, :group_memberid)).map
         end
       end
 
@@ -254,14 +252,18 @@ module LdapSync::EntityManager
 
     def account_disabled?(flags)
       return false if flags.blank?
-      return @account_disabled_test.call(flags) if @account_disabled_test
-      return false unless setting.has_account_disabled_test?
 
-      @account_disabled_test = eval("lambda { |flags| #{setting.account_disabled_test} }")
-      @account_disabled_test.call(flags)
+      !!setting.account_disabled_proc.try(:call, flags)
     end
 
     def connect_as_user?; setting.account.include?('$login'); end
+
+    def cacheable_ber(result)
+      result.map do |h|
+        h = Hash[ h.map {|k,v| [k, v.to_a] } ]
+        HashWithIndifferentAccess.new( h )
+      end
+    end
 
     def with_ldap_connection(login = nil, password = nil)
       thread = Thread.current

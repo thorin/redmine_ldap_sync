@@ -1,16 +1,33 @@
 #!/usr/bin/ruby
+# encoding: utf-8
 rng = Random.new(12345)
+USERS = 5
+GROUPS = 10
 
-puts <<MSG 
-dn: ou=Group,dc=redmine,dc=org
-ou: Group 
+puts "dn: dc=redmine,dc=org
+objectClass: top
+objectClass: dcObject
+objectClass: organization
+o: redmine.org
+dc: redmine
+
+dn: cn=admin,dc=redmine,dc=org
+objectClass: simpleSecurityObject
+objectClass: organizationalRole
+cn: admin
+description: LDAP administrator
+userPassword: {SSHA}Si9/UcgqKWBlN/+SQb+X1IHZnokzaicm
+
+dn: ou=Person,dc=redmine,dc=org
+ou: Person
 objectClass: organizationalUnit
 
-MSG
-# >>
+dn: ou=Group,dc=redmine,dc=org
+ou: Group
+objectClass: organizationalUnit\n\n"
 
-user = <<MSG
-dn: uid=%{username},ou=Person,dc=redmine,dc=org
+user =
+'dn: uid=%{username},ou=Person,dc=redmine,dc=org
 mail: %{mail}
 uid: %{username}
 cn: %{cn}
@@ -23,17 +40,17 @@ objectClass: person
 objectClass: inetOrgPerson
 givenName: %{givenName}
 sn: %{sn}
-userPassword: {SSHA}Si9/UcgqKWBlN/+SQb+X1IHZnokzaicm 
+userPassword: {SSHA}Si9/UcgqKWBlN/+SQb+X1IHZnokzaicm
 loginShell: /bin/sh
-
-MSG
-# >>
+'
 
 group_member = "member: cn=%{groupname},ou=Group,dc=redmine,dc=org\n"
 user_member = "member: uid=%{username},ou=Person,dc=redmine,dc=org\n"
+user_group = "o: %{gidNumber}\n"
+group_group = "o: %{gidNumber}\n"
 
-group = <<MSG
-dn: cn=%{groupname},ou=Group,dc=redmine,dc=org
+group =
+'dn: cn=%{groupname},ou=Group,dc=redmine,dc=org
 objectClass: groupOfNames
 objectClass: posixAccount
 homeDirectory: /nonexistent
@@ -41,14 +58,11 @@ gidNumber: %{gidNumber}
 uidNumber: %{gidNumber}
 uid: %{groupname}
 cn: %{groupname}
-%{members}
-
-MSG
-# >>
+%{members}'
 
 groups = %w(
-  Sayeldas	Iardum	Bluil	Anbely	Issekin	Briklor	Enden
-  Rynever	Worathest	Therss	Meyl	Oany	Whod	Tiaris
+  Säyeldas	Iardum	Bluil	Anbely	Issekin	Briklør	Enden
+  Rynever	Worathest	Therß	Meyl	Oany	Whod	Tiaris
   Belecer	Rill	Strycheser	Ustuq	Issk	Hatosentan	Llant
   Ghaoll	Kimshy	Irenth	Swien	Endash	Denardon	Hatcer
   Aughny	Kibyno	Tonage	Serende	Bietroth	Engech	Aseta
@@ -66,7 +80,7 @@ groups = %w(
   Ustech	Anarr	Ightwor	Aleing	Nyrak	Cheash	Itora
 )
 
-users = %w( loadgeek
+users = %w( LoadGeek
 tweetmicro
 systemhack
 tweetsave
@@ -117,7 +131,7 @@ winpie
 lmaobanana
 failcoconut )
 
-names = ['Christian Earheart',
+names = ['Christián Earheart',
 'Rae Croll',
 'Darryl Ditto',
 'Nelson Meriwether',
@@ -171,25 +185,28 @@ names = ['Christian Earheart',
 
 languages = %w( ar ca de en eu fr hr it lt mn pl ro sl sr-YU tr zh-TWbg cs el es fa gl hu ja lv nl pt-BR ru sq sv uk zhbs da en-GB et fi he id ko mk no pt sk sr th vi )
 
-users = users[0...5]
-names = names[0...5]
-groups = groups[0...10]
+users = users[0...USERS]
+names = names[0...USERS]
+groups = groups[0...GROUPS]
+
+s_users = Hash.new{|h,k| h[k] = ''}
+s_groups = Hash.new{|h,k| h[k] = ''}
 
 n = 300
 users.zip(names).each do |username, fullname|
-  puts user.
+  s_users[username] = user.
       gsub('%{username}', username).
       gsub('%{cn}', fullname).
       gsub('%{givenName}', fullname.split(' ')[0]).
       gsub('%{sn}', fullname.split(' ')[1]).
-      gsub('%{mail}', "#{username}@fakemail.com").
+      gsub('%{mail}', "#{username.downcase}@fakemail.com").
       gsub('%{uidNumber}', (n += 1).to_s ).
       gsub('%{homeDir}', username).
       gsub('%{language}', languages.sample(:random => rng))
 end
-
 n = 4000
 groups.each do |groupname|
+  gidNumber = (n += 1).to_s
   members = ""
   selected_users = []
   selected_groups = []
@@ -198,14 +215,32 @@ groups.each do |groupname|
       name = (users - selected_users).sample(:random => rng)
       members += user_member.gsub('%{username}', name)
       selected_users << name
+      s_users[name] += user_group.gsub('%{gidNumber}', gidNumber)
     else
       name = (groups - selected_groups).sample(:random => rng)
       members += group_member.gsub('%{groupname}', name)
       selected_groups << name
+      s_groups[name] += group_group.gsub('%{gidNumber}', gidNumber)
     end
   end
-  puts group.
-        gsub('%{groupname}', groupname).
-	gsub('%{gidNumber}', (n += 1).to_s ).
-        gsub('%{members}', members)
+  s_groups[groupname] = group.
+      gsub('%{groupname}', groupname).
+      gsub('%{gidNumber}', gidNumber).
+      gsub('%{members}', members) + s_groups[groupname]
 end
+
+# Write everything to stdout
+puts s_users.values.join("\n")
+puts
+puts s_groups.values.join("\n")
+
+puts '
+dn: cn=MicroUsers,ou=Group,dc=redmine,dc=org
+objectclass: groupOfURLs
+cn: MicroUsers
+memberURL: ldap:///ou=Person,dc=redmine,dc=org??sub?(uid=*micro*)
+
+dn: cn=TweetUsers,ou=Group,dc=redmine,dc=org
+objectclass: groupOfURLs
+cn: TweetUsers
+memberURL: ldap:///ou=Person,dc=redmine,dc=org??sub?(uid=*tweet*)'
