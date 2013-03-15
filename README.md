@@ -58,9 +58,9 @@ Open `Administration > Ldap Synchronization` to access the plugin configuration:
 + **Enable nested groups** - Enables and specifies how to identify the groups
   nesting. When enabled the plugin will look for the groups' parent groups, and
   so on, and add those groups to the users. The possible values are:
-  - **Membership on the parent class** - group membership determined from the
+  - **Membership on the parent class**: group membership determined from the
     list of groups contained on the parent group.
-  - **Membership on the member class** - group membership determined from the
+  - **Membership on the member class**: group membership determined from the
     list of groups contained on the member group.
 
 **LDAP attributes:**
@@ -107,12 +107,6 @@ Open `Administration > Ldap Synchronization` to access the plugin configuration:
   redmine will be created.
 + **Create new users** - If enabled, users that don't already exist on redmine
   will be created when running the rake task.
-+ **User/Group fields:**
-  - **Synchronize** - If enabled, the selected field will be synchronized
-    both on the rake tasks and after every login.
-  - **LDAP attribute** - The ldap attribute to be used as reference on the
-    synchronization.
-  - **Default value** - Shows the value that will be used as default.
 + **Synchronize on login** - Enables/Disables users synchronization on login. The possible values are
   - **User fields and groups**: Both the fields and groups will be synchronized on login. If a user is disabled on LDAP or removed from the *users must be member of* group, the user will be locked and the access denied.
   - **User fields**: Only the fields will be synchronized on login. If a user is disabled on LDAP, the user will be locked and the access denied. Changes on groups will not lock the user.
@@ -121,6 +115,12 @@ Open `Administration > Ldap Synchronization` to access the plugin configuration:
   - **Enabled**: While searching for groups, *Ldap Sync* will also search for dynamic groups.
   - **Enabled with a ttl**: The dynamic groups cache[²](#license) will expire every **t** minutes.
   - **Disabled**: *Ldap Sync* will not search for dynamic groups.
++ **User/Group fields:**
+  - **Synchronize** - If enabled, the selected field will be synchronized
+    both on the rake tasks and after every login.
+  - **LDAP attribute** - The ldap attribute to be used as reference on the
+    synchronization.
+  - **Default value** - Shows the value that will be used as default.
 
 ### Rake tasks
 
