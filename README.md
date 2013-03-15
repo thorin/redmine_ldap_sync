@@ -117,9 +117,9 @@ Open `Administration > Ldap Synchronization` to access the plugin configuration:
   - **User fields and groups** - Both the fields and groups will be synchronized on login. If a user is disabled on LDAP or removed from the "*users must be member of*" group, the user will be locked and the access denied.
   - **User fields** - Only the fields will be synchronized on login. If a user is disabled on LDAP, the user will be locked and the access denied. Changes on groups will not lock the user.
   - **Disabled** - No synchronization is done on login.
-+ **Dynamic groups**[^dyngroups-ref]:
++ **Dynamic groups**[¹](#license):
   - **Enabled** - While search for groups *Ldap Sync* will also search for dynamic groups.
-  - **Enabled with a ttl** - The dynamic groups cache[^dyngroups-cache] will be expire every **t** minutes.
+  - **Enabled with a ttl** - The dynamic groups cache[²](#license) will be expire every **t** minutes.
   - **Disabled** - *Ldap Sync* will not search for dynamic groups.
 
 ### Rake tasks
@@ -152,8 +152,11 @@ License
 This plugin is released under the GPL v3 license. See LICENSE for more
  information.
 
-[^dyngroups-cache]: Due to the expensive way of search dynamic groups members, the relationship between dynamic groups and users is cached. When running the rake task this cache will be refreshed.
-[^dyngroups-ref]: For details about dynamic groups see [OpenLDAP Overlays - Dynamic Lists][overlays-dynlist] or [slapo-dynlist(5) - Linux man page][slapo-dynlist].
+
+
+---
+1. For details about dynamic groups see [OpenLDAP Overlays - Dynamic Lists][overlays-dynlist] or [slapo-dynlist(5) - Linux man page][slapo-dynlist].
+2. Due to the expensive way of search dynamic groups members, the relationship between dynamic groups and users is cached. When running the rake task this cache will be refreshed.
 
 [uacf]: http://support.microsoft.com/kb/305144
 [overlays-dynlist]: http://www.openldap.org/doc/admin24/overlays.html#Dynamic%20Lists
