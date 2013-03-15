@@ -113,14 +113,14 @@ Open `Administration > Ldap Synchronization` to access the plugin configuration:
   - **LDAP attribute** - The ldap attribute to be used as reference on the
     synchronization.
   - **Default value** - Shows the value that will be used as default.
-+ **Synchronize on login**:
-  - **User fields and groups** - Both the fields and groups will be synchronized on login. If a user is disabled on LDAP or removed from the *"users must be member of"* group, the user will be locked and the access denied.
-  - **User fields** - Only the fields will be synchronized on login. If a user is disabled on LDAP, the user will be locked and the access denied. Changes on groups will not lock the user.
-  - **Disabled** - No synchronization is done on login.
-+ **Dynamic groups**[¹](#license):
-  - **Enabled** - While search for groups *Ldap Sync* will also search for dynamic groups.
-  - **Enabled with a ttl** - The dynamic groups cache[²](#license) will be expire every **t** minutes.
-  - **Disabled** - *Ldap Sync* will not search for dynamic groups.
++ **Synchronize on login** - Enables/Disables users synchronization on login. The possible values are
+  - **User fields and groups**: Both the fields and groups will be synchronized on login. If a user is disabled on LDAP or removed from the *"users must be member of"* group, the user will be locked and the access denied.
+  - **User fields**: Only the fields will be synchronized on login. If a user is disabled on LDAP, the user will be locked and the access denied. Changes on groups will not lock the user.
+  - **Disabled**: No synchronization is done on login.
++ **Dynamic groups**[¹](#license) - Enables/Disables dynamic groups. The possible values are:
+  - **Enabled**: While search for groups *Ldap Sync* will also search for dynamic groups.
+  - **Enabled with a ttl**: The dynamic groups cache[²](#license) will be expire every **t** minutes.
+  - **Disabled**: *Ldap Sync* will not search for dynamic groups.
 
 ### Rake tasks
 
