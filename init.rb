@@ -15,8 +15,6 @@ Redmine::Plugin.register :redmine_ldap_sync do
 end
 
 RedmineApp::Application.config.after_initialize do
-  require 'project'
-
   require_dependency 'ldap_sync/core_ext'
   require_dependency 'ldap_sync/infectors'
 end

@@ -197,7 +197,7 @@ module LdapSync::Infectors::AuthSourceLdap
       end
 
       def find_or_create_user(username)
-        user = ::User.where("LOWER(login) = ?", username.downcase).first
+        user = ::User.where("LOWER(login) = ?", username.downcase).includes(:groups).first
         if user.present? && user.auth_source_id != self.id
           trace "-- Skipping user '#{user.login}': it already exists on a different auth_source"
           return nil, false
