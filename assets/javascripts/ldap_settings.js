@@ -45,6 +45,13 @@ $(function() {
   $('#ldap_setting_dyngroups')
     .bind('change keyup', function() { show_dyngroups_ttl(this); });
 
+  $('input[name^="ldap_test"]').keydown(function (e) {
+    if (e.which == 13) {
+      $('#commit-test').click();
+      e.preventDefault();
+    }
+  });
+
   $('form[id^="edit_ldap_setting"]').submit(function() {
     var current_tab = $('a[id^="tab-"].selected').attr('id').substring(4);
     $('form[id^="edit_ldap_setting"]').append(
