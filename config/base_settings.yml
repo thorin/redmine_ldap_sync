@@ -40,7 +40,7 @@ lotus_notes_ldap:
   user_memberid: dn
 open_ldap_posix_groups:
   name: Open LDAP (with posixGroups)
-  class_user: person
+  class_user: posixAccount 
   class_group: posixGroup
   group_membership: on_groups
   groupname: cn
