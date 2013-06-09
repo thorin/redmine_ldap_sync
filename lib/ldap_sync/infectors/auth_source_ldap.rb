@@ -49,12 +49,12 @@ module LdapSync::Infectors::AuthSourceLdap
 
           if user.try(:active?)
             if user.lock!
-              trace "-- Locked active user '#{user.login}'"
+              change user.login, "-- Locked active user '#{user.login}'"
             else
-              trace "-- Failed to lock active user '#{user.login}'"
+              change user.login, "-- Failed to lock active user '#{user.login}'"
             end
           elsif user.present?
-            trace "-- Not locking locked user '#{user.login}'"
+            change user.login, "-- Not locking locked user '#{user.login}'"
           end
         end
 
@@ -72,7 +72,9 @@ module LdapSync::Infectors::AuthSourceLdap
         if user.locked? && !(activate_users? || setting.has_required_group?)
           trace "-- Not #{is_new_user ? 'creating': 'updating'} locked user '#{user.login}'"; return
         else
-          trace "-- #{is_new_user ? 'Creating': 'Updating'} user '#{user.login}'..."
+          trace "-- #{is_new_user ? 'Creating' : 'Updating'} user '#{user.login}'...",
+            :level => is_new_user ? :change : :debug,
+            :obj => user.login
         end
 
         user_data, flags = if options[:try_to_login] && setting.has_account_flags? && setting.sync_fields_on_login?
@@ -98,7 +100,9 @@ module LdapSync::Infectors::AuthSourceLdap
         group, is_new_group = find_or_create_group(groupname, group_data)
         return if group.nil?
 
-        trace "-- #{is_new_group ? 'Creating': 'Updating'} group '#{group.name}'..."
+        trace "-- #{is_new_group ? 'Creating' : 'Updating'} group '#{group.name}'...",
+          :level => is_new_group ? :change : :debug,
+          :obj => group.name
         sync_group_fields(group, group_data) unless is_new_group
 
         group
@@ -119,7 +123,7 @@ module LdapSync::Infectors::AuthSourceLdap
         deleted = deleted_groups.any? ? ::Group.where("LOWER(lastname) in (?)", deleted_groups).all : []
         user.groups.delete(*deleted) unless deleted.empty?
 
-        trace groups_changes_summary(changes, added, deleted)
+        trace_groups_changes_summary(user, changes, added, deleted)
       end
 
       def sync_user_fields(user, user_data = nil)
@@ -136,20 +140,20 @@ module LdapSync::Infectors::AuthSourceLdap
       def sync_user_status(user, flags = nil)
         if flags && account_disabled?(flags)
           user.lock!
-          trace "   -> locked: user disabled on ldap with flags '#{flags}'"
+          change user.login, "   -> locked: user disabled on ldap with flags '#{flags}'"
         elsif setting.has_required_group?
           if user.member_of_group?(setting.required_group)
             if user.locked?
               user.activate!
-              trace "   -> activated: member of group '#{setting.required_group}'"
+              change user.login, "   -> activated: member of group '#{setting.required_group}'"
             end
           elsif user.active?
             user.lock!
-            trace "   -> locked: not member of group '#{setting.required_group}'"
+            change user.login, "   -> locked: not member of group '#{setting.required_group}'"
           end
         elsif activate_users? && user.locked?
           user.activate!
-          trace "   -> activated: ACTIVATE_USERS flag is on"
+          change user.login, "   -> activated: ACTIVATE_USERS flag is on"
         end
       end
 
@@ -159,12 +163,12 @@ module LdapSync::Infectors::AuthSourceLdap
         if user.member_of_group?(setting.admin_group)
           unless user.admin?
             user.set_admin!
-            trace "   -> granted admin privileges: member of group '#{setting.admin_group}'"
+            change user.login, "   -> granted admin privileges: member of group '#{setting.admin_group}'"
           end
         else
           if user.admin?
             user.unset_admin!
-            trace "   -> revoked admin privileges: not member of group '#{setting.admin_group}'"
+            change user.login, "   -> revoked admin privileges: not member of group '#{setting.admin_group}'"
           end
         end
       end
@@ -175,7 +179,7 @@ module LdapSync::Infectors::AuthSourceLdap
         if group.save
           group
         else
-          trace "-- Could not sync group '#{group.lastname}': \"#{group.errors.full_messages.join('", "')}\""; nil
+          change group.name, "-- Could not sync group '#{group.lastname}': \"#{group.errors.full_messages.join('", "')}\""; nil
         end
       end
 
@@ -191,7 +195,7 @@ module LdapSync::Infectors::AuthSourceLdap
         if group.save
           return group, true
         else
-          error "Could not create group '#{groupname}': \"#{group.errors.full_messages.join('", "')}\""
+          change group.name, "Could not create group '#{groupname}': \"#{group.errors.full_messages.join('", "')}\""
           return nil, false
         end
       end
@@ -214,7 +218,7 @@ module LdapSync::Infectors::AuthSourceLdap
         if user.save
           return user, true
         else
-          trace "-- Could not create user '#{user.login}': \"#{user.errors.full_messages.join('", "')}\""; nil
+          change user.login,  "-- Could not create user '#{user.login}': \"#{user.errors.full_messages.join('", "')}\""; nil
         end
       end
 
@@ -299,7 +303,7 @@ module LdapSync::Infectors::AuthSourceLdap
         word.present? ? "#{n} #{word}#{'s' if n != 1}" : n.to_s
       end
 
-      def groups_changes_summary(groups, added, deleted)
+      def trace_groups_changes_summary(user, groups, added, deleted)
         return unless running_rake?
 
         a = added.size; d = deleted.size; nc = groups[:added].size - a
@@ -308,22 +312,39 @@ module LdapSync::Infectors::AuthSourceLdap
         chg << "#{pluralize(d, a == 0 ? 'group' : nil)} deleted" if d > 0
         chg << "#{pluralize(nc, a + d == 0 ? 'group' : nil)} not created" if nc > 0
 
-        if chg.size == 1
+        msg = if chg.size == 1
           "   -> #{chg[0]}"
         elsif chg.size > 1
           "   -> #{[chg[0...-1].join(', '), chg[-1]].join(' and ')}"
         end
+
+        level = a > 0 || d > 0 ? :change : :debug
+        trace msg, :level => level, :obj => user.login
       end
 
-      def trace(msg = "")
-        puts msg if running_rake? && !msg.nil?
-      end
+      def trace(msg, options = {})
+        return if trace_level == :silent || msg.nil?
+        logger.error msg if options[:level] == :error && !running_rake?
 
-      def error(msg)
-        if running_rake?
-          puts "-- #{msg}"
-        else
-          logger.error msg
+        return if !running_rake?
+
+        options.reverse_merge!(:level => :debug)
+
+        case options[:level]
+        when :error;  puts "-- #{msg}"
+        when :debug;  puts msg unless [:change, :error].include? trace_level
+        when :info;   puts msg unless [:error].include? trace_level
+        when :change
+          if trace_level == :change && !options[:obj].nil?
+            obj = options[:obj]
+            trace_msg = msg.gsub(/^.*?(\w)/, '\1')
+                .gsub('...', '')
+                .gsub(/ '#{obj}'/, '')
+                .downcase
+            puts "#{obj}: #{trace_msg}"
+          else
+            puts msg unless [:error].include? trace_level
+          end
         end
       end
 
@@ -349,6 +370,9 @@ module LdapSync::Infectors::AuthSourceLdap
     receiver.instance_eval do
       delegate :has_fixed_group?, :fixed_group, :sync_on_login?, :to => :setting, :allow_nil => true
       cattr_accessor :activate_users, :running_rake, :dyngroups_updated
+      cattr_accessor :trace_level do
+        :debug
+      end
       unloadable
     end
   end

@@ -110,11 +110,7 @@ class LdapTest
       @parents_cache ||= ActiveSupport::Cache.lookup_store(:memory_store)
     end
 
-    def error(msg)
-      @messages += "#{msg}\n" if msg
-    end
-
-    def trace(msg = "")
+    def trace(msg = "", options = {})
       @messages += "#{msg}\n" if msg
     end
 

@@ -47,6 +47,9 @@ module LdapSync::EntityManager
           end
         end
 
+        changes[:enabled].delete(nil)
+        changes[:disabled].delete(nil)
+
         users_on_local = self.users.active.map {|u| u.login.downcase }
         users_on_ldap = changes.values.sum.map(&:downcase)
         deleted_users = users_on_local - users_on_ldap
@@ -284,4 +287,8 @@ module LdapSync::EntityManager
         end
       end
     end
+
+    def info(msg = ""); trace msg, :level => :change; end
+    def change(obj = "", msg = ""); trace msg, :level => :change, :obj => obj; end
+    def error(msg); trace msg, :level => :error; end
 end

@@ -218,16 +218,44 @@ class AuthSourceLdapTest < ActiveSupport::TestCase
       assert_not_nil User.find_by_login 'loadgeek'
     end
 
-    should "write to stdout when running on rake" do
-      old_stdout, $stdout = $stdout, StringIO.new
+    context "script output" do
+      should "be verbose when running on rake with level :debug" do
+        old_stdout, $stdout = $stdout, StringIO.new
 
-      AuthSourceLdap.running_rake!
-      @auth_source.sync_users
+        AuthSourceLdap.running_rake!
+        AuthSourceLdap.trace_level = :debug
+        @auth_source.sync_users
 
-      actual, $stdout = $stdout.string, old_stdout
+        actual, $stdout = $stdout.string, old_stdout
 
-      assert_include '-- Updating user \'loadgeek\'...', actual
-      assert_include '-> 6 groups added', actual
+        assert_include '-- Updating user \'loadgeek\'...', actual
+        assert_include '-> 6 groups added', actual
+      end
+
+      should "be silent when running on rake with level :silent" do
+        old_stdout, $stdout = $stdout, StringIO.new
+
+        AuthSourceLdap.running_rake!
+        AuthSourceLdap.trace_level = :silent
+        @auth_source.sync_users
+
+        actual, $stdout = $stdout.string, old_stdout
+
+        assert_equal '', actual
+      end
+
+      should "only show changes when running with level :changes" do
+        old_stdout, $stdout = $stdout, StringIO.new
+
+        AuthSourceLdap.running_rake!
+        AuthSourceLdap.trace_level = :change
+        @auth_source.sync_users
+
+        actual, $stdout = $stdout.string, old_stdout
+
+        assert_not_include '-- Updating user \'loadgeek\'...', actual
+        assert_include 'loadgeek: 4 groups added and 1 deleted', actual
+      end
     end
 
     should "sync with dynamic groups" do

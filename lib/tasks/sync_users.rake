@@ -8,7 +8,7 @@ namespace :redmine do
 
         AuthSourceLdap.activate_users! unless ENV['ACTIVATE_USERS'].nil?
         AuthSourceLdap.all.each do |as|
-          puts "Synchronizing '#{as.name}' users..."
+          trace "Synchronizing '#{as.name}' users..."
           as.sync_users
         end
       end
@@ -18,7 +18,7 @@ namespace :redmine do
         init_task
 
         AuthSourceLdap.all.each do |as|
-          puts "Synchronizing '#{as.name}' groups..."
+          trace "Synchronizing '#{as.name}' groups..."
           as.sync_groups
         end
       end
@@ -34,13 +34,23 @@ namespace :redmine do
           ActiveRecord::Base.logger.level = Logger::WARN
         end
 
+        if %w(debug error change silent).include? ENV['LOG_LEVEL']
+          AuthSourceLdap.trace_level = ENV['LOG_LEVEL'].to_sym
+        end
+
         unless ENV['DRY_RUN'].nil?
-          puts "\n!!! Dry-run execution !!!\n"
+          trace "\n!!! Dry-run execution !!!\n"
 
           User.send :include, LdapSync::DryRun::User
           Group.send :include, LdapSync::DryRun::Group
         end
       end
+    end
+
+    def trace(msg)
+      return if [:silent, :error, :change].include?(AuthSourceLdap.trace_level)
+
+      puts msg
     end
 
     namespace :redmine_ldap_sync do

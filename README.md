@@ -107,7 +107,7 @@ Open `Administration > Ldap Synchronization` to access the plugin configuration:
   redmine will be created.
 + **Create new users** - If enabled, users that don't already exist on redmine
   will be created when running the rake task.
-+ **Synchronize on login** - Enables/Disables users synchronization on login. The possible values are
++ **Synchronize on login** - Enables/Disables users synchronization on login. The possible values are:
   - **User fields and groups**: Both the fields and groups will be synchronized on login. If a user is disabled on LDAP or removed from the *users must be member of* group, the user will be locked and the access denied.
   - **User fields**: Only the fields will be synchronized on login. If a user is disabled on LDAP, the user will be locked and the access denied. Changes on groups will not lock the user.
   - **Disabled**: No synchronization is done on login.
@@ -137,9 +137,15 @@ For example:
     # Synchronize users with ldap @ every 60 minutes
     35 *            * * *   root /usr/bin/rake -f /opt/redmine/Rakefile --silent redmine:plugins:ldap_sync:sync_users RAILS_ENV=production 2>&- 1>&-
 
-The tasks recognize two environment variables:
+The tasks recognize three environment variables:
 + **DRY_RUN** - Performs a run without changing the database.
 + **ACTIVATE_USERS** - Activates users if they're active on LDAP.
++ **LOG_LEVEL** - Controls the rake task verbosity.
+  The possible values are:
+  - **silent**: Nothing is written to the output.
+  - **error**: Only errors are written to the output.
+  - **change**: Only writes errors and changes made to the user/group's base.
+  - **debug**: Detailed information about the execution is visible to help identify errors. This is the default value.
 
 ### Base settings
 

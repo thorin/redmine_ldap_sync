@@ -122,7 +122,7 @@ module LdapSettingsHelper
     end
 
     def baseable_fields
-      LdapSetting::LDAP_ATTRIBUTES + LdapSetting::CLASS_NAMES + LdapSetting::COMBOS + [ 'account_disabled_test' ]
+      LdapSetting::LDAP_ATTRIBUTES + LdapSetting::CLASS_NAMES + %w( group_membership nested_groups )
     end
 
     def current_base
