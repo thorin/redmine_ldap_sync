@@ -92,6 +92,22 @@ module LdapSync::Infectors::AuthSourceLdap
       end
     end
 
+    def locked_on_ldap?(user, options = {})
+      with_ldap_connection(options[:login], options[:password]) do |ldap|
+        locked = if setting.has_account_flags? && setting.sync_fields_on_login?
+          flags = find_user(ldap, user.login, n(:account_flags)).first
+          account_disabled?(flags)
+        end
+
+        locked ||= if setting.has_required_group? && setting.sync_groups_on_login?
+          user_groups = groups_changes(user)[:added].map(&:downcase)
+          !user_groups.include?(setting.required_group.downcase)
+        end
+
+        locked || false
+      end
+    end
+
     private
       def create_and_sync_group(group_data, attr_groupname)
         groupname = group_data[attr_groupname].first

@@ -2,7 +2,7 @@
 require File.expand_path('../../test_helper', __FILE__)
 
 class AuthSourceLdapTest < ActiveSupport::TestCase
-  fixtures :auth_sources, :users, :groups_users, :settings, :custom_fields
+  fixtures :auth_sources, :users, :groups_users, :settings, :custom_fields, :roles, :projects, :members, :member_roles
 
   setup do
     clear_ldap_cache!
@@ -426,6 +426,83 @@ class AuthSourceLdapTest < ActiveSupport::TestCase
       user = User.try_to_login('invaliduser', 'password')
 
       assert_nil user
+    end
+
+    should "work with incomplete users" do
+      assert_nil User.find_by_login 'incomplete'
+
+      user = User.try_to_login('incomplete', 'password')
+      assert_not_nil user
+
+      user.firstname = 'Incomplete'
+      user.mail = 'incomplete@fakemail.com'
+      user.save
+
+      user_groups = Set.new(user.groups.map(&:name))
+      assert_equal Set.new(%w(ldap.users Säyeldas Briklør Bluil Enden Anbely Worathest therß Iardum)), user_groups
+      assert_equal 'pt', user.custom_field_values[0].value
+      assert_equal '306', user.custom_field_values[1].value
+      assert_equal 'incomplete@fakemail.com', user.mail
+      assert_equal 'Incomplete', user.firstname
+      assert_equal 'User', user.lastname
+    end
+
+    should "deny access to incomplete users without the required group" do
+      @ldap_setting.required_group = 'Rynever'
+      assert @ldap_setting.save, @ldap_setting.errors.full_messages.join(', ')
+
+      assert_nil User.find_by_login 'incomplete'
+
+      user = User.try_to_login('incomplete', 'password')
+      assert_nil user
+    end
+
+    should "deny access to incomplete users with a locked status" do
+      @ldap_setting.account_flags = 'description'
+      @ldap_setting.account_disabled_test = "flags.include? 'without'"
+      assert @ldap_setting.save, @ldap_setting.errors.full_messages.join(', ')
+
+      assert_nil User.find_by_login 'incomplete'
+
+      user = User.try_to_login('incomplete', 'password')
+      assert_nil user
+    end
+
+    context "with login as user" do
+      setup do
+        @auth_source.account = 'uid=$login,ou=Person,dc=redmine,dc=org'
+        @auth_source.save
+      end
+
+      should "work with incomplete users" do
+        assert_nil User.find_by_login 'incomplete'
+
+        user = User.try_to_login('incomplete', 'password')
+        assert_not_nil user
+
+        user.firstname = 'Incomplete'
+        user.password = 'password'
+        user.password_confirmation = 'password'
+        user.mail = 'incomplete@fakemail.com'
+        user.save
+
+        user_groups = Set.new(user.groups.map(&:name))
+        assert_equal Set.new(%w(ldap.users Säyeldas Briklør Bluil Enden Anbely Worathest therß Iardum)), user_groups
+        assert_equal '306', user.custom_field_values[1].value
+        assert_equal 'incomplete@fakemail.com', user.mail
+        assert_equal 'Incomplete', user.firstname
+      end
+
+      should "deny access to incomplete users with a locked status" do
+        @ldap_setting.account_flags = 'description'
+        @ldap_setting.account_disabled_test = "flags.include? 'without'"
+        assert @ldap_setting.save, @ldap_setting.errors.full_messages.join(', ')
+
+        assert_nil User.find_by_login 'incomplete'
+
+        user = User.try_to_login('incomplete', 'password')
+        assert_nil user
+      end
     end
 
     should "add to fixed group, create and synchronize a new user" do

@@ -1,0 +1,5 @@
+--- 
+ldap_sync_role1: 
+  id: 300
+  role_id: 301
+  member_id: 300

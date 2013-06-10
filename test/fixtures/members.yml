@@ -1,0 +1,7 @@
+---
+ldap_sync_members:
+  created_on: 2010-07-19 19:35:33 +02:00
+  project_id: 201
+  id: 300
+  user_id: 10
+  mail_notification: true

@@ -150,6 +150,26 @@ o: 4007
 o: 4008
 o: 4009
 
+dn: uid=incomplete,ou=Person,dc=redmine,dc=org
+mail:
+uid: incomplete
+cn: Incomplete User
+preferredLanguage: pt
+description: User without all the required fields
+uidNumber: 306
+gidNumber: 100
+homeDirectory: /home/incomplete
+objectClass: posixAccount
+objectClass: person
+objectClass: inetOrgPerson
+sn: User
+userPassword: {SSHA}Si9/UcgqKWBlN/+SQb+X1IHZnokzaicm
+loginShell: /bin/sh
+o: 4002
+o: 4003
+o: 4006
+o: 4009
+
 dn: cn=Rynever,ou=Group,dc=redmine,dc=org
 objectClass: groupOfNames
 objectClass: posixAccount
@@ -172,6 +192,7 @@ cn: Worathest
 member: uid=microunit,ou=Person,dc=redmine,dc=org
 member: uid=tweetsave,ou=Person,dc=redmine,dc=org
 member: uid=systemhack,ou=Person,dc=redmine,dc=org
+member: uid=incomplete,ou=Person,dc=redmine,dc=org
 o: 4004
 
 
@@ -184,6 +205,7 @@ uidNumber: 4003
 uid: Säyeldas
 cn: Säyeldas
 member: uid=systemhack,ou=Person,dc=redmine,dc=org
+member: uid=incomplete,ou=Person,dc=redmine,dc=org
 member: uid=edavis,ou=Person,dc=redmine,dc=org
 o: 4004
 o: 4008
@@ -222,6 +244,7 @@ uid: Anbely
 cn: Anbely
 member: uid=tweetsave,ou=Person,dc=redmine,dc=org
 member: uid=systemhack,ou=Person,dc=redmine,dc=org
+member: uid=incomplete,ou=Person,dc=redmine,dc=org
 member: uid=tweetmicro,ou=Person,dc=redmine,dc=org
 
 dn: cn=Issekin,ou=Group,dc=redmine,dc=org
@@ -262,6 +285,7 @@ description: Therß Team Group
 member: cn=Iardum,ou=Group,dc=redmine,dc=org
 member: uid=LoadGeek,ou=Person,dc=redmine,dc=org
 member: uid=microunit,ou=Person,dc=redmine,dc=org
+member: uid=incomplete,ou=Person,dc=redmine,dc=org
 o: 4010
 
 dn: cn=Iardum,ou=Group,dc=redmine,dc=org

@@ -8,6 +8,12 @@ module LdapSync::Infectors::User
       self.groups << ::Group.find_or_create_by_lastname(auth_source.fixed_group)
     end
 
+    def sync_fields_and_groups
+      return unless sync_on_create?
+
+      auth_source.sync_user(self, false, :login => login, :password => password, :try_to_login => true)
+    end
+
     def set_default_values
       custom_fields = UserCustomField.where("default_value is not null")
       self.custom_field_values = custom_fields.each_with_object({}) do |f, h|
@@ -34,16 +40,25 @@ module LdapSync::Infectors::User
     def unset_admin!
       self.update_attribute(:admin, false)
     end
+
+    def sync_on_create!; @sync_on_create = true; end
+    def sync_on_create?; @sync_on_create == true; end
   end
 
   module ClassMethods
-    def try_to_login_with_ldap_sync(login, password)
-      user = try_to_login_without_ldap_sync(login, password)
+    def try_to_login_with_ldap_sync(login, password, active_only=true)
+      user = try_to_login_without_ldap_sync(login, password, active_only)
       return user unless user.try(:sync_on_login?)
 
-      user.auth_source.sync_user(user, false, :login => login, :password => password, :try_to_login => true)
-
-      user if user.active?
+      if user.new_record?
+        user.sync_on_create!
+        user unless user.auth_source.locked_on_ldap?(user,
+          :login => login,
+          :password => password)
+      else
+        user.auth_source.sync_user(user, false, :login => login, :password => password, :try_to_login => true)
+        user if user.active?
+      end
     rescue => text
       raise text
     end
@@ -54,7 +69,7 @@ module LdapSync::Infectors::User
     receiver.send(:include, InstanceMethods)
 
     receiver.instance_eval do
-      after_create :add_to_fixed_group
+      after_create :add_to_fixed_group, :sync_fields_and_groups
       delegate :sync_on_login?, :to => :auth_source, :allow_nil => true
     end
     receiver.class_eval do
