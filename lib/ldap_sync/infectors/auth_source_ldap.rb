@@ -357,7 +357,7 @@ module LdapSync::Infectors::AuthSourceLdap
                 .gsub('...', '')
                 .gsub(/ '#{obj}'/, '')
                 .downcase
-            puts "#{obj}: #{trace_msg}"
+            puts "[#{obj}] #{trace_msg}"
           else
             puts msg unless [:error].include? trace_level
           end

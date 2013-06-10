@@ -254,7 +254,7 @@ class AuthSourceLdapTest < ActiveSupport::TestCase
         actual, $stdout = $stdout.string, old_stdout
 
         assert_not_include '-- Updating user \'loadgeek\'...', actual
-        assert_include 'loadgeek: 4 groups added and 1 deleted', actual
+        assert_include '[loadgeek] 4 groups added and 1 deleted', actual
       end
     end
 
