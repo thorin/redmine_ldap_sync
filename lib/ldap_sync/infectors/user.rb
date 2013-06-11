@@ -46,10 +46,11 @@ module LdapSync::Infectors::User
   end
 
   module ClassMethods
-    def try_to_login_with_ldap_sync(login, password, active_only=true)
-      user = try_to_login_without_ldap_sync(login, password, active_only)
+    def try_to_login_with_ldap_sync(*args)
+      user = try_to_login_without_ldap_sync(*args)
       return user unless user.try(:sync_on_login?)
 
+      login, password = *args
       if user.new_record?
         user.sync_on_create!
         user unless user.auth_source.locked_on_ldap?(user,
