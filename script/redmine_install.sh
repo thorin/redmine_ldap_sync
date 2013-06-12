@@ -79,7 +79,7 @@ run_tests()
     TRACE=--trace
   fi
 
-  bundle exec rake redmine:plugins:test NAME=redmine_ldap_sync
+  bundle exec rake redmine:plugins:ldap_sync:coveralls:test
 }
 
 uninstall()
@@ -127,13 +127,13 @@ run_install()
   if [ "$VERBOSE" = "yes" ]; then echo 'Load defaults'; fi
   bundle exec rake redmine:load_default_data REDMINE_LANG=en $TRACE
 
+  # install redmine database
+  if [ "$VERBOSE" = "yes" ]; then echo 'Load defaults'; fi
+  bundle exec rake redmine:plugin:migrate REDMINE_LANG=en $TRACE
+
   if [ "$VERBOSE" = "yes" ]; then echo 'Tokens'; fi
   # generate session store/secret token
   bundle exec rake $GENERATE_SECRET $TRACE
-
-  # run test prepare
-  if [ "$VERBOSE" = "yes" ]; then echo 'Prepare tests'; fi
-  bundle exec rake db:test:prepare $TRACE
 
   if [ "$VERBOSE" = "yes" ]; then echo 'Done!'; fi
 }

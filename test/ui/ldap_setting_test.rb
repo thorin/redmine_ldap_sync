@@ -57,15 +57,15 @@ class Redmine::UiTest::LdapSetting < Redmine::UiTest::Base
   def test_group_membership
     select 'On the user class', :from => 'Group membership'
 
-    assert !find_field('Member users (group)').visible?
-    assert !find_field('Memberid (user)').visible?
+    assert !find_field('Member users (group)').visible? rescue Capybara::ElementNotFound
+    assert !find_field('Memberid (user)').visible? rescue Capybara::ElementNotFound
     assert find_field('Groups (user)').visible?
     assert find_field('Groupid (group)').visible?
 
     select 'On the group class', :from => 'Group membership'
 
-    assert !find_field('Groups (user)').visible?
-    assert !find_field('Groupid (group)').visible?
+    assert !find_field('Groups (user)').visible? rescue Capybara::ElementNotFound
+    assert !find_field('Groupid (group)').visible? rescue Capybara::ElementNotFound
     assert find_field('Member users (group)').visible?
     assert find_field('Memberid (user)').visible?
   end
@@ -73,22 +73,22 @@ class Redmine::UiTest::LdapSetting < Redmine::UiTest::Base
   def test_nested_groups
     select 'Disabled', :from => 'Nested groups'
 
-    assert !find_field('Member groups (group)').visible?
-    assert !find_field('Memberid (group)').visible?
-    assert !find_field('Parent groups (group)').visible?
-    assert !find_field('Parentid (group)').visible?
+    assert !find_field('Member groups (group)').visible? rescue Capybara::ElementNotFound
+    assert !find_field('Memberid (group)').visible? rescue Capybara::ElementNotFound
+    assert !find_field('Parent groups (group)').visible? rescue Capybara::ElementNotFound
+    assert !find_field('Parentid (group)').visible? rescue Capybara::ElementNotFound
 
     select 'Membership on the parent class', :from => 'Nested groups'
 
-    assert !find_field('Parent groups (group)').visible?
-    assert !find_field('Parentid (group)').visible?
+    assert !find_field('Parent groups (group)').visible? rescue Capybara::ElementNotFound
+    assert !find_field('Parentid (group)').visible? rescue Capybara::ElementNotFound
     assert find_field('Member groups (group)').visible?
     assert find_field('Memberid (group)').visible?
 
     select 'Membership on the member class', :from => 'Nested groups'
 
-    assert !find_field('Member groups (group)').visible?
-    assert !find_field('Memberid (group)').visible?
+    assert !find_field('Member groups (group)').visible? rescue Capybara::ElementNotFound
+    assert !find_field('Memberid (group)').visible? rescue Capybara::ElementNotFound
     assert find_field('Parent groups (group)').visible?
     assert find_field('Parentid (group)').visible?
   end

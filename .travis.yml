@@ -19,6 +19,7 @@ before_script:
  - sudo apt-get install -qq slapd ldap-utils
  - export PATH_TO_LDAPSYNC=`pwd`
  - bash -x ./script/startldap.sh || exit 1
+ - phantomjs --webdriver 4444 2>&- 1>&- &
 script:
  - export WORKSPACE=`pwd`/workspace
  - export PATH_TO_LDAPSYNC=`pwd`
