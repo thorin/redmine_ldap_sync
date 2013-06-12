@@ -6,19 +6,18 @@ namespace :redmine do
 
       desc 'Runs the ldap_sync tests.'
       task :test do
-        Rake::Task["redmine:plugins:ldap_sync:test:units"].invoke
-        Rake::Task["redmine:plugins:ldap_sync:test:functionals"].invoke
-        Rake::Task["redmine:plugins:ldap_sync:test:integration"].invoke
-
         if RUBY_VERSION >= '1.9.3' && Redmine::VERSION.to_s >= '2.3.0'
           Rake::Task["redmine:plugins:ldap_sync:test:ui"].invoke
         end
+
+        Rake::Task["redmine:plugins:ldap_sync:test:units"].invoke
+        Rake::Task["redmine:plugins:ldap_sync:test:functionals"].invoke
+        Rake::Task["redmine:plugins:ldap_sync:test:integration"].invoke
       end
 
       namespace :test do
         desc 'Runs the plugins unit tests.'
         Rake::TestTask.new :ui => "db:test:prepare" do |t|
-          SimpleCov.command_name 'test:ui'
           t.libs << "test"
           t.verbose = true
           t.pattern = "plugins/#{PLUGIN_NAME}/test/ui/**/*_test.rb"
@@ -26,7 +25,6 @@ namespace :redmine do
 
         desc 'Runs the plugins unit tests.'
         Rake::TestTask.new :units => "db:test:prepare" do |t|
-          SimpleCov.command_name 'test:units'
           t.libs << "test"
           t.verbose = true
           t.pattern = "plugins/#{PLUGIN_NAME}/test/unit/**/*_test.rb"
@@ -34,7 +32,6 @@ namespace :redmine do
 
         desc 'Runs the plugins functional tests.'
         Rake::TestTask.new :functionals => "db:test:prepare" do |t|
-          SimpleCov.command_name 'test:functionals'
           t.libs << "test"
           t.verbose = true
           t.pattern = "plugins/#{PLUGIN_NAME}/test/functional/**/*_test.rb"
@@ -42,7 +39,6 @@ namespace :redmine do
 
         desc 'Runs the plugins integration tests.'
         Rake::TestTask.new :integration => "db:test:prepare" do |t|
-          SimpleCov.command_name 'test:integration'
           t.libs << "test"
           t.verbose = true
           t.pattern = "plugins/#{PLUGIN_NAME}/test/integration/**/*_test.rb"
