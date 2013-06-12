@@ -8,7 +8,10 @@ namespace :redmine do
         Rake::Task["redmine:plugins:ldap_sync:test:units"].invoke
         Rake::Task["redmine:plugins:ldap_sync:test:functionals"].invoke
         Rake::Task["redmine:plugins:ldap_sync:test:integration"].invoke
-        Rake::Task["redmine:plugins:ldap_sync:test:ui"].invoke unless RUBY_VERSION < '1.9.3'
+
+        if RUBY_VERSION >= '1.9.3' && Redmine::VERSION.to_s > '2.2.4'
+          Rake::Task["redmine:plugins:ldap_sync:test:ui"].invoke
+        end
       end
 
       namespace :test do

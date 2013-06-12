@@ -1,8 +1,6 @@
 # encoding: utf-8
 require 'simplecov'
-require 'coveralls'
 
-SimpleCov.formatter = Coveralls::NilFormatter
 SimpleCov.start do
   add_group 'Controllers', 'app/controllers'
   add_group 'Models', 'app/models'
