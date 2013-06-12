@@ -4,7 +4,7 @@ auth_sources_001:
   type: AuthSourceLdap
   name: 'LDAP test server'
   host: '127.0.0.1'
-  port: 389
+  port: 3389
   base_dn: 'OU=Person,DC=redmine,DC=org'
   account: 'cn=admin,dc=redmine,dc=org'
   account_password: password
@@ -18,7 +18,7 @@ auth_sources_002:
   type: AuthSourceLdap
   name: 'LDAP test server 2'
   host: '127.0.0.2'
-  port: 389
+  port: 3389
   base_dn: 'OU=Person,DC=localhost,DC=net'
   attr_login: uid
   attr_firstname: givenName
