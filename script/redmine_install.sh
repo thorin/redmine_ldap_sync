@@ -104,7 +104,7 @@ run_install()
 
   # create a link to the ldap_sync plugin, but avoid recursive link.
   if [ -L "$PATH_TO_PLUGINS/redmine_ldap_sync" ]; then rm "$PATH_TO_PLUGINS/redmine_ldap_sync"; fi
-  ln -s "$PATH_TO_BACKLOGS" "$PATH_TO_PLUGINS/redmine_ldap_sync"
+  ln -s "$PATH_TO_LDAPSYNC" "$PATH_TO_PLUGINS/redmine_ldap_sync"
 
   # install gems
   mkdir -p vendor/bundle
