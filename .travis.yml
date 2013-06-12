@@ -16,13 +16,13 @@ install: echo skip bundle install
 before_script:
  - sudo apt-get install -qq slapd ldap-utils
  - export PATH_TO_LDAPSYNC=`pwd`
- - bash -x ./script/travis/startldap.sh || exit 1
+ - bash -x ./script/startldap.sh || exit 1
 script:
  - export WORKSPACE=`pwd`/workspace
  - export PATH_TO_LDAPSYNC=`pwd`
  - export PATH_TO_REDMINE=$WORKSPACE/redmine
  - mkdir $WORKSPACE
- - bash -x ./script/travis/redmine_install.sh -r || exit 1
- - bash -x ./script/travis/redmine_install.sh -i || exit 1
- - bash -x ./script/travis/redmine_install.sh -t || exit 1
- - bash -x ./script/travis/redmine_install.sh -u || exit 1
+ - bash -x ./script/redmine_install.sh -r || exit 1
+ - bash -x ./script/redmine_install.sh -i || exit 1
+ - bash -x ./script/redmine_install.sh -t || exit 1
+ - bash -x ./script/redmine_install.sh -u || exit 1
