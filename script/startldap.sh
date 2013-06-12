@@ -3,7 +3,7 @@
 export LDAPNOINIT=yes
 
 LDAPBASE=$(mktemp --tmpdir=/tmp -d ldapsyncldap.XXXXX)
-LDAP_CONF=${PATH_TO_LDAPSYNC}/test/fixtures/ldap
+LDAPCONF=${PATH_TO_LDAPSYNC}/test/fixtures/ldap
 
 if [ -f /etc/openldap/schema/core.schema ]; then
   SCHEMABASE=/etc/openldap/schema

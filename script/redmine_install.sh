@@ -120,6 +120,9 @@ run_install()
   fi
 
   # install redmine database
+  if [ "$VERBOSE" = "yes" ]; then echo 'Install database'; fi
+  bundle exec rake db:migrate $TRACE
+
   if [ "$VERBOSE" = "yes" ]; then echo 'Prepare tests'; fi
   bundle exec rake db:test:prepare $TRACE
 

@@ -353,10 +353,10 @@ module LdapSync::Infectors::AuthSourceLdap
         when :change
           if trace_level == :change && !options[:obj].nil?
             obj = options[:obj]
-            trace_msg = msg.gsub(/^.*?(\w)/, '\1')
-                .gsub('...', '')
-                .gsub(/ '#{obj}'/, '')
-                .downcase
+            trace_msg = msg.gsub(/^.*?(\w)/, '\1').
+                gsub('...', '').
+                gsub(/ '#{obj}'/, '').
+                downcase
             puts "[#{obj}] #{trace_msg}"
           else
             puts msg unless [:error].include? trace_level
