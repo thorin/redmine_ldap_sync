@@ -111,7 +111,7 @@ run_install()
 
   # install gems
   mkdir -p vendor/bundle
-  bundle install --path vendor/bundle
+  bundle install --without development openid rmagick --path vendor/bundle
 
   if [ "$VERBOSE" = "yes" ]; then echo 'Gems installed'; fi
 
@@ -129,7 +129,7 @@ run_install()
 
   # install redmine database
   if [ "$VERBOSE" = "yes" ]; then echo 'Load defaults'; fi
-  bundle exec rake redmine:plugin:migrate REDMINE_LANG=en $TRACE
+  bundle exec rake redmine:plugins NAME=redmine_ldap_sync  $TRACE
 
   if [ "$VERBOSE" = "yes" ]; then echo 'Tokens'; fi
   # generate session store/secret token
