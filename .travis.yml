@@ -21,6 +21,7 @@ install:
  - export PATH_TO_REDMINE=$WORKSPACE/redmine
  - export PATH_TO_LDAPSYNC=`pwd`
  - sudo apt-get install -qq slapd ldap-utils
+ - cp config/database.yml.travis $WORKSPACE/database.yml
  - ./script/redmine_install.sh -r || exit 1
  - ./script/redmine_install.sh -i || exit 1
 before_script:
@@ -32,6 +33,5 @@ script:
  - export PATH_TO_REDMINE=$WORKSPACE/redmine
  - export PATH_TO_LDAPSYNC=`pwd`
  - mkdir $WORKSPACE
- - cp config/database.yml.travis $WORKSPACE/database.yml
  - ./script/redmine_install.sh -t || exit 1
  - ./script/redmine_install.sh -u || exit 1
