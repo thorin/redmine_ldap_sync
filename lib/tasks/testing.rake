@@ -47,11 +47,11 @@ namespace :redmine do
 
       namespace :coveralls do
         desc "Push latest coverage results to Coveralls.io"
-
         task :test => 'redmine:plugins:ldap_sync:test' do
           require 'simplecov'
+          ::SimpleCov.root = Rails.root.join('plugins', "#{PLUGIN_NAME}")
+
           require 'coveralls'
-          ::SimpleCov.root = Rails.root.join("plugins/#{PLUGIN_NAME}/")
           Coveralls.push!
         end
       end

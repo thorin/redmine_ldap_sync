@@ -1,7 +1,7 @@
 require File.expand_path('../../../../../test/ui/base', __FILE__)
 require File.expand_path('../../test_helper', __FILE__)
 
-class Redmine::UiTest::LdapSetting < Redmine::UiTest::Base
+class Redmine::UiTest::LdapSettingTest < Redmine::UiTest::Base
   fixtures :auth_sources, :users, :settings, :custom_fields
 
   setup do
@@ -10,6 +10,7 @@ class Redmine::UiTest::LdapSetting < Redmine::UiTest::Base
     within 'tr#ldap-config-1' do
       click_link 'LDAP test server'
     end
+    assert_equal '/admin/ldap_sync/1/edit', current_path
   end
 
   def test_ldap_setting_test

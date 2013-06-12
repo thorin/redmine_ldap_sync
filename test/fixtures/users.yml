@@ -17,7 +17,7 @@ rhill:
   mail_notification: all
   login: rhill
   type: User
-users_001:
+admin:
   id: 1
   created_on: 2006-07-19 19:12:21 +02:00
   status: 1
