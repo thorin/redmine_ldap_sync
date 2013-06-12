@@ -102,10 +102,6 @@ run_install()
   cd $PATH_TO_REDMINE
   echo current directory is `pwd`
 
-  # create a link to the ldap_sync plugin, but avoid recursive link.
-  if [ -L "$PATH_TO_PLUGINS/redmine_ldap_sync" ]; then rm "$PATH_TO_PLUGINS/redmine_ldap_sync"; fi
-  ln -s "$PATH_TO_LDAPSYNC" "$PATH_TO_PLUGINS/redmine_ldap_sync"
-
   # copy database.yml
   cp $WORKSPACE/database.yml config/
 
@@ -127,13 +123,22 @@ run_install()
   if [ "$VERBOSE" = "yes" ]; then echo 'Load defaults'; fi
   bundle exec rake redmine:load_default_data REDMINE_LANG=en $TRACE
 
-  # install redmine database
-  if [ "$VERBOSE" = "yes" ]; then echo 'Load defaults'; fi
-  bundle exec rake redmine:plugins NAME=redmine_ldap_sync  $TRACE
-
   if [ "$VERBOSE" = "yes" ]; then echo 'Tokens'; fi
   # generate session store/secret token
   bundle exec rake $GENERATE_SECRET $TRACE
+
+  ### Install the plugin
+
+  # create a link to the ldap_sync plugin, but avoid recursive link.
+  if [ -L "$PATH_TO_PLUGINS/redmine_ldap_sync" ]; then rm "$PATH_TO_PLUGINS/redmine_ldap_sync"; fi
+  ln -s "$PATH_TO_LDAPSYNC" "$PATH_TO_PLUGINS/redmine_ldap_sync"
+
+  # install plugin gems
+  bundle install --without development rmagick --path vendor/bundle
+
+  # install redmine database
+  if [ "$VERBOSE" = "yes" ]; then echo 'Load defaults'; fi
+  bundle exec rake redmine:plugins NAME=redmine_ldap_sync  $TRACE
 
   if [ "$VERBOSE" = "yes" ]; then echo 'Done!'; fi
 }
