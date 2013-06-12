@@ -8,4 +8,3 @@ ldap_sync_project:
   homepage: https://github.com/thorin/redmine_ldap_sync
   is_public: true
   identifier: ldap_sync
-  parent_id:
