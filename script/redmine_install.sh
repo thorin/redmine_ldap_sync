@@ -78,6 +78,8 @@ run_tests()
   if [ "$VERBOSE" = "yes" ]; then
     TRACE=--trace
   fi
+
+  bundle exec rake redmine:plugins:ldap_sync:test $TRACE
 }
 
 uninstall()
