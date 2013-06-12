@@ -10,7 +10,7 @@ env:
  - REDMINE_VER=master
 matrix:
   exclude:
-    rvm: 2.0.0
+  - rvm: 2.0.0
     env: REDMINE_VER=2.2.4
 install: echo skip bundle install
 before_script:
