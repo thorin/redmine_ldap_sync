@@ -2,7 +2,7 @@ require File.expand_path('../../../../../test/ui/base', __FILE__)
 require File.expand_path('../../test_helper', __FILE__)
 
 require 'simplecov'
-SimpleCov.command_name 'test:ui'
+SimpleCov.command_name 'UI Tests'
 
 class Redmine::UiTest::LdapSettingTest < Redmine::UiTest::Base
   fixtures :auth_sources, :users, :settings, :custom_fields
