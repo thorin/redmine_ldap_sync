@@ -106,6 +106,9 @@ run_install()
   if [ -L "$PATH_TO_PLUGINS/redmine_ldap_sync" ]; then rm "$PATH_TO_PLUGINS/redmine_ldap_sync"; fi
   ln -s "$PATH_TO_LDAPSYNC" "$PATH_TO_PLUGINS/redmine_ldap_sync"
 
+  # copy database.yml
+  cp $WORKSPACE/database.yml config/
+
   # install gems
   mkdir -p vendor/bundle
   bundle install --path vendor/bundle
