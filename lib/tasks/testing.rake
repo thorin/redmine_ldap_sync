@@ -5,7 +5,7 @@ namespace :redmine do
 
       desc 'Runs the ldap_sync tests.'
       task :test do
-        Rake::Task["redmine:plugins:ldap_sync:test:ui"].invoke
+        Rake::Task["redmine:plugins:ldap_sync:test:ui"].invoke unless RUBY_VERSION < '1.9.3'
         Rake::Task["redmine:plugins:ldap_sync:test:units"].invoke
         Rake::Task["redmine:plugins:ldap_sync:test:functionals"].invoke
         Rake::Task["redmine:plugins:ldap_sync:test:integration"].invoke
