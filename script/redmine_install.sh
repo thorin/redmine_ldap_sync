@@ -119,10 +119,19 @@ run_install()
     export TRACE=--trace
   fi
 
-  # install redmine database
-  if [ "$VERBOSE" = "yes" ]; then echo 'Install database'; fi
+  # run redmine database migrations
+  if [ "$VERBOSE" = "yes" ]; then echo 'Migrations'; fi
   bundle exec rake db:migrate $TRACE
 
+  # install redmine database
+  if [ "$VERBOSE" = "yes" ]; then echo 'Load defaults'; fi
+  bundle exec rake redmine:load_default_data REDMINE_LANG=en $TRACE
+
+  if [ "$VERBOSE" = "yes" ]; then echo 'Tokens'; fi
+  # generate session store/secret token
+  bundle exec rake $GENERATE_SECRET $TRACE
+
+  # run test prepare
   if [ "$VERBOSE" = "yes" ]; then echo 'Prepare tests'; fi
   bundle exec rake db:test:prepare $TRACE
 
