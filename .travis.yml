@@ -17,16 +17,16 @@ matrix:
   - rvm: 1.8.7
     env: REDMINE_VER=2.3.1
 install:
- - export WORKSPACE=`pwd`/workspace PATH_TO_REDMINE=$WORKSPACE/redmine PATH_TO_LDAPSYNC=`pwd`
+ - export WORKSPACE=`pwd`/workspace PATH_TO_REDMINE=`pwd`/workspace/redmine PATH_TO_LDAPSYNC=`pwd`
  - sudo apt-get install -qq slapd ldap-utils
  - 'mkdir -p $WORKSPACE && cp config/database.yml.travis $WORKSPACE/database.yml'
  - ./script/redmine_install.sh -r || exit 1
  - ./script/redmine_install.sh -i || exit 1
 before_script:
- - export WORKSPACE=`pwd`/workspace PATH_TO_REDMINE=$WORKSPACE/redmine PATH_TO_LDAPSYNC=`pwd`
+ - export WORKSPACE=`pwd`/workspace PATH_TO_REDMINE=`pwd`/workspace/redmine PATH_TO_LDAPSYNC=`pwd`
  - script/startldap.sh || exit 1
  - 'phantomjs --webdriver 4444 2>&- 1>&- &'
 script:
- - export WORKSPACE=`pwd`/workspace PATH_TO_REDMINE=$WORKSPACE/redmine PATH_TO_LDAPSYNC=`pwd`
+ - export WORKSPACE=`pwd`/workspace PATH_TO_REDMINE=`pwd`/workspace/redmine PATH_TO_LDAPSYNC=`pwd`
  - ./script/redmine_install.sh -t || exit 1
  - ./script/redmine_install.sh -u || exit 1
