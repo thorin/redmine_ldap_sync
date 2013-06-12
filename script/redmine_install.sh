@@ -79,7 +79,11 @@ run_tests()
     TRACE=--trace
   fi
 
-  bundle exec rake redmine:plugins:ldap_sync:coveralls:test $TRACE
+  if [ "$REDMINE_VER" == "master" ] && [ "$(ruby -e 'print RUBY_VERSION')"  == "1.9.3" ]; then
+    bundle exec rake redmine:plugins:ldap_sync:coveralls:test $TRACE
+  else
+    bundle exec rake redmine:plugins:ldap_sync:test $TRACE
+  fi
 }
 
 uninstall()
