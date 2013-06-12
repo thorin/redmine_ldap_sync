@@ -6,6 +6,7 @@ namespace :redmine do
 
       desc 'Runs the ldap_sync tests.'
       task :test do
+        require 'redmine/version'
         if RUBY_VERSION >= '1.9.3' && Redmine::VERSION.to_s >= '2.3.0'
           Rake::Task["redmine:plugins:ldap_sync:test:ui"].invoke
         end
