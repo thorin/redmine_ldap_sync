@@ -1,4 +1,4 @@
-Redmine Ldap Sync [![Build Status](https://travis-ci.org/thorin/redmine_ldap_sync.png)](https://travis-ci.org/thorin/redmine_ldap_sync)
+Redmine Ldap Sync [![Build Status](https://travis-ci.org/thorin/redmine_ldap_sync.png)](https://travis-ci.org/thorin/redmine_ldap_sync) [![Coverage Status](https://coveralls.io/repos/thorin/redmine_ldap_sync/badge.png?branch=master)](https://coveralls.io/r/thorin/redmine_ldap_sync?branch=master)
 =================
 
 This plugins extends redmine's ldap authentication to perform group
