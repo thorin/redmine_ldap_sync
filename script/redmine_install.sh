@@ -111,7 +111,7 @@ run_install()
 
   # install gems
   mkdir -p vendor/bundle
-  bundle install --without development openid rmagick --path vendor/bundle
+  bundle install --without development rmagick --path vendor/bundle
 
   if [ "$VERBOSE" = "yes" ]; then echo 'Gems installed'; fi
 
