@@ -79,7 +79,7 @@ run_tests()
     TRACE=--trace
   fi
 
-  bundle exec rake redmine:plugins:ldap_sync:test $TRACE
+  bundle exec rake redmine:plugins:ldap_sync:coveralls:test $TRACE
 }
 
 uninstall()
