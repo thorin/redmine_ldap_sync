@@ -21,7 +21,7 @@ sed -i "s|/var/run/slapd/slapd.args|${LDAPBASE}/slapd.pid|" ${LDAPBASE}/slapd.co
 sed -i "s|/var/lib/ldap|${LDAPBASE}/db|" ${LDAPBASE}/slapd.conf
 sed -i "s|/etc/ldap/schema|${SCHEMABASE}|" ${LDAPBASE}/slapd.conf
 
-nohup slapd -d3 -f ${LDAPBASE}/slapd.conf -h 'ldap://localhost:3389/' &> ${LDAPBASE}/slapd.log &
+nohup slapd -d3 -f ${LDAPBASE}/slapd.conf -h 'ldap://localhost:389/' &> ${LDAPBASE}/slapd.log &
 
 # Give LDAP a few seconds to start
 sleep 3
@@ -30,5 +30,5 @@ if [ ! -z "$DEBUG" ]; then
   cat ${LDAPBASE}/slapd.log
 fi
 
-ldapadd -x -D 'cn=admin,dc=redmine,dc=org' -w password -H 'ldap://localhost:3389/' -f ${LDAPCONF}/test-ldap.ldif > /dev/null
+ldapadd -x -D 'cn=admin,dc=redmine,dc=org' -w password -H 'ldap://localhost:389/' -f ${LDAPCONF}/test-ldap.ldif > /dev/null
 echo "LDAP Started"
