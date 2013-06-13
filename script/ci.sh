@@ -7,7 +7,7 @@ setenv() {
   export PATH_TO_LDAPSYNC=$(pwd)
   export RUBY_VERSION=$(ruby -e 'print RUBY_VERSION')
   if [[ -z "$REDMINE" ]]; then
-    echo "You have not set REDMINE_VER"
+    echo "You have not set REDMINE"
     exit 1
   fi
   if [ "$VERBOSE" = "yes" ]; then export TRACE=--trace; fi
@@ -44,7 +44,7 @@ setenv() {
 extract_args() {
   while :; do
     case "$1" in
-      --target) shift; export TARGET="$1"; shift;;
+      --target) export TARGET="$2"; shift; shift;;
       -*) echo "Invalid argument $1"; exit 2;;
       *) break;;
     esac
@@ -57,7 +57,7 @@ trace() {
 
 clone_redmine()
 {
-  setenv; extract_args
+  setenv; extract_args $@
 
   if [[ -z "$TARGET" ]]; then
     echo "You have not set a target directory"; exit 1
