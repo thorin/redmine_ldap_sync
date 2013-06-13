@@ -24,7 +24,7 @@ before_install:
  - cp ./config/database.yml.travis $REDMINE_DIR/config/database.yml
  - ./script/ci.sh install_plugin
 install:
- - cd $REDMINE_DIR && bundle install --gemfile=./Gemfile --without development rmagick
+ - pushd $REDMINE_DIR && bundle install --gemfile=./Gemfile --without development rmagick && popd
 before_script:
  - ./script/ci.sh prepare_redmine
  - ./script/ci.sh prepare_plugin
