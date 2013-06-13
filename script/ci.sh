@@ -1,4 +1,5 @@
 #/bin/bash
+set -x
 set -e # exit if any command fails
 
 setenv() {
