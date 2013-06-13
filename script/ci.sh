@@ -76,24 +76,19 @@ clone_redmine()
   fi
 }
 
-install_plugin()
+install_plugin_gemfile()
 {
   setenv
 
-  pushd $REDMINE_DIR >&-
-
-  # create a link to the ldap_sync plugin, but avoid recursive link.
-  if [ -L "$PATH_TO_PLUGINS/redmine_ldap_sync" ]; then rm "$PATH_TO_PLUGINS/redmine_ldap_sync"; fi
-  ln -s "$PATH_TO_LDAPSYNC" "$PATH_TO_PLUGINS/redmine_ldap_sync"
-
-  popd
+  mkdir $REDMINE_DIR/$PATH_TO_PLUGINS/redmine_ldap_sync
+  ln -s "$PATH_TO_LDAPSYNC/Gemfile" "$REDMINE_DIR/$PATH_TO_PLUGINS/redmine_ldap_sync/Gemfile"
 }
 
 prepare_redmine()
 {
   setenv
 
-  pushd $REDMINE_DIR >&-
+  pushd $REDMINE_DIR 1>&-
 
   rm "$PATH_TO_PLUGINS/redmine_ldap_sync"
 
@@ -116,7 +111,10 @@ prepare_plugin()
 {
   setenv
 
-  pushd $REDMINE_DIR >&-
+  pushd $REDMINE_DIR 1>&-
+
+  rm $PATH_TO_PLUGINS/redmine_ldap_sync/Gemfile
+  ln -s $PATH_TO_LDAPSYNC/* $PATH_TO_PLUGINS/redmine_ldap_sync
 
   trace 'Prepare plugins'
   bundle exec rake redmine:plugins NAME=redmine_ldap_sync $TRACE
@@ -164,7 +162,7 @@ run_tests()
 {
   setenv
 
-  pushd $REDMINE_DIR >&-
+  pushd $REDMINE_DIR 1>&-
 
   if [ "$REDMINE" == "master" ] && [ "$RUBY_VERSION"  == "1.9.3" ]; then
     bundle exec rake redmine:plugins:ldap_sync:coveralls:test $TRACE
@@ -179,7 +177,7 @@ test_uninstall()
 {
   setenv
 
-  pushd $REDMINE_DIR >&-
+  pushd $REDMINE_DIR 1>&-
 
   bundle exec rake $TRACE $MIGRATE_PLUGINS NAME=redmine_ldap_sync VERSION=0
 
@@ -188,11 +186,11 @@ test_uninstall()
 
 case "$1" in
   "clone_redmine") shift; clone_redmine $@;;
-  "install_plugin") shift; install_plugin $@;;
+  "install_plugin_gemfile") shift; install_plugin_gemfile $@;;
   "prepare_redmine") shift; prepare_redmine $@;;
   "prepare_plugin") shift; prepare_plugin $@;;
   "start_ldap") shift; start_ldap $@;;
   "run_tests") shift; run_tests $@;;
   "test_uninstall") shift; test_uninstall $@;;
-  *) echo "clone_redmine; install_plugin; prepare_redmine; prepare_plugin; start_ldap; run_tests; test_uninstall";;
+  *) echo "clone_redmine; install_plugin_gemfile; prepare_redmine; prepare_plugin; start_ldap; run_tests; test_uninstall";;
 esac
