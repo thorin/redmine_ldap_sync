@@ -22,14 +22,14 @@ gemfile: workspace/redmine/Gemfile
 bundlerargs: --without development rmagick
 before_install:
  - sudo apt-get install -qq slapd ldap-utils
- - ./script/ci clone_redmine --target $REDMINE_DIR
+ - ./script/ci.sh clone_redmine --target $REDMINE_DIR
  - cp ./config/database.yml.travis $REDMINE_DIR/config/database.yml
- - ./script/ci install_plugin
+ - ./script/ci.sh install_plugin
 before_script:
- - ./script/ci prepare_redmine
- - ./script/ci prepare_plugin
- - ./script/ci start_ldap
+ - ./script/ci.sh prepare_redmine
+ - ./script/ci.sh prepare_plugin
+ - ./script/ci.sh start_ldap
  - 'phantomjs --webdriver 4444 2>&- 1>&- &'
 script:
- - ./script/ci test
- - ./script/ci test_uninstall
+ - ./script/ci.sh test
+ - ./script/ci.sh test_uninstall

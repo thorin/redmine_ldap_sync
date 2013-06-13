@@ -57,7 +57,7 @@ trace() {
 
 clone_redmine()
 {
-  setenv
+  setenv; extract_args
 
   if [[ -z "$TARGET" ]]; then
     echo "You have not set a target directory"; exit 1
@@ -77,7 +77,7 @@ clone_redmine()
 
 install_plugin()
 {
-  setenv; extract_args
+  setenv
 
   pushd $REDMINE_DIR
 
