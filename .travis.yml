@@ -26,6 +26,8 @@ before_install:
  - ./script/ci.sh clone_redmine --target $REDMINE_DIR
  - cp ./config/database.yml.travis $REDMINE_DIR/config/database.yml
  - ./script/ci.sh install_plugin
+ - ls -l workspace/redmine/Gemfile
+ - ls -l Gemfile
 before_script:
  - ./script/ci.sh prepare_redmine
  - ./script/ci.sh prepare_plugin
