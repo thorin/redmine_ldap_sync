@@ -7,26 +7,29 @@ rvm:
  - 1.9.3
  - 2.0.0
 env:
- - REDMINE_VER=2.2.4
- - REDMINE_VER=2.3.1
- - REDMINE_VER=master
+  global: REDMINE_DIR=./workspace/redmine
+  matrix:
+  - REDMINE=2.2.4
+  - REDMINE=2.3.1
+  - REDMINE=master
 matrix:
   exclude:
   - rvm: 2.0.0
     env: REDMINE_VER=2.2.4
   - rvm: 1.8.7
     env: REDMINE_VER=2.3.1
-install:
- - export WORKSPACE=`pwd`/workspace PATH_TO_REDMINE=`pwd`/workspace/redmine PATH_TO_LDAPSYNC=`pwd`
+gemfile: workspace/redmine/Gemfile
+bundlerargs: --without development rmagick
+before_install:
  - sudo apt-get install -qq slapd ldap-utils
- - 'mkdir -p $WORKSPACE && cp config/database.yml.travis $WORKSPACE/database.yml'
- - ./script/redmine_install.sh -r || exit 1
- - ./script/redmine_install.sh -i || exit 1
+ - ./script/ci clone_redmine --target $REDMINE_DIR
+ - cp ./config/database.yml.travis $REDMINE_DIR/config/database.yml
+ - ./script/ci install_plugin
 before_script:
- - export WORKSPACE=`pwd`/workspace PATH_TO_REDMINE=`pwd`/workspace/redmine PATH_TO_LDAPSYNC=`pwd`
- - script/startldap.sh || exit 1
+ - ./script/ci prepare_redmine
+ - ./script/ci prepare_plugin
+ - ./script/ci start_ldap
  - 'phantomjs --webdriver 4444 2>&- 1>&- &'
 script:
- - export WORKSPACE=`pwd`/workspace PATH_TO_REDMINE=`pwd`/workspace/redmine PATH_TO_LDAPSYNC=`pwd`
- - ./script/redmine_install.sh -t || exit 1
- - ./script/redmine_install.sh -u || exit 1
+ - ./script/ci test
+ - ./script/ci test_uninstall

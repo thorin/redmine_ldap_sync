@@ -1,0 +1,190 @@
+#/bin/bash
+set -e # exit if any command fails
+
+setenv() {
+  export RAILS_ENV=test
+  export IN_RBL_TESTENV=true
+  export PATH_TO_LDAPSYNC=$(pwd)
+  export RUBY_VERSION=$(ruby -e 'print RUBY_VERSION')
+  if [[ -z "$REDMINE" ]]; then
+    echo "You have not set REDMINE_VER"
+    exit 1
+  fi
+  if [ "$VERBOSE" = "yes" ]; then export TRACE=--trace; fi
+  if [ ! "$VERBOSE" = "yes" ]; then export QUIET=--quiet; fi
+
+  case $REDMINE in
+    1.4.*)  export PATH_TO_PLUGINS=./vendor/plugins # for redmine < 2.0
+            export GENERATE_SECRET=generate_session_store
+            export MIGRATE_PLUGINS=db:migrate_plugins
+            export REDMINE_TARBALL=https://github.com/edavis10/redmine/archive/$REDMINE.tar.gz
+            ;;
+    2.*)    export PATH_TO_PLUGINS=./plugins # for redmine 2.0
+            export GENERATE_SECRET=generate_secret_token
+            export MIGRATE_PLUGINS=redmine:plugins:migrate
+            export REDMINE_TARBALL=https://github.com/edavis10/redmine/archive/$REDMINE.tar.gz
+            ;;
+    master) export PATH_TO_PLUGINS=./plugins
+            export GENERATE_SECRET=generate_secret_token
+            export MIGRATE_PLUGINS=redmine:plugins:migrate
+            export REDMINE_GIT_REPO=git://github.com/edavis10/redmine.git
+            export REDMINE_GIT_TAG=master
+            ;;
+    v3.8.0) export PATH_TO_PLUGINS=./vendor/chilliproject_plugins
+            export GENERATE_SECRET=generate_session_store
+            export MIGRATE_PLUGINS=db:migrate:plugins
+            export REDMINE_TARBALL=https://github.com/chiliproject/chiliproject/archive/$REDMINE.tar.gz
+            ;;
+    *)      echo "Unsupported platform $REDMINE"
+            exit 1
+            ;;
+  esac
+}
+
+extract_args() {
+  while :; do
+    case "$1" in
+      --target) shift; export TARGET="$1"; shift;;
+      -*) echo "Invalid argument $1"; exit 2;;
+      *) break;;
+    esac
+  done
+}
+
+trace() {
+  if [ "$VERBOSE" = "yes" ]; then echo $@; fi
+}
+
+clone_redmine()
+{
+  setenv
+
+  if [[ -z "$TARGET" ]]; then
+    echo "You have not set a target directory"; exit 1
+  fi
+
+  rm -rf $TARGET
+  if [ -n "${REDMINE_GIT_TAG}" ]; then
+    git clone -b $REDMINE_GIT_TAG --depth=100 $QUIET $REDMINE_GIT_REPO $TARGET
+    pushd $TARGET
+    git checkout $REDMINE_GIT_TAG
+    popd
+  else
+    mkdir -p $TARGET
+    wget $REDMINE_TARBALL -O- | tar -C $TARGET -xz --strip=1 --show-transformed -f -
+  fi
+}
+
+install_plugin()
+{
+  setenv; extract_args
+
+  pushd $REDMINE_DIR
+
+  # create a link to the ldap_sync plugin, but avoid recursive link.
+  if [ -L "$PATH_TO_PLUGINS/redmine_ldap_sync" ]; then rm "$PATH_TO_PLUGINS/redmine_ldap_sync"; fi
+  ln -s "$PATH_TO_LDAPSYNC" "$PATH_TO_PLUGINS/redmine_ldap_sync"
+
+  popd
+}
+
+prepare_redmine()
+{
+  setenv
+
+  pushd $REDMINE_DIR
+
+  rm "$PATH_TO_PLUGINS/redmine_ldap_sync"
+
+  trace 'Database migrations'
+  bundle exec rake db:migrate $TRACE
+
+  trace 'Load defaults'
+  bundle exec rake redmine:load_default_data REDMINE_LANG=en $TRACE
+
+  trace 'Session token'
+  bundle exec rake $GENERATE_SECRET $TRACE
+
+  if [ -L "$PATH_TO_PLUGINS/redmine_ldap_sync" ]; then rm "$PATH_TO_PLUGINS/redmine_ldap_sync"; fi
+  ln -s "$PATH_TO_LDAPSYNC" "$PATH_TO_PLUGINS/redmine_ldap_sync"
+
+  trace 'Prepare plugins'
+  bundle exec rake redmine:plugins NAME=redmine_ldap_sync $TRACE
+
+  popd
+
+  trace 'Done!'
+}
+
+start_ldap()
+{
+  export LDAPNOINIT=yes
+
+  LDAPBASE=$(mktemp --tmpdir=/tmp -d ldapsyncldap.XXXXX)
+  LDAPCONF=test/fixtures/ldap
+
+  if [ -f /etc/openldap/schema/core.schema ]; then
+    SCHEMABASE=/etc/openldap/schema
+  else
+    SCHEMABASE=/etc/ldap/schema
+  fi
+
+  echo ${LDAPBASE} > .ldapbase
+
+  mkdir ${LDAPBASE}/db
+  cp ${LDAPCONF}/slapd.conf ${LDAPBASE}/
+
+  sed -i "s|/var/run/slapd/slapd.pid|${LDAPBASE}/slapd.pid|" ${LDAPBASE}/slapd.conf
+  sed -i "s|/var/run/slapd/slapd.args|${LDAPBASE}/slapd.pid|" ${LDAPBASE}/slapd.conf
+  sed -i "s|/var/lib/ldap|${LDAPBASE}/db|" ${LDAPBASE}/slapd.conf
+  sed -i "s|/etc/ldap/schema|${SCHEMABASE}|" ${LDAPBASE}/slapd.conf
+
+  nohup slapd -d3 -f ${LDAPBASE}/slapd.conf -h 'ldap://localhost:3389/' &> ${LDAPBASE}/slapd.log &
+
+  # Give LDAP a few seconds to start
+  sleep 3
+
+  if [ ! -z "$VERBOSE" ]; then
+    cat ${LDAPBASE}/slapd.log
+  fi
+
+  ldapadd -x -D 'cn=admin,dc=redmine,dc=org' -w password -H 'ldap://localhost:3389/' -f ${LDAPCONF}/test-ldap.ldif > /dev/null
+  trace "LDAP Started"
+}
+
+run_tests()
+{
+  setenv
+
+  pushd $REDMINE_DIR
+
+  if [ "$REDMINE" == "master" ] && [ "$RUBY_VERSION"  == "1.9.3" ]; then
+    bundle exec rake redmine:plugins:ldap_sync:coveralls:test $TRACE
+  else
+    bundle exec rake redmine:plugins:ldap_sync:test $TRACE
+  fi
+
+  popd
+}
+
+test_uninstall()
+{
+  setenv
+
+  pushd $REDMINE_DIR
+
+  bundle exec rake $TRACE $MIGRATE_PLUGINS NAME=redmine_ldap_sync VERSION=0
+
+  popd
+}
+
+case "$1" in
+  "clone_redmine") shift; clone_redmine $@;;
+  "install_plugin") shift; install_plugin $@;;
+  "prepare_plugin") shift; prepare_plugin $@;;
+  "test_uninstall") shift; test_uninstall $@;;
+  "start_ldap") shift; start_ldap $@;;
+  "run_tests") shift; run_tests $@;;
+  "test_uninstall") shift; test_uninstall $@;;
+  *) echo "clone_redmine; install_plugin; test_uninstall; start_ldap; run_tests; test_uninstall";;
+esac

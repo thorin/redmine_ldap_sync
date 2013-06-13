@@ -424,7 +424,9 @@ class AuthSourceLdapTest < ActiveSupport::TestCase
       assert_nil User.find_by_login 'invaliduser'
 
       user = User.try_to_login('invaliduser', 'password')
+      assert_nil user
 
+      user = User.try_to_login('systemhack', 'wrongpassword')
       assert_nil user
     end
 
