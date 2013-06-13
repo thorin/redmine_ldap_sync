@@ -80,7 +80,7 @@ install_plugin()
 {
   setenv
 
-  pushd $REDMINE_DIR
+  pushd $REDMINE_DIR >&-
 
   # create a link to the ldap_sync plugin, but avoid recursive link.
   if [ -L "$PATH_TO_PLUGINS/redmine_ldap_sync" ]; then rm "$PATH_TO_PLUGINS/redmine_ldap_sync"; fi
@@ -93,7 +93,7 @@ prepare_redmine()
 {
   setenv
 
-  pushd $REDMINE_DIR
+  pushd $REDMINE_DIR >&-
 
   rm "$PATH_TO_PLUGINS/redmine_ldap_sync"
 
@@ -116,7 +116,7 @@ prepare_plugin()
 {
   setenv
 
-  pushd $REDMINE_DIR
+  pushd $REDMINE_DIR >&-
 
   trace 'Prepare plugins'
   bundle exec rake redmine:plugins NAME=redmine_ldap_sync $TRACE
@@ -164,7 +164,7 @@ run_tests()
 {
   setenv
 
-  pushd $REDMINE_DIR
+  pushd $REDMINE_DIR >&-
 
   if [ "$REDMINE" == "master" ] && [ "$RUBY_VERSION"  == "1.9.3" ]; then
     bundle exec rake redmine:plugins:ldap_sync:coveralls:test $TRACE
@@ -179,7 +179,7 @@ test_uninstall()
 {
   setenv
 
-  pushd $REDMINE_DIR
+  pushd $REDMINE_DIR >&-
 
   bundle exec rake $TRACE $MIGRATE_PLUGINS NAME=redmine_ldap_sync VERSION=0
 
