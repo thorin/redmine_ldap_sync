@@ -18,16 +18,12 @@ matrix:
     env: REDMINE_VER=2.2.4
   - rvm: 1.8.7
     env: REDMINE_VER=2.3.1
-gemfile:
- - workspace/redmine/Gemfile
-bundlerargs: --without development rmagick
 before_install:
  - sudo apt-get install -qq slapd ldap-utils
  - ./script/ci.sh clone_redmine --target $REDMINE_DIR
  - cp ./config/database.yml.travis $REDMINE_DIR/config/database.yml
  - ./script/ci.sh install_plugin
- - ls -l workspace/redmine/Gemfile
- - ls -l Gemfile
+install: bundle install --gemfile=workspace/redmine/Gemfile --without development rmagick
 before_script:
  - ./script/ci.sh prepare_redmine
  - ./script/ci.sh prepare_plugin

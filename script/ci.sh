@@ -109,12 +109,19 @@ prepare_redmine()
   if [ -L "$PATH_TO_PLUGINS/redmine_ldap_sync" ]; then rm "$PATH_TO_PLUGINS/redmine_ldap_sync"; fi
   ln -s "$PATH_TO_LDAPSYNC" "$PATH_TO_PLUGINS/redmine_ldap_sync"
 
+  popd
+}
+
+prepare_plugin()
+{
+  setenv
+
+  pushd $REDMINE_DIR
+
   trace 'Prepare plugins'
   bundle exec rake redmine:plugins NAME=redmine_ldap_sync $TRACE
 
   popd
-
-  trace 'Done!'
 }
 
 start_ldap()
@@ -182,10 +189,10 @@ test_uninstall()
 case "$1" in
   "clone_redmine") shift; clone_redmine $@;;
   "install_plugin") shift; install_plugin $@;;
+  "prepare_redmine") shift; prepare_redmine $@;;
   "prepare_plugin") shift; prepare_plugin $@;;
-  "test_uninstall") shift; test_uninstall $@;;
   "start_ldap") shift; start_ldap $@;;
   "run_tests") shift; run_tests $@;;
   "test_uninstall") shift; test_uninstall $@;;
-  *) echo "clone_redmine; install_plugin; test_uninstall; start_ldap; run_tests; test_uninstall";;
+  *) echo "clone_redmine; install_plugin; prepare_redmine; prepare_plugin; start_ldap; run_tests; test_uninstall";;
 esac
