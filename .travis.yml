@@ -18,8 +18,7 @@ matrix:
     env: REDMINE_VER=2.2.4
   - rvm: 1.8.7
     env: REDMINE_VER=2.3.1
-gemfile: workspace/redmine/Gemfile
-bundlerargs: --without development rmagick
+bundlerargs: --gemfile=workspace/redmine/Gemfile --without development rmagick
 before_install:
  - sudo apt-get install -qq slapd ldap-utils
  - ./script/ci.sh clone_redmine --target $REDMINE_DIR
