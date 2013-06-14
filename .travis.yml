@@ -15,7 +15,7 @@ env:
 matrix:
   exclude:
   - rvm: 2.0.0
-    env: REDMINE=2.2.4 REDMINE_DIR=./workspace/redmine
+    env: REDMINE=2.2.4
     gemfile: workspace/redmine/Gemfile
 gemfile: workspace/redmine/Gemfile
 before_install:
