@@ -89,6 +89,14 @@ install_plugin_gemfile()
   ln -s "$PATH_TO_LDAPSYNC/Gemfile" "$REDMINE_DIR/$PATH_TO_PLUGINS/redmine_ldap_sync/Gemfile"
 }
 
+bundle_install()
+{
+  pushd $REDMINE_DIR > /dev/null
+  for i in {1..3}; do
+    bundle install --gemfile=./Gemfile --path vendor/bundle --without development rmagick && break
+  done && popd
+}
+
 prepare_redmine()
 {
   setenv
@@ -187,6 +195,7 @@ test_uninstall()
 case "$1" in
   "clone_redmine") shift; clone_redmine $@;;
   "install_plugin_gemfile") shift; install_plugin_gemfile $@;;
+  "bundle_install") shift; bundle_install $@;;
   "prepare_redmine") shift; prepare_redmine $@;;
   "prepare_plugin") shift; prepare_plugin $@;;
   "start_ldap") shift; start_ldap $@;;
