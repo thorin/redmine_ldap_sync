@@ -20,10 +20,16 @@ setenv() {
             export MIGRATE_PLUGINS=db:migrate_plugins
             export REDMINE_TARBALL=https://github.com/edavis10/redmine/archive/$REDMINE.tar.gz
             ;;
-    2.*)    export PATH_TO_PLUGINS=./plugins # for redmine 2.0
+    2.*.*)  export PATH_TO_PLUGINS=./plugins # for redmine 2.0
             export GENERATE_SECRET=generate_secret_token
             export MIGRATE_PLUGINS=redmine:plugins:migrate
             export REDMINE_TARBALL=https://github.com/edavis10/redmine/archive/$REDMINE.tar.gz
+            ;;
+    2.*-stable) export PATH_TO_PLUGINS=./plugins # for redmine 2.0
+            export GENERATE_SECRET=generate_secret_token
+            export MIGRATE_PLUGINS=redmine:plugins:migrate
+            export REDMINE_GIT_REPO=git://github.com/edavis10/redmine.git
+            export REDMINE_GIT_TAG=$REDMINE
             ;;
     master) export PATH_TO_PLUGINS=./plugins
             export GENERATE_SECRET=generate_secret_token
@@ -88,9 +94,7 @@ prepare_redmine()
 {
   setenv
 
-  pushd $REDMINE_DIR 1>&-
-
-  rm "$PATH_TO_PLUGINS/redmine_ldap_sync"
+  pushd $REDMINE_DIR
 
   trace 'Database migrations'
   bundle exec rake db:migrate $TRACE
@@ -101,9 +105,6 @@ prepare_redmine()
   trace 'Session token'
   bundle exec rake $GENERATE_SECRET $TRACE
 
-  if [ -L "$PATH_TO_PLUGINS/redmine_ldap_sync" ]; then rm "$PATH_TO_PLUGINS/redmine_ldap_sync"; fi
-  ln -s "$PATH_TO_LDAPSYNC" "$PATH_TO_PLUGINS/redmine_ldap_sync"
-
   popd
 }
 
@@ -111,7 +112,7 @@ prepare_plugin()
 {
   setenv
 
-  pushd $REDMINE_DIR 1>&-
+  pushd $REDMINE_DIR
 
   rm $PATH_TO_PLUGINS/redmine_ldap_sync/Gemfile
   ln -s $PATH_TO_LDAPSYNC/* $PATH_TO_PLUGINS/redmine_ldap_sync
@@ -162,7 +163,7 @@ run_tests()
 {
   setenv
 
-  pushd $REDMINE_DIR 1>&-
+  pushd $REDMINE_DIR
 
   if [ "$REDMINE" == "master" ] && [ "$RUBY_VERSION"  == "1.9.3" ]; then
     bundle exec rake redmine:plugins:ldap_sync:coveralls:test $TRACE
@@ -177,7 +178,7 @@ test_uninstall()
 {
   setenv
 
-  pushd $REDMINE_DIR 1>&-
+  pushd $REDMINE_DIR
 
   bundle exec rake $TRACE $MIGRATE_PLUGINS NAME=redmine_ldap_sync VERSION=0
 

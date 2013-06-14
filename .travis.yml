@@ -10,7 +10,7 @@ env:
   global: REDMINE_DIR=./workspace/redmine
   matrix:
   - REDMINE=2.2.4
-  - REDMINE=2.3.1
+  - REDMINE=2.3-stable
   - REDMINE=master
 matrix:
   exclude:
