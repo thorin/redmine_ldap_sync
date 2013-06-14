@@ -32,5 +32,5 @@ before_script:
  - ./script/ci.sh start_ldap
  - 'phantomjs --webdriver 4444 2>&- 1>&- &'
 script:
- - ./script/ci.sh test
+ - ./script/ci.sh run_tests
  - ./script/ci.sh test_uninstall
