@@ -72,7 +72,7 @@ clone_redmine()
   rm -rf $TARGET
   if [ -n "${REDMINE_GIT_TAG}" ]; then
     git clone -b $REDMINE_GIT_TAG --depth=100 $QUIET $REDMINE_GIT_REPO $TARGET
-    pushd $TARGET
+    pushd $TARGET > /dev/null
     git checkout $REDMINE_GIT_TAG
     popd
   else
@@ -93,7 +93,7 @@ prepare_redmine()
 {
   setenv
 
-  pushd $REDMINE_DIR
+  pushd $REDMINE_DIR > /dev/null
 
   trace 'Database migrations'
   bundle exec rake db:migrate $TRACE
@@ -111,7 +111,7 @@ prepare_plugin()
 {
   setenv
 
-  pushd $REDMINE_DIR
+  pushd $REDMINE_DIR > /dev/null
 
   rm $PATH_TO_PLUGINS/redmine_ldap_sync/Gemfile
   ln -s $PATH_TO_LDAPSYNC/* $PATH_TO_PLUGINS/redmine_ldap_sync
@@ -162,7 +162,7 @@ run_tests()
 {
   setenv
 
-  pushd $REDMINE_DIR
+  pushd $REDMINE_DIR > /dev/null
 
   if [ "$REDMINE" == "master" ] && [ "$RUBY_VERSION"  == "1.9.3" ]; then
     bundle exec rake redmine:plugins:ldap_sync:coveralls:test $TRACE
@@ -177,7 +177,7 @@ test_uninstall()
 {
   setenv
 
-  pushd $REDMINE_DIR
+  pushd $REDMINE_DIR > /dev/null
 
   bundle exec rake $TRACE $MIGRATE_PLUGINS NAME=redmine_ldap_sync VERSION=0
 
