@@ -15,8 +15,7 @@ env:
 matrix:
   exclude:
   - rvm: 2.0.0
-    env: REDMINE_VER=2.2.4 REDMINE_DIR=./workspace/redmine
-    gemfile: workspace/redmine/Gemfile
+    env: REDMINE=2.2.4
 gemfile: workspace/redmine/Gemfile
 before_install:
  - sudo apt-get install -qq slapd ldap-utils
