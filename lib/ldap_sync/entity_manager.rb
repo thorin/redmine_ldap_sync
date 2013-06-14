@@ -9,7 +9,7 @@ module LdapSync::EntityManager
       user_data.inject({}) do |fields, (attr, value)|
         f = setting.user_field(attr)
         if f && (User::STANDARD_FIELDS.include?(f) || setting.user_fields_to_sync.include?(f))
-          fields[f] = value.first unless value.first.blank?
+          fields[f] = value.first unless value.nil? || value.first.blank?
         end
         fields
       end
@@ -23,7 +23,7 @@ module LdapSync::EntityManager
       group_data.inject({}) do |fields, (attr, value)|
         f = setting.group_field(attr)
         if f && setting.group_fields_to_sync.include?(f)
-          fields[f] = value.first unless value.first.blank?
+          fields[f] = value.first unless value.nil? || value.first.blank?
         end
         fields
       end

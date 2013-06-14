@@ -151,7 +151,6 @@ o: 4008
 o: 4009
 
 dn: uid=incomplete,ou=Person,dc=redmine,dc=org
-mail:
 uid: incomplete
 cn: Incomplete User
 preferredLanguage: pt
