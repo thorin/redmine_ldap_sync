@@ -1,3 +1,4 @@
+# encoding: utf-8
 require File.expand_path('../../../../../test/ui/base', __FILE__)
 require File.expand_path('../../test_helper', __FILE__)
 
@@ -23,7 +24,7 @@ class Redmine::UiTest::LdapSettingTest < Redmine::UiTest::Base
     click_link 'Test'
     within 'div#tab-content-Test' do
       fill_in 'Users', :with => 'tweetmicro,systemhack,microunit,missing_user'
-      fill_in 'Groups', :with => 'Iardum,MissingGroup'
+      fill_in 'Groups', :with => 'Iardum,Therß,MissingGroup'
       click_link 'Execute'
     end
 
@@ -33,6 +34,7 @@ class Redmine::UiTest::LdapSettingTest < Redmine::UiTest::Base
     assert_selector '#test-result', :text => /User "missing_user": Not found/
 
     assert_selector '#test-result', :text => /Group "Iardum": No fields/
+    assert_selector '#test-result', :text => /Group "Therß": Description = Therß Team Group/
     assert_selector '#test-result', :text => /Group "MissingGroup": Not found/
 
     assert_selector '#test-result', :text => /Users enabled: a total of \d+\s+\[[^\]]*"microunit"[^\]]*\]/

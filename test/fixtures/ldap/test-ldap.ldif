@@ -282,10 +282,12 @@ uid: Therß
 cn: Therß
 description: Therß Team Group
 member: cn=Iardum,ou=Group,dc=redmine,dc=org
+member: cn=LoremipsumdolorsitametconsectetueradipiscingelitseddiamnonummynibheuismodtinciduntutlaoreetdoloremagnaaliquamLoremipsumdolorsitametconsectetueradipiscingelitseddiamnonummynibheuismodtinciduntutlaoreetdoloremagnaaliquamdipiscingelitseddiamnonummynibheuismodtinciduntutlaoreetdoloremagnaaliquam,ou=Group,dc=redmine,dc=org
 member: uid=LoadGeek,ou=Person,dc=redmine,dc=org
 member: uid=microunit,ou=Person,dc=redmine,dc=org
 member: uid=incomplete,ou=Person,dc=redmine,dc=org
 o: 4010
+o: 4011
 
 dn: cn=Iardum,ou=Group,dc=redmine,dc=org
 objectClass: groupOfNames
@@ -298,6 +300,15 @@ cn: Iardum
 member: cn=Therß,ou=Group,dc=redmine,dc=org
 o: 4009
 
+dn: cn=LoremipsumdolorsitametconsectetueradipiscingelitseddiamnonummynibheuismodtinciduntutlaoreetdoloremagnaaliquamLoremipsumdolorsitametconsectetueradipiscingelitseddiamnonummynibheuismodtinciduntutlaoreetdoloremagnaaliquamdipiscingelitseddiamnonummynibheuismodtinciduntutlaoreetdoloremagnaaliquam,ou=Group,dc=redmine,dc=org
+objectClass: groupOfNames
+objectClass: posixAccount
+homeDirectory: /nonexistent
+gidNumber: 4011
+uidNumber: 4011
+uid: LoremipsumdolorsitametconsectetueradipiscingelitseddiamnonummynibheuismodtinciduntutlaoreetdoloremagnaaliquamLoremipsumdolorsitametconsectetueradipiscingelitseddiamnonummynibheuismodtinciduntutlaoreetdoloremagnaaliquamdipiscingelitseddiamnonummynibheuismodtinciduntutlaoreetdoloremagnaaliquam
+cn: LoremipsumdolorsitametconsectetueradipiscingelitseddiamnonummynibheuismodtinciduntutlaoreetdoloremagnaaliquamLoremipsumdolorsitametconsectetueradipiscingelitseddiamnonummynibheuismodtinciduntutlaoreetdoloremagnaaliquamdipiscingelitseddiamnonummynibheuismodtinciduntutlaoreetdoloremagnaaliquam
+member: cn=Therß,ou=Group,dc=redmine,dc=org
 
 dn: cn=MicroUsers,ou=Group,dc=redmine,dc=org
 objectclass: groupOfURLs

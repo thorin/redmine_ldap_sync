@@ -32,4 +32,12 @@ class LdapSettingsHelperTest < ActionView::TestCase
   def test_options_for_base_settings
     assert_not_equal 0, options_for_base_settings.size
   end
+
+  def test_user_field_name
+    assert_equal 'Preferred Language', user_field_name("1")
+  end
+
+  def test_group_field_name
+    assert_equal 'Description', group_field_name("3")
+  end
 end

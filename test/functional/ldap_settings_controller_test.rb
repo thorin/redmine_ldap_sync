@@ -92,6 +92,27 @@ class LdapSettingsControllerTest < ActionController::TestCase
     assert ldap_setting.active?, "LdapSetting must be enabled"
   end
 
+  def test_should_not_enable_ldap_setting_with_errors
+    # Given that
+    @ldap_setting.active = false; @ldap_setting.save
+    @ldap_setting.send(:attribute=, :dyngroups, 'invalid')
+    @ldap_setting.send(:settings=, @ldap_setting.send(:attributes))
+
+    @ldap_setting = LdapSetting.find_by_auth_source_ldap_id(@ldap_setting.id)
+    assert !@ldap_setting.active?, "LdapSetting must be disabled"
+    assert_equal @ldap_setting.member_group, 'member'
+
+    # When we do
+    get :enable, :id => @ldap_setting.id
+    assert_redirected_to ldap_settings_path
+    assert_match /invalid settings/, flash[:error]
+
+    # We should have
+    ldap_setting = LdapSetting.find_by_auth_source_ldap_id(@ldap_setting.id)
+    assert_equal ldap_setting.member_group, 'member', "LdapSetting is not the same"
+    assert !ldap_setting.active?, "LdapSetting must be disabled"
+  end
+
   def test_should_fail_with_error
     put :update, :id => @ldap_setting.id, :ldap_setting => {
       :auth_source_ldap_id => @auth_source_id,

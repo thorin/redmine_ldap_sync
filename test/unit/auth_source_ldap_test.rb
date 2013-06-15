@@ -254,7 +254,7 @@ class AuthSourceLdapTest < ActiveSupport::TestCase
         actual, $stdout = $stdout.string, old_stdout
 
         assert_not_include '-- Updating user \'loadgeek\'...', actual
-        assert_include '[loadgeek] 4 groups added and 1 deleted', actual
+        assert_include '[loadgeek] 4 groups added, 1 deleted and 1 not created', actual
       end
     end
 
@@ -262,6 +262,20 @@ class AuthSourceLdapTest < ActiveSupport::TestCase
       @ldap_setting.dyngroups = 'enabled'
       assert @ldap_setting.save, @ldap_setting.errors.full_messages.join(', ')
       @auth_source.sync_users
+
+      user = User.find_by_login('tweetsave')
+      assert_include 'TweetUsers', user.groups.map(&:lastname)
+    end
+
+    should "sync with dynamic groups when running rake" do
+      old_stdout, $stdout = $stdout, StringIO.new
+
+      AuthSourceLdap.running_rake!
+      @ldap_setting.dyngroups = 'enabled'
+      assert @ldap_setting.save, @ldap_setting.errors.full_messages.join(', ')
+      @auth_source.sync_users
+
+      actual, $stdout = $stdout.string, old_stdout
 
       user = User.find_by_login('tweetsave')
       assert_include 'TweetUsers', user.groups.map(&:lastname)
