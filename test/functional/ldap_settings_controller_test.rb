@@ -5,6 +5,7 @@ class LdapSettingsControllerTest < ActionController::TestCase
   fixtures :auth_sources, :users, :settings, :custom_fields
 
   setup do
+    Setting.clear_cache
     @auth_source = auth_sources(:auth_sources_001)
     @ldap_setting = LdapSetting.find_by_auth_source_ldap_id(@auth_source.id)
     @request.session[:user_id] = 1
