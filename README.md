@@ -28,6 +28,8 @@ Installation & Upgrade
 For upgrade and installation steps please refer to the plugin installation
 procedure described on <http://www.redmine.org/wiki/redmine/Plugins>.
 
+After following the steps on *redmine.org*, update the ruby gems by executing `bundle install` inside the **redmine** folder.
+
 Usage
 -----
 
