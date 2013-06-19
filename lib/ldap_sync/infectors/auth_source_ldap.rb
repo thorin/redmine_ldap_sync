@@ -71,7 +71,7 @@ module LdapSync::Infectors::AuthSourceLdap
               change user.login, "-- Failed to lock active user '#{user.login}'"
             end
           elsif user.present?
-            trace user.login, "-- Not locking locked user '#{user.login}'"
+            trace "-- Not locking locked user '#{user.login}'"
           end
         end
 
