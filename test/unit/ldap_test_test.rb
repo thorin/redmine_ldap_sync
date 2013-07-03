@@ -1,4 +1,20 @@
 # encoding: utf-8
+# Copyright (C) 2011-2013  The Redmine LDAP Sync Authors
+#
+# This file is part of Redmine LDAP Sync.
+#
+# Redmine LDAP Sync is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# Redmine LDAP Sync is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with Redmine LDAP Sync.  If not, see <http://www.gnu.org/licenses/>.
 require File.expand_path('../../test_helper', __FILE__)
 
 class LdapTestTest < ActiveSupport::TestCase
@@ -138,6 +154,17 @@ class LdapTestTest < ActiveSupport::TestCase
     assert_no_match /ldap_test\.rb/, @ldap_test.messages, "Should not throw an error"
   end
 
+  def test_run_without_groups_base_dn_should_fail_on_open_ldap
+    @ldap_setting.groups_base_dn = ''
+
+    @ldap_test.run_with_users_and_groups([], [])
+    assert_not_equal 0, @ldap_test.messages.size
+    assert_equal 0, @ldap_test.non_dynamic_groups.size
+    assert_equal 0, @ldap_test.dynamic_groups.size
+
+    assert_match /ldap_test\.rb/, @ldap_test.messages, "Should throw an error"
+  end
+
   def test_log_messages
     @ldap_test.run_with_users_and_groups([], [])
     assert_match /active, .* locked .* deleted/, @ldap_test.messages
@@ -148,7 +175,7 @@ class LdapTestTest < ActiveSupport::TestCase
 
     @ldap_test.run_with_users_and_groups([], [])
 
-    assert_match /ldap_test\.rb/, @ldap_test.messages, "Should not throw an error"
+    assert_match /ldap_test\.rb/, @ldap_test.messages, "Should throw an error"
   end
 
   def test_should_filter_the_list_of_groups_with_the_groupname_pattern

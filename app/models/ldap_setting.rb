@@ -1,3 +1,20 @@
+# encoding: utf-8
+# Copyright (C) 2011-2013  The Redmine LDAP Sync Authors
+#
+# This file is part of Redmine LDAP Sync.
+#
+# Redmine LDAP Sync is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# Redmine LDAP Sync is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with Redmine LDAP Sync.  If not, see <http://www.gnu.org/licenses/>.
 class LdapSetting
   include Redmine::SafeAttributes
   include Redmine::I18n
@@ -16,7 +33,7 @@ class LdapSetting
   OTHERS = %w( account_disabled_test user_fields_to_sync group_fields_to_sync user_ldap_attrs group_ldap_attrs fixed_group admin_group required_group group_search_filter groupname_pattern groups_base_dn dyngroups_cache_ttl )
 
   validates_presence_of :auth_source_ldap_id
-  validates_presence_of :groups_base_dn, :class_user, :class_group, :groupname
+  validates_presence_of :class_user, :class_group, :groupname
   validates_presence_of :member, :user_memberid, :if => :membership_on_groups?
   validates_presence_of :user_groups, :groupid, :if => :membership_on_members?
   validates_presence_of :parent_group, :group_parentid, :if => :nested_on_members?
@@ -117,33 +134,41 @@ class LdapSetting
     has_sync_on_login?
   end
 
+  # Returns the evaluated proc of the account disabled test
   def account_disabled_proc
     @account_disabled_proc ||= if has_account_disabled_test?
       eval("lambda { |flags| #{account_disabled_test} }")
     end
   end
 
+  # Returns the evaluated regular expression of groupname pattern
   def groupname_regexp
     @groupname_regexp ||= /#{groupname_pattern}/i
   end
 
+  # Returns an array of ldap attributes to used when syncing the user fields
   def user_ldap_attrs_to_sync
     (user_fields_to_sync||[]).map {|f| user_ldap_attrs[f] || send(f) }
   end
 
+  # Returns an array of ldap attributes to used when syncing the group fields
   def group_ldap_attrs_to_sync
     (group_fields_to_sync||[]).map {|f| group_ldap_attrs[f] }
   end
 
+  # Returns the ldap attributes for the given fields
+  # (not valid for custom fields)
   def ldap_attributes(*names)
     names.map {|n| send(n) }
   end
 
+  # Returns the group field name for the given ldap attribute
   def group_field(ldap_attr)
     ldap_attr = ldap_attr.to_s
     group_ldap_attrs.find {|(k, v)| v.downcase == ldap_attr }.try(:first)
   end
 
+  # Returns the user field name for the given ldap attribute
   def user_field(ldap_attr)
     ldap_attr = ldap_attr.to_s
     result = @user_standard_ldap_attrs.find {|(k, v)| v.downcase == ldap_attr }.try(:first)
@@ -154,6 +179,7 @@ class LdapSetting
     @ldap_test ||= LdapTest.new(self)
   end
 
+  # Creates a new ldap setting for the given ldap authentication source
   def initialize(source)
     @attributes = HashWithIndifferentAccess.new
 
@@ -178,6 +204,8 @@ class LdapSetting
     @attributes[:auth_source_ldap_id] = source.id
   end
 
+  # Sets attributes from attrs that are safe
+  # attrs is a Hash with string keys
   def safe_attributes=(attrs, user = User.current)
     @attributes.merge!(delete_unsafe_attributes(attrs, user))
   end
@@ -188,31 +216,39 @@ class LdapSetting
     self.settings = delete_unsafe_attributes(@attributes, User.current)
   end
 
+  # Disables this ldap auth source
+  # A disabled ldap auth source will not be synchronized
   def disable!
     self.active = false
     self.settings = settings.merge(:active => false)
   end
 
+  # Overriden to enable validation (see ActiveModel::Validations#read_attribute_for_validation)
   def read_attribute_for_validation(key)
     @attributes[key]
   end
 
+  # LdapSettings are always persisted because its authsource exists
+  # (see ActiveModel::Lint::Tests::test_persisted?)
   def persisted?
     true
   end
 
+  # Returns the name of an attribute to be displayed on the edit page
   def self.human_attribute_name(attr, *args)
     attr = attr.to_s.sub(/_id$/, '')
 
     l("field_#{name.underscore.gsub('/', '_')}_#{attr}", :default => ["field_#{attr}".to_sym, attr])
   end
 
+  # Find the ldap setting for a given ldap auth source
   def self.find_by_auth_source_ldap_id(id)
     return unless source = AuthSourceLdap.find_by_id(id)
 
     LdapSetting.new(source)
   end
 
+  # Find all the available ldap settings
   def self.all(options = {})
     AuthSourceLdap.all(options).map {|source| find_by_auth_source_ldap_id(source.id) }
   end

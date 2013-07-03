@@ -1,4 +1,20 @@
 # encoding: utf-8
+# Copyright (C) 2011-2013  The Redmine LDAP Sync Authors
+#
+# This file is part of Redmine LDAP Sync.
+#
+# Redmine LDAP Sync is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# Redmine LDAP Sync is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with Redmine LDAP Sync.  If not, see <http://www.gnu.org/licenses/>.
 require File.expand_path('../../test_helper', __FILE__)
 
 class LdapSettingTest < ActiveSupport::TestCase
@@ -68,7 +84,6 @@ class LdapSettingTest < ActiveSupport::TestCase
 
     assert !@ldap_setting.valid?
 
-    assert @ldap_setting.errors.added?(:groups_base_dn, :blank)
     assert @ldap_setting.errors.added?(:class_user, :blank)
     assert @ldap_setting.errors.added?(:class_group, :blank)
     assert @ldap_setting.errors.added?(:groupname, :blank)
@@ -326,5 +341,13 @@ class LdapSettingTest < ActiveSupport::TestCase
   def test_should_return_group_ldap_attrs_to_sync
     assert_equal @ldap_setting.group_ldap_attrs_to_sync,
       %w( description )
+  end
+
+  def test_groups_base_dn_should_not_be_required
+    @ldap_setting.groups_base_dn = ''
+
+    assert @ldap_setting.valid?
+
+    assert !@ldap_setting.errors.added?(:groups_base_dn, :blank)
   end
 end

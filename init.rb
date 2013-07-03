@@ -1,7 +1,7 @@
 require 'redmine'
 
 Redmine::Plugin.register :redmine_ldap_sync do
-  name 'Redmine Ldap Sync'
+  name 'Redmine LDAP Sync'
   author 'Ricardo Santos'
   author_url 'https://github.com/thorin'
   description 'Syncs users and groups with ldap'

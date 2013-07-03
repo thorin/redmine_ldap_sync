@@ -1,25 +1,26 @@
-Redmine Ldap Sync [![Build Status](https://travis-ci.org/thorin/redmine_ldap_sync.png)](https://travis-ci.org/thorin/redmine_ldap_sync) [![Coverage Status](https://coveralls.io/repos/thorin/redmine_ldap_sync/badge.png?branch=master)](https://coveralls.io/r/thorin/redmine_ldap_sync?branch=master)
+Redmine LDAP Sync [![Build Status](https://travis-ci.org/thorin/redmine_ldap_sync.png)](https://travis-ci.org/thorin/redmine_ldap_sync) [![Coverage Status](https://coveralls.io/repos/thorin/redmine_ldap_sync/badge.png?branch=master)](https://coveralls.io/r/thorin/redmine_ldap_sync?branch=master)
 =================
 
-This plugins extends redmine's ldap authentication to perform group
+This plugin extends redmine's ldap authentication with user/group
 synchronization.
-In addition it provides a rake task to perform full user group synchronization.
 
 __Features__:
 
+ * Synchronization of user fields and groups on login.
  * Detects and disables users that have been removed from LDAP.
  * Detects and disables users that have been marked as disabled on Active
  Directory (see [MS KB Article 305144][uacf] for more details).
  * Can detect and include nested groups. Upon login the nested groups are
  retrieve from disk cache. This cache will only be updated by running the rake
  task.
+ * Rake task available for manual or periodic synchronization of groups and users.
 
 __Remarks__:
 
-* The plugin has only been tested with Active Directory and OpenLDAP but should
-work with other directories.
-* An user will only be removed from groups that exist on LDAP. This means that
- both ldap and non-ldap groups can coexist.
+* The plugin is prepared and intended to run with any LDAP directory. But, the author
+can only guarantee it to work correctly with Active Directory and Slapd.
+* An user will only be removed from groups that exist on LDAP. This behaviour is
+intended as it allows both ldap and non-ldap groups to coexist.
 * Deleted groups on LDAP will not be deleted on redmine.
 
 Installation & Upgrade
