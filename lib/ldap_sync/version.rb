@@ -15,8 +15,10 @@ module LdapSync
       cwd = File.dirname(__FILE__)
       if File.directory?(File.join(cwd, '..', '..', '.git'))
         begin
-          git_description = Dir.chdir(cwd) { `git describe --long --dirty --abbrev=10 --tags` }
+          git_description = Dir.chdir(cwd) { `git describe --long --dirty --abbrev=10 --always` }
           if git_description =~ /.*?-\d+-([0-9a-z-]+)/
+            return $1
+          elsif git_description =~ /.*?([0-9a-z]{10})/
             return $1
           end
         rescue
