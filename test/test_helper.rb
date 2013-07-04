@@ -26,7 +26,7 @@ SimpleCov.start do
   add_filter '/test/'
   add_filter 'init.rb'
   root File.expand_path(File.dirname(__FILE__) + '/../')
-end
+end if RUBY_VERSION >= '1.9.0'
 
 require File.expand_path(File.dirname(__FILE__) + '/../../../test/test_helper')
 
