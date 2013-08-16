@@ -10,23 +10,23 @@ es:
   label_result: "Resultado"
   label_minutes: "minutos"
 
-  label_not_executed: "Not ejecutado"
+  label_not_executed: "No ejecutado"
   label_no_fields: "Sin campos"
   label_not_found: "No encontrado"
   label_users_enabled: "Usuarios activos"
   label_a_total_of: "un total de %{count}"
-  label_users_disabled_by_flag: "Usuarios deshabilitados por indicadores"
-  label_users_disabled_by_group: "Usuarios deshabilitados por grupo"
+  label_users_disabled_by_flag: "Usuarios inhabilitados por indicadores"
+  label_users_disabled_by_group: "Usuarios inhabilitados por grupo"
   label_admin_users: "Administradores redmine"
   label_dynamic_grous: "Grupos dinámicos"
-  label_ldap_attributes_on_a_user: "Atributos LDAP num usuario"
-  label_ldap_attributes_on_a_group: "Atributos LDAP num grupo"
+  label_ldap_attributes_on_a_user: "Atributos LDAP en un usuario"
+  label_ldap_attributes_on_a_group: "Atributos LDAP en un grupo"
   label_log_messages: "Mensajes de log"
 
   button_test: "Probar"
   button_execute: "Ejecutar"
   button_enable: "Activar"
-  button_disable: "Deshabilitar"
+  button_disable: "Inhabilitar"
 
   header_create_groups: "Crear grupos"
   header_create_users: "Crear usuarios"
@@ -41,10 +41,10 @@ es:
   field_dyngroups_cache_ttl: "Caché TTL"
 
   field_groups_base_dn: "Base DN de grupos"
-  field_group_membership: "Pertencia al grupo"
+  field_group_membership: "Pertenencia al grupo"
   field_class_user: "Objectclass de usuarios"
   field_class_group: "Objectclass de grupos"
-  field_account_disabled_test: "Prueba de cuenta deshabilitada"
+  field_account_disabled_test: "Prueba de cuenta inhabilitada"
 
   field_groupname_pattern: "Filtro regex de grupos"
   field_group_search_filter: "Filtro de búsqueda de grupos"
@@ -75,19 +75,19 @@ es:
   option_group_membership_on_groups: "En la clase grupo"
   option_group_membership_on_members: "En la clase usuario"
 
-  option_nested_groups_disabled: "Deshabilitado"
+  option_nested_groups_disabled: "Inhabilitado"
   option_nested_groups_on_parents: "Pertenencia en el padre"
   option_nested_groups_on_members: "Pertenencia en el miembro"
 
-  option_dyngroups_disabled: "Deshabilitado"
+  option_dyngroups_disabled: "Inhabilitado"
   option_dyngroups_enabled: "Habilitado"
   option_dyngroups_enabled_with_ttl: "Habilitado con un TTL"
 
-  option_sync_on_login_disabled: "Deshabilitado"
+  option_sync_on_login_disabled: "Inhabilitado"
   option_sync_on_login_user_fields: "Campos de los usuarios"
   option_sync_on_login_user_fields_and_groups: "Campos y grupos de los usuarios"
 
-  text_ldap_setting_successfully_updated: "Ldap configuration successfully updated."
+  text_ldap_setting_successfully_updated: "Configuración LDAP actualizada con éxito."
 
   field_base_settings: "Configuración base"
   option_custom: "Personalizado"
