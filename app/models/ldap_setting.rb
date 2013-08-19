@@ -260,7 +260,6 @@ class LdapSetting
         eval("lambda { |flags| #{account_disabled_test} }")
       end
     rescue Exception => e
-      # TODO: Add some extra detail to the error (example the log error)
       errors.add :account_disabled_test, :invalid_expression, :error_message => e.message.gsub(/^(\(eval\):1: )?(.*?)(lambda.*|$)/m, '\2')
       Rails.logger.error e.message + "\n " + e.backtrace.join("\n ")
     end
@@ -268,7 +267,7 @@ class LdapSetting
     def validate_groupname_pattern
       /#{groupname_pattern}/ if groupname_pattern.present?
     rescue Exception => e
-      errors.add :groupname_pattern, :invalid_regexp, :error_message => e.message #.gsub(/(.*)/, '\1')
+      errors.add :groupname_pattern, :invalid_regexp, :error_message => e.message
     end
 
     def validate_group_filter

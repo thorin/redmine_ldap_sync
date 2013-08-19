@@ -79,6 +79,9 @@ clone_redmine()
     mkdir -p $TARGET
     wget $REDMINE_TARBALL -O- | tar -C $TARGET -xz --strip=1 --show-transformed -f -
   fi
+
+  # Temporarily pin down database_cleaner for bug with sqlite, see https://github.com/bmabey/database_cleaner/issues/224
+  sed -ri 's/gem "database_cleaner"/gem "database_cleaner", "< 1.1.0"/' $TARGET/Gemfile
 }
 
 install_plugin_gemfile()
