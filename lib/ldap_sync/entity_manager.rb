@@ -76,6 +76,11 @@ module LdapSync::EntityManager
           ", #{changes[:disabled].size - deleted_users.size} locked" \
           " and #{deleted_users.size} deleted on ldap"
 
+        # Sort users, clearer for the rake task
+        # TODO user Array instead of Set at the beginning ?
+        changes[:enabled] = changes[:enabled].to_a.sort
+        changes[:disabled] = changes[:disabled].to_a.sort
+
         @ldap_users = changes
       end
 
