@@ -1,0 +1,30 @@
+<h2><%= l(:label_ldap_servers) %></h2>
+
+<div class="autoscroll">
+<table class="list"><thead>
+<tr>
+  <th><%=l(:field_name)%></th>
+  <th><%=l(:field_host)%></th>
+  <th><%=l(:header_create_groups)%></th>
+  <th><%=l(:header_create_users)%></th>
+  <th><%=l(:header_sync_user_fields)%></th>
+  <th><%=l(:header_sync_group_fields)%></th>
+  <th></th>
+</tr></thead>
+
+<% @ldap_settings.each do |config| %>
+  <tr id="ldap-config-<%= config.id %>" class="<%= config_css_classes(config) %>">
+    <td><%= link_to h(config.name), edit_ldap_setting_path(config) %></td>
+    <td align="center"><%= config.auth_source_ldap.host %></td>
+    <td align="center"><%= checked_image config.create_groups? %></td>
+    <td align="center"><%= checked_image config.create_users? %></td>
+    <td align="center"><%= checked_image config.sync_user_fields? %></td>
+    <td align="center"><%= checked_image config.sync_group_fields? %></td>
+    <td class="buttons">
+      <%= link_to l(:button_test), edit_ldap_setting_path(config, :tab => 'Test'), :class => 'icon icon-test' %>
+      <%= change_status_link(config) %>
+    </td>
+  </tr>
+<% end %>
+</table>
+</div>

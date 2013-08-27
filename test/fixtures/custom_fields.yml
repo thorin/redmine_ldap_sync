@@ -1,0 +1,43 @@
+---
+custom_fields_001:
+  name: Preferred Language
+  min_length: 0
+  regexp: ""
+  is_for_all: false
+  type: UserCustomField
+  max_length: 0
+  possible_values: ""
+  id: 1
+  is_required: false
+  field_format: string
+  default_value: "en"
+  editable: true
+  position: 1
+custom_fields_002:
+  name: Uid Number
+  min_length: 0
+  regexp: ""
+  is_for_all: false
+  type: UserCustomField
+  max_length: 0
+  possible_values: ""
+  id: 2
+  is_required: true
+  field_format: int
+  default_value: 0
+  editable: false
+  position: 2
+custom_fields_003:
+  name: Description
+  min_length: 0
+  regexp: ""
+  is_for_all: false
+  type: GroupCustomField
+  max_length: 0
+  possible_values: ""
+  id: 3
+  is_required: false
+  field_format: string
+  default_value: 'no description'
+  editable: true
+  position: 2

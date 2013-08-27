@@ -1,0 +1,50 @@
+<% @test.users_at_ldap.each do |(login, data)| -%>
+<%= "#{l(:label_user)} \"#{login}\"" %>: <%= data == :not_found ?
+    "#{l(:label_not_found)}\n" :
+    "\n#{user_fields_list data[:fields], data[:groups]}" %>
+<% end -%>
+<% @test.groups_at_ldap.each do |(name, data)| -%>
+<%= "#{l(:label_group)} \"#{name}\"" %>: <%= data == :not_found ?
+    "#{l(:label_not_found)}\n" :
+    "\n#{group_fields_list data[:fields]}" %>
+<% end -%>
+<%=l :label_users_enabled %>: <%=l :label_a_total_of, @test.user_changes[:enabled].size %>
+    <%= @test.user_changes[:enabled].to_a.inspect %>
+<% if @ldap_setting.has_account_flags? -%>
+
+<%=l :label_users_disabled_by_flag %>: <%=l :label_a_total_of, @test.user_changes[:disabled].size %>
+    <%= @test.user_changes[:disabled].to_a.inspect %>
+<% end -%>
+<% if @ldap_setting.has_required_group? -%>
+
+<%=l :label_users_disabled_by_group %>: <%=l :label_a_total_of, @test.users_disabled_by_group.size %>
+    <%= @test.users_disabled_by_group.inspect %>
+<% end -%>
+<% if @ldap_setting.has_admin_group? -%>
+
+<%=l :label_admin_users %>: <%=l :label_a_total_of, @test.admin_users.size %>
+    <%= @test.admin_users.inspect %>
+<% end -%>
+
+<%=l :label_group_plural %>: <%=l :label_a_total_of, @test.non_dynamic_groups.size %>
+    <%= @test.non_dynamic_groups.inspect %>
+
+<% if @ldap_setting.sync_dyngroups? -%>
+<%=l :label_dynamic_groups %>: <%=l :label_a_total_of, @test.dynamic_groups.size %>
+<% @test.dynamic_groups.each do |(k, v)| %>
+    <%= k %>: <%= v.to_a.inspect %>
+<% end -%>
+
+<% end -%>
+<% if @test.user_attrs.present? -%>
+<%=l :label_ldap_attributes_on_a_user %>:
+    <%= @test.user_attrs.map {|(k, v)| k }.inspect %>
+
+<% end -%>
+<% if @test.group_attrs.present? -%>
+<%=l :label_ldap_attributes_on_a_group %>:
+    <%= @test.group_attrs.map {|(k, v)| k }.inspect %>
+
+<% end -%>
+<%=l :label_log_messages %>:
+<%= @test.messages %>

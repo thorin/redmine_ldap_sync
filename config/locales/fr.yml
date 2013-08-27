@@ -1,0 +1,102 @@
+﻿fr:
+  label_ldap_synchronization: "Synchronisation LDAP"
+  label_ldap_settings: "Paramètres LDAP"
+  label_ldap_servers: "Serveurs LDAP"
+  label_synchronization_actions: "Actions de synchro."
+  label_synchronize: "Synchroniser"
+  label_ldap_attribute: "Attribut LDAP"
+  label_default_value: "Valeur par défaut"
+  label_test: "Test"
+  label_result: "Résultat"
+  label_minutes: "minutes"
+
+  label_not_executed: "Non executé"
+  label_no_fields: "Pas de champ"
+  label_not_found: "Pas trouvé"
+  label_users_enabled: "Utilisateurs activés"
+  label_a_total_of: "un total de %{count}"
+  label_users_disabled_by_flag: "Utilisateurs désactivés par statut"
+  label_users_disabled_by_group: "Utiloisateurs désactivés par groupes"
+  label_admin_users: "Administrateurs"
+  label_dynamic_groups: "Groupes Dynamiques"
+  label_ldap_attributes_on_a_user: "Attributs LDAP sur un utilisateur"
+  label_ldap_attributes_on_a_group: "Attributs LDAP sur un groupe"
+  label_log_messages: "Messages de log"
+
+  button_test: "Test"
+  button_execute: "Executer"
+  button_enable: "Activer"
+  button_disable: "Désactiver"
+
+  header_create_groups: "Créer groupes"
+  header_create_users: "Créer utilisateurs"
+  header_sync_user_fields: "Sync. champs utilisateurs"
+  header_sync_group_fields: "Sync. champs groupes"
+
+  field_nested_groups: "Groupes imbriqués"
+  field_create_groups: "Créer des groupes"
+  field_create_users: "Créer des utilisateurs"
+  field_sync_on_login: "Synchroniser à la connexion"
+  field_dyngroups: "Groupes dynamiques"
+  field_dyngroups_cache_ttl: "Cache TTL"
+
+  field_groups_base_dn: "Groupes base DN"
+  field_group_membership: "Adhésion au groupe"
+  field_class_user: "Utilisateurs objectclass"
+  field_class_group: "Groupes objectclass"
+  field_account_disabled_test: "Compte désactivé test"
+
+  field_groupname_pattern: "Modèle de nom de groupe"
+  field_group_search_filter: "Filtre de recherche de groupes"
+
+  field_groupname: "Nom du groupe (groupe)"
+  field_member: "Utilisateurs membres (groupe)"
+  field_member_group: "Groupes membres (groupe)"
+  field_parent_group: "Groupes parents (groupe)"
+  field_user_memberid: "Memberid (utilisateur)"
+  field_group_memberid: "Memberid (groupe)"
+  field_group_parentid: "Parentid (groupe)"
+  field_user_groups: "Groupes (utilisateur)"
+  field_groupid: "Groupid (groupe)"
+  field_account_flags: "Account flags (utilisateur)"
+
+  field_required_group: "L'utilisateur doit être membre de"
+  field_admin_group: "Groupe des administrateur"
+  field_fixed_group: "Ajouter des utilisateurs aux groupes"
+
+  field_user_group_fields: "Champs utilisateur/groupe"
+  field_firstname: "Prénom"
+  field_lastname: "Nom"
+  field_mail: "Email"
+
+  field_test_users: "Utilisateurs"
+  field_test_groups: "Groupes"
+
+  option_group_membership_on_groups: "Sur la classe Groupe"
+  option_group_membership_on_members: "Sur la classe Utilisateur"
+
+  option_nested_groups_disabled: "Désactivé"
+  option_nested_groups_on_parents: "Adhésion à la classe parent"
+  option_nested_groups_on_members: "Adhésion à la classe membre"
+
+  option_dyngroups_disabled:  "Désactivé"
+  option_dyngroups_enabled: "Activé"
+  option_dyngroups_enabled_with_ttl: "Activé avec un TTL"
+
+  option_sync_on_login_disabled: "Désactivé"
+  option_sync_on_login_user_fields: "Champs utilisateurs"
+  option_sync_on_login_user_fields_and_groups: "Champs utilisateurs et groupes"
+
+  text_ldap_setting_successfully_updated: "Configuration LDAP mise à jour avec succés"
+
+  field_base_settings: "Paramètres de base"
+  option_custom: "Personnalisée"
+
+  error_cannot_enable_with_invalid_settings: "Impossible d'activer la synchronisation avec des paramètres invalides. Veuillez revoir la configuration."
+
+  errors:
+    messages:
+      invalid_ldap_attribute: "%{field} a un attribut LDAP non valide"
+      must_have_ldap_attribute: "%{field} doit avoir un attribut LDAP pour être synchronisé"
+      invalid_expression: "contient une expression non valide: %{error_message}"
+      invalid_regexp: "contient une expression régulière non valide: %{error_message}"

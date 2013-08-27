@@ -1,0 +1,64 @@
+<% f = tab[:form] %>
+<%= error_messages_for 'ldap_setting' %>
+<div class="box tabular settings">
+  <p><%= f.select :sync_on_login, options_for_sync_on_login %></p>
+  <p><%= f.text_field :required_group %></p>
+  <p><%= f.text_field :admin_group %></p>
+  <p><%= f.text_field :fixed_group, :size => 15  %></p>
+  <p><%= f.check_box :create_users %></p>
+  <p><%= f.check_box :create_groups %></p>
+  <p><%= f.select :dyngroups, options_for_dyngroups %>
+    <span id="dyngroups-cache-ttl"><%= f.text_field :dyngroups_cache_ttl, :required => true, :size => 5 %> <%= l(:label_minutes) %></span>
+  </p>
+  <div class="paragraph">
+    <label><%= l(:field_user_group_fields) %></label>
+    <div class="autoscroll">
+    <table class="list fields-user-group">
+    <thead>
+      <tr>
+        <th width="20%" align="left"></th>
+        <th width="10%" align="center">
+          <%= link_to_function(image_tag('toggle_check.png'), "toggleCheckboxesBySelector('table.fields-user-group input.sync')",
+                                                              :title => "#{l(:button_check_all)}/#{l(:button_uncheck_all)}") %>
+          <%= l(:label_synchronize) %>
+        </th>
+        <th width="30%" align="center">
+          <%= l(:label_ldap_attribute) %>
+        </th>
+        <th align="center">
+          <%= l(:label_default_value) %>
+        </th>
+      </tr>
+    </thead>
+    <tbody>
+      <% { :user => user_fields, :group => group_fields }.each do |k, fields| %>
+      <% if fields.any? -%>
+        <tr class="group open">
+          <td colspan="4">
+            <span class="expander" onClick="toggleRowGroup(this);">&nbsp;</span>
+            <%= l("label_#{k}") %>
+          </td>
+        </tr>
+        <% fields.each do |field| -%>
+        <tr class="<%= cycle('odd', 'even') %>">
+          <td>
+            <%=h field.name %> <%= content_tag('span', '*', :class => 'required') if field.required? %>
+          </td>
+          <td align="center">
+            <%= check_box_tag "#{k}_fields_to_sync[]", field.id, field.synchronize?, :class => 'sync' %>
+          </td>
+          <td align="center">
+            <%= text_field_tag "#{k}_ldap_attrs[#{field.id}]", field.ldap_attribute, :size => 12, :disabled => field.id.is_a?(String) %>
+          </td>
+          <td align="center">
+            <%=h field.default_value %>
+          </td>
+        </tr>
+        <% end -%>
+      <% end -%>
+      <% end -%>
+    </tbody>
+    </table>
+    </div>
+  </div>
+</div>

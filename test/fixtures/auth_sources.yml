@@ -1,0 +1,27 @@
+---
+auth_sources_001:
+  id: 1
+  type: AuthSourceLdap
+  name: 'LDAP test server'
+  host: '127.0.0.1'
+  port: 3389
+  base_dn: 'OU=Person,DC=redmine,DC=org'
+  account: 'cn=admin,dc=redmine,dc=org'
+  account_password: password
+  attr_login: uid
+  attr_firstname: givenName
+  attr_lastname: sn
+  attr_mail: mail
+  onthefly_register: true
+auth_sources_002:
+  id: 2
+  type: AuthSourceLdap
+  name: 'LDAP test server 2'
+  host: '127.0.0.2'
+  port: 3389
+  base_dn: 'OU=Person,DC=localhost,DC=net'
+  attr_login: uid
+  attr_firstname: givenName
+  attr_lastname: sn
+  attr_mail: mail
+  onthefly_register: false

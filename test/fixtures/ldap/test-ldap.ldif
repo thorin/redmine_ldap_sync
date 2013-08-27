@@ -1,0 +1,321 @@
+dn: dc=redmine,dc=org
+objectClass: top
+objectClass: dcObject
+objectClass: organization
+o: redmine.org
+dc: redmine
+
+dn: cn=admin,dc=redmine,dc=org
+objectClass: simpleSecurityObject
+objectClass: organizationalRole
+cn: admin
+description: LDAP administrator
+userPassword: {SSHA}Si9/UcgqKWBlN/+SQb+X1IHZnokzaicm
+
+dn: ou=Person,dc=redmine,dc=org
+ou: Person
+objectClass: organizationalUnit
+
+dn: ou=Group,dc=redmine,dc=org
+ou: Group
+objectClass: organizationalUnit
+
+dn: uid=example1,ou=Person,dc=redmine,dc=org
+objectClass: posixAccount
+objectClass: inetOrgPerson
+gidNumber: 0
+givenName: Example
+sn: One
+uid: example1
+homeDirectory: /home/example1
+cn: Example One
+uidNumber: 900
+mail: example1@redmine.org
+userPassword:: e1NIQX1mRXFOQ2NvM1lxOWg1WlVnbEQzQ1pKVDRsQnM9
+
+dn: uid=edavis,ou=Person,dc=redmine,dc=org
+objectClass: posixAccount
+objectClass: top
+objectClass: inetOrgPerson
+gidNumber: 0
+givenName: Eric
+sn: Davis
+uid: edavis
+mail: edavis@littlestreamsoftware.com
+homeDirectory: /home/edavis
+cn: Eric Davis
+uidNumber: 902
+userPassword:: e1NIQX1mRXFOQ2NvM1lxOWg1WlVnbEQzQ1pKVDRsQnM9
+o: 4003
+
+dn: uid=LoadGeek,ou=Person,dc=redmine,dc=org
+mail: loadgeek@fakemail.com
+uid: LoadGeek
+cn: Christián Earheart
+preferredLanguage: pt
+uidNumber: 301
+gidNumber: 100
+homeDirectory: /home/loadgeek
+objectClass: posixAccount
+objectClass: person
+objectClass: inetOrgPerson
+objectClass: pwdPolicy
+givenName: Christián
+sn: Earheart
+description: Earheart User
+userPassword: {SSHA}Si9/UcgqKWBlN/+SQb+X1IHZnokzaicm
+loginShell: /bin/sh
+pwdAttribute: 2.5.4.35
+pwdLockout: TRUE
+o: 4005
+o: 4007
+o: 4009
+
+dn: uid=tweetmicro,ou=Person,dc=redmine,dc=org
+mail: tweetmicro@fakemail.com
+uid: tweetmicro
+cn: Rae Croll
+preferredLanguage: ar
+uidNumber: 302
+gidNumber: 100
+homeDirectory: /home/tweetmicro
+description: Tweetmicro user [disabled]
+objectClass: posixAccount
+objectClass: person
+objectClass: inetOrgPerson
+givenName: Rae
+sn: Croll
+userPassword: {SSHA}Si9/UcgqKWBlN/+SQb+X1IHZnokzaicm
+loginShell: /bin/sh
+o: 4001
+o: 4006
+o: 4008
+o: 4007
+
+dn: uid=systemhack,ou=Person,dc=redmine,dc=org
+mail: systemhack@fakemail.com
+uid: systemhack
+cn: Darryl Ditto
+preferredLanguage: da
+uidNumber: 303
+gidNumber: 100
+homeDirectory: /home/systemhack
+objectClass: posixAccount
+objectClass: person
+objectClass: inetOrgPerson
+givenName: Darryl
+sn: Ditto
+userPassword: {SSHA}Si9/UcgqKWBlN/+SQb+X1IHZnokzaicm
+loginShell: /bin/sh
+o: 4002
+o: 4003
+o: 4006
+
+dn: uid=tweetsave,ou=Person,dc=redmine,dc=org
+mail: tweetsave@fakemail.com
+uid: tweetsave
+cn: Nelson Meriwether
+preferredLanguage: pl
+uidNumber: 304
+gidNumber: 100
+homeDirectory: /home/tweetsave
+objectClass: posixAccount
+objectClass: person
+objectClass: inetOrgPerson
+givenName: Nelson
+sn: Meriwether
+userPassword: {SSHA}Si9/UcgqKWBlN/+SQb+X1IHZnokzaicm
+loginShell: /bin/sh
+o: 4002
+o: 4006
+
+dn: uid=microunit,ou=Person,dc=redmine,dc=org
+mail: microunit@fakemail.com
+uid: microunit
+cn: Elnora Gershon
+preferredLanguage: vi
+uidNumber: 305
+gidNumber: 100
+homeDirectory: /home/microunit
+objectClass: posixAccount
+objectClass: person
+objectClass: inetOrgPerson
+givenName: Elnora
+sn: Gershon
+userPassword: {SSHA}Si9/UcgqKWBlN/+SQb+X1IHZnokzaicm
+loginShell: /bin/sh
+o: 4002
+o: 4005
+o: 4007
+o: 4008
+o: 4009
+
+dn: uid=incomplete,ou=Person,dc=redmine,dc=org
+uid: incomplete
+cn: Incomplete User
+preferredLanguage: pt
+description: User without all the required fields
+uidNumber: 306
+gidNumber: 100
+homeDirectory: /home/incomplete
+objectClass: posixAccount
+objectClass: person
+objectClass: inetOrgPerson
+sn: User
+userPassword: {SSHA}Si9/UcgqKWBlN/+SQb+X1IHZnokzaicm
+loginShell: /bin/sh
+o: 4002
+o: 4003
+o: 4006
+o: 4009
+
+dn: cn=Rynever,ou=Group,dc=redmine,dc=org
+objectClass: groupOfNames
+objectClass: posixAccount
+homeDirectory: /nonexistent
+gidNumber: 4001
+uidNumber: 4001
+uid: Rynever
+cn: Rynever
+member: uid=tweetmicro,ou=Person,dc=redmine,dc=org
+
+
+dn: cn=Worathest,ou=Group,dc=redmine,dc=org
+objectClass: groupOfNames
+objectClass: posixAccount
+homeDirectory: /nonexistent
+gidNumber: 4002
+uidNumber: 4002
+uid: Worathest
+cn: Worathest
+member: uid=microunit,ou=Person,dc=redmine,dc=org
+member: uid=tweetsave,ou=Person,dc=redmine,dc=org
+member: uid=systemhack,ou=Person,dc=redmine,dc=org
+member: uid=incomplete,ou=Person,dc=redmine,dc=org
+o: 4004
+
+
+dn: cn=Säyeldas,ou=Group,dc=redmine,dc=org
+objectClass: groupOfNames
+objectClass: posixAccount
+homeDirectory: /nonexistent
+gidNumber: 4003
+uidNumber: 4003
+uid: Säyeldas
+cn: Säyeldas
+member: uid=systemhack,ou=Person,dc=redmine,dc=org
+member: uid=incomplete,ou=Person,dc=redmine,dc=org
+member: uid=edavis,ou=Person,dc=redmine,dc=org
+o: 4004
+o: 4008
+
+dn: cn=Briklør,ou=Group,dc=redmine,dc=org
+objectClass: groupOfNames
+objectClass: posixAccount
+homeDirectory: /nonexistent
+gidNumber: 4004
+uidNumber: 4004
+uid: Briklør
+cn: Briklør
+member: cn=Worathest,ou=Group,dc=redmine,dc=org
+member: cn=Säyeldas,ou=Group,dc=redmine,dc=org
+o: 4005
+
+dn: cn=Bluil,ou=Group,dc=redmine,dc=org
+objectClass: groupOfNames
+objectClass: posixAccount
+homeDirectory: /nonexistent
+gidNumber: 4005
+uidNumber: 4005
+uid: Bluil
+cn: Bluil
+member: cn=Briklør,ou=Group,dc=redmine,dc=org
+member: uid=microunit,ou=Person,dc=redmine,dc=org
+member: uid=LoadGeek,ou=Person,dc=redmine,dc=org
+
+dn: cn=Anbely,ou=Group,dc=redmine,dc=org
+objectClass: groupOfNames
+objectClass: posixAccount
+homeDirectory: /nonexistent
+gidNumber: 4006
+uidNumber: 4006
+uid: Anbely
+cn: Anbely
+member: uid=tweetsave,ou=Person,dc=redmine,dc=org
+member: uid=systemhack,ou=Person,dc=redmine,dc=org
+member: uid=incomplete,ou=Person,dc=redmine,dc=org
+member: uid=tweetmicro,ou=Person,dc=redmine,dc=org
+
+dn: cn=Issekin,ou=Group,dc=redmine,dc=org
+objectClass: groupOfNames
+objectClass: posixAccount
+homeDirectory: /nonexistent
+gidNumber: 4007
+uidNumber: 4007
+uid: Issekin
+cn: Issekin
+member: uid=microunit,ou=Person,dc=redmine,dc=org
+member: uid=tweetmicro,ou=Person,dc=redmine,dc=org
+member: uid=LoadGeek,ou=Person,dc=redmine,dc=org
+
+
+dn: cn=Enden,ou=Group,dc=redmine,dc=org
+objectClass: groupOfNames
+objectClass: posixAccount
+homeDirectory: /nonexistent
+gidNumber: 4008
+uidNumber: 4008
+uid: Enden
+cn: Enden
+member: cn=Säyeldas,ou=Group,dc=redmine,dc=org
+member: uid=microunit,ou=Person,dc=redmine,dc=org
+member: uid=tweetmicro,ou=Person,dc=redmine,dc=org
+
+
+dn: cn=Therß,ou=Group,dc=redmine,dc=org
+objectClass: groupOfNames
+objectClass: posixAccount
+homeDirectory: /nonexistent
+gidNumber: 4009
+uidNumber: 4009
+uid: Therß
+cn: Therß
+description: Therß Team Group
+member: cn=Iardum,ou=Group,dc=redmine,dc=org
+member: cn=LoremipsumdolorsitametconsectetueradipiscingelitseddiamnonummynibheuismodtinciduntutlaoreetdoloremagnaaliquamLoremipsumdolorsitametconsectetueradipiscingelitseddiamnonummynibheuismodtinciduntutlaoreetdoloremagnaaliquamdipiscingelitseddiamnonummynibheuismodtinciduntutlaoreetdoloremagnaaliquam,ou=Group,dc=redmine,dc=org
+member: uid=LoadGeek,ou=Person,dc=redmine,dc=org
+member: uid=microunit,ou=Person,dc=redmine,dc=org
+member: uid=incomplete,ou=Person,dc=redmine,dc=org
+o: 4010
+o: 4011
+
+dn: cn=Iardum,ou=Group,dc=redmine,dc=org
+objectClass: groupOfNames
+objectClass: posixAccount
+homeDirectory: /nonexistent
+gidNumber: 4010
+uidNumber: 4010
+uid: Iardum
+cn: Iardum
+member: cn=Therß,ou=Group,dc=redmine,dc=org
+o: 4009
+
+dn: cn=LoremipsumdolorsitametconsectetueradipiscingelitseddiamnonummynibheuismodtinciduntutlaoreetdoloremagnaaliquamLoremipsumdolorsitametconsectetueradipiscingelitseddiamnonummynibheuismodtinciduntutlaoreetdoloremagnaaliquamdipiscingelitseddiamnonummynibheuismodtinciduntutlaoreetdoloremagnaaliquam,ou=Group,dc=redmine,dc=org
+objectClass: groupOfNames
+objectClass: posixAccount
+homeDirectory: /nonexistent
+gidNumber: 4011
+uidNumber: 4011
+uid: LoremipsumdolorsitametconsectetueradipiscingelitseddiamnonummynibheuismodtinciduntutlaoreetdoloremagnaaliquamLoremipsumdolorsitametconsectetueradipiscingelitseddiamnonummynibheuismodtinciduntutlaoreetdoloremagnaaliquamdipiscingelitseddiamnonummynibheuismodtinciduntutlaoreetdoloremagnaaliquam
+cn: LoremipsumdolorsitametconsectetueradipiscingelitseddiamnonummynibheuismodtinciduntutlaoreetdoloremagnaaliquamLoremipsumdolorsitametconsectetueradipiscingelitseddiamnonummynibheuismodtinciduntutlaoreetdoloremagnaaliquamdipiscingelitseddiamnonummynibheuismodtinciduntutlaoreetdoloremagnaaliquam
+member: cn=Therß,ou=Group,dc=redmine,dc=org
+
+dn: cn=MicroUsers,ou=Group,dc=redmine,dc=org
+objectclass: groupOfURLs
+cn: MicroUsers
+memberURL: ldap:///ou=Person,dc=redmine,dc=org??sub?(uid=*micro*)
+
+dn: cn=TweetUsers,ou=Group,dc=redmine,dc=org
+objectclass: groupOfURLs
+cn: TweetUsers
+memberURL: ldap:///ou=Person,dc=redmine,dc=org??sub?(uid=*tweet*)
