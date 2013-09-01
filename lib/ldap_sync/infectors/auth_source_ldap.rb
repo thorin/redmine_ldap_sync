@@ -151,10 +151,10 @@ module LdapSync::Infectors::AuthSourceLdap
         changes = groups_changes(user)
         added = changes[:added].map {|g| find_or_create_group(g).first }.compact
 
-        # Fix : if already member of group
-        added.each{|g|
-          user.groups << g unless user.groups.include?(g)
-        } if added.present?
+        # Fix : if already member of group (this should not be necessary)
+        if added.present?
+          user.groups << added.reject {|g| user.groups.include?(g) }
+        end
 
         deleted_groups = changes[:deleted].map(&:downcase)
         deleted = deleted_groups.any? ? ::Group.where("LOWER(lastname) in (?)", deleted_groups).all : []
@@ -168,27 +168,17 @@ module LdapSync::Infectors::AuthSourceLdap
 
         user.synced_fields = get_user_fields(user.login, user_data)
 
-        # Enhancement : mandatory User Custom fields, use the default cf value if not provided
-        UserCustomField.select(&:is_required).each{ |cf|
-          if user.custom_field_value(cf.id).blank?
-            user.custom_field_values=( {cf.id => cf.default_value} )
-            trace "   CustomField '#{cf.name}' set to default : #{user.custom_field_value(cf.id)}"
-          end
-        }
-        # END -- Enhancement : mandatory User Custom fields, use the default cf value if not provided
-
-        # Enhancement : give informations on the user holding the email
-        user_with_mail = User.find_by_mail(user.mail)
-        if user.mail.present? && user_with_mail.present? && (user != user_with_mail)
-          error "Could not sync user '#{user.login}/#{user.mail}': email already taken by #{user_with_mail.firstname} #{user_with_mail.lastname} (#{user_with_mail.login})"
-          return
-        end
-        # END -- Enhancement : give informations on the user holding the email
-
         if user.save
           user
         else
-          error "Could not sync user '#{user.login}': \"#{user.errors.full_messages.join('", "')}\""; nil
+          error_message = if user.errors.added? :mail, :taken
+            mail_owner = User.find_by_mail(user.mail)
+            fmt = User.name_formatter[:firstname_lastname]
+            "email already taken by #{mail_owner.name(fmt)} (#{mail_owner.login})"
+          else
+            "#{user.errors.full_messages.join('", "')}"
+          end
+          error "Could not sync user '#{user.login}': \"#{error_message}\""; nil
         end
       end
 
@@ -270,18 +260,17 @@ module LdapSync::Infectors::AuthSourceLdap
           u.auth_source_id = self.id
         end
 
-        # Enhancement : give informations on the user holding the email
-        user_with_mail = User.find_by_mail(user.mail)
-        if user.mail.present? && user_with_mail.present?
-          trace "-- Could not create '#{username}/#{user.mail}': email already taken by #{user_with_mail.firstname} #{user_with_mail.lastname} (#{user_with_mail.login})"
-          return nil, false
-        end
-        # END -- Enhancement : give informations on the user holding the email
-
         if user.save
           return user, true
         else
-          change user.login,  "-- Could not create user '#{user.login}': \"#{user.errors.full_messages.join('", "')}\""; nil
+          error_message = if user.errors.added? :mail, :taken
+            mail_owner = User.find_by_mail(user.mail)
+            fmt = User.name_formatter[:firstname_lastname]
+            "email already taken by #{mail_owner.name(fmt)} (#{mail_owner.login})"
+          else
+            "#{user.errors.full_messages.join('", "')}"
+          end
+          change user.login, "-- Could not create user '#{user.login}': \"#{error_message}\""; nil
         end
       end
 

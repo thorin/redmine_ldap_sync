@@ -23,13 +23,21 @@ module LdapSync::EntityManager
         find_user(ldap, username, setting.user_ldap_attrs_to_sync)
       end
 
-      user_data.inject({}) do |fields, (attr, value)|
+      user_fields = user_data.inject({}) do |fields, (attr, value)|
         f = setting.user_field(attr)
         if f && (User::STANDARD_FIELDS.include?(f) || setting.user_fields_to_sync.include?(f))
           fields[f] = value.first unless value.nil? || value.first.blank?
         end
         fields
       end
+
+      user_required_custom_fields.each do |cf|
+        if user_fields[cf.id.to_s].blank?
+          user_fields[cf.id.to_s] = cf.default_value
+        end
+      end
+
+      user_fields
     end
 
     def get_group_fields(groupname, group_data = nil)
@@ -37,20 +45,36 @@ module LdapSync::EntityManager
         find_group(ldap, groupname, [n(:groupname), *setting.group_ldap_attrs_to_sync])
       end || {}
 
-      group_data.inject({}) do |fields, (attr, value)|
+      group_fields = group_data.inject({}) do |fields, (attr, value)|
         f = setting.group_field(attr)
         if f && setting.group_fields_to_sync.include?(f)
           fields[f] = value.first unless value.nil? || value.first.blank?
         end
         fields
       end
+
+      group_required_custom_fields.each do |cf|
+        if group_fields[cf.id.to_s].blank?
+          group_fields[cf.id.to_s] = cf.default_value
+        end
+      end
+
+      group_fields
+    end
+
+    def user_required_custom_fields
+      @user_required_custom_fields ||= UserCustomField.select(&:is_required)
+    end
+
+    def group_required_custom_fields
+      @group_required_custom_fields ||= GroupCustomField.select(&:is_required)
     end
 
     def ldap_users
       return @ldap_users if @ldap_users
 
       with_ldap_connection do |ldap|
-        changes = { :enabled => Set.new, :disabled => Set.new }
+        changes = { :enabled => SortedSet.new, :disabled => SortedSet.new }
 
         unless setting.has_account_flags?
           changes[:enabled] += find_all_users(ldap, n(:login)).map(&:first)
@@ -75,11 +99,6 @@ module LdapSync::EntityManager
         trace "-- Found #{changes[:enabled].size} users active" \
           ", #{changes[:disabled].size - deleted_users.size} locked" \
           " and #{deleted_users.size} deleted on ldap"
-
-        # Sort users, clearer for the rake task
-        # TODO user Array instead of Set at the beginning ?
-        changes[:enabled] = changes[:enabled].to_a.sort
-        changes[:disabled] = changes[:disabled].to_a.sort
 
         @ldap_users = changes
       end

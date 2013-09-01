@@ -148,7 +148,7 @@ class AuthSourceLdapTest < ActiveSupport::TestCase
       @ldap_setting.active = false
       assert @ldap_setting.save, @ldap_setting.errors.full_messages.join(', ')
 
-      assert_no_difference ['User.count', 'Group.count', 'CustomValue.count'] do
+      assert_no_difference %w(User.count Group.count CustomValue.count) do
         @auth_source.sync_users
       end
     end
@@ -157,7 +157,7 @@ class AuthSourceLdapTest < ActiveSupport::TestCase
       @auth_source.account = 'uid=$login,ou=Person,dc=redmine,dc=org'
       @auth_source.save
 
-      assert_no_difference ['User.count', 'Group.count', 'CustomValue.count'] do
+      assert_no_difference %w(User.count Group.count CustomValue.count) do
         @auth_source.sync_users
       end
     end
@@ -232,6 +232,20 @@ class AuthSourceLdapTest < ActiveSupport::TestCase
 
       assert_not_nil User.find_by_login 'tweetmicro'
       assert_not_nil User.find_by_login 'loadgeek'
+    end
+
+    should "show an user's name when it's mail address has already been used" do
+      AuthSourceLdap.running_rake!
+      AuthSourceLdap.trace_level = :change
+
+      old_stdout, $stdout = $stdout, StringIO.new
+
+      User.find_by_login('rhill').update_attribute(:mail, 'systemhack@fakemail.com')
+
+      @auth_source.sync_users
+
+      actual, $stdout = $stdout.string, old_stdout
+      assert_include 'robert hill', actual
     end
 
     context "script output" do
@@ -447,6 +461,19 @@ class AuthSourceLdapTest < ActiveSupport::TestCase
     should "not lock a user if it is already locked" do
       pending "(locked is status 3)"
     end
+
+    should "fill in mandatory fields with the default value if their not present" do
+      cf = UserCustomField.create!(
+          :name => 'group', :field_format => 'string',
+          :is_required => true, :default_value => 'none'
+      )
+      @ldap_setting.user_fields_to_sync << cf.id.to_s
+      @ldap_setting.user_ldap_attrs[cf.id.to_s] = 'group'
+      assert @ldap_setting.save, @ldap_setting.errors.full_messages.join(', ')
+
+      @auth_source.sync_user(@user)
+      assert_equal 'none', User.find(@user.id).custom_field_value(cf)
+    end
   end
 
   context "#try_login" do
@@ -502,6 +529,22 @@ class AuthSourceLdapTest < ActiveSupport::TestCase
 
       user = User.try_to_login('incomplete', 'password')
       assert_nil user
+    end
+
+    should "show an user's name when its mail address has already been used" do
+      AuthSourceLdap.running_rake!
+      AuthSourceLdap.trace_level = :error
+
+      old_stdout, $stdout = $stdout, StringIO.new
+
+      User.find_by_login('rhill').update_attribute(:mail, 'loadgeek@fakemail.com')
+
+      assert User.find_by_login 'loadgeek'
+
+      user = User.try_to_login('loadgeek', 'password')
+
+      actual, $stdout = $stdout.string, old_stdout
+      assert_include 'Robert Hill', actual
     end
 
     context "with login as user" do
@@ -625,4 +668,14 @@ class AuthSourceLdapTest < ActiveSupport::TestCase
     end
   end
 
+  context "#ldap_users" do
+    should "return the users sorted" do
+      @auth_source.send(:ldap_users).values.each do |users|
+        users = users.to_a
+        users[0..-2].zip(users[1..-1]).each do |a, b|
+          assert_operator a, :<=, b
+        end
+      end
+    end
+  end
 end
