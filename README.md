@@ -138,7 +138,7 @@ This tasks can be used to do periodic synchronization.
 For example:
 
     # Synchronize users with ldap @ every 60 minutes
-    35 *            * * *   root /usr/bin/rake -f /opt/redmine/Rakefile --silent redmine:plugins:ldap_sync:sync_users RAILS_ENV=production 2>&- 1>&-
+    35 * * * *   www-data /usr/bin/rake -f /opt/redmine/Rakefile --silent redmine:plugins:ldap_sync:sync_users RAILS_ENV=production 2>&- 1>&-
 
 The tasks recognize three environment variables:
 + **DRY_RUN** - Performs a run without changing the database.
