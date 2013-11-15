@@ -312,6 +312,18 @@ uid: Loremipsumdolorsitametconsectetueradipiscingelitseddiamnonummynibheuismodti
 cn: LoremipsumdolorsitametconsectetueradipiscingelitseddiamnonummynibheuismodtinciduntutlaoreetdoloremagnaaliquamLoremipsumdolorsitametconsectetueradipiscingelitseddiamnonummynibheuismodtinciduntutlaoreetdoloremagnaaliquamdipiscingelitseddiamnonummynibheuismodtinciduntutlaoreetdoloremagnaaliquam
 member: cn=Therß,ou=Group,dc=redmine,dc=org
 
+dn: cn=IT отдел Системные,ou=Group,dc=redmine,dc=org
+objectClass: groupOfNames
+objectClass: posixAccount
+homeDirectory: /nonexistent
+gidNumber: 4015
+uidNumber: 4015
+uid: IT отдел Системные
+cn: IT отдел Системные
+description: Issue #93
+member: uid=LoadGeek,ou=Person,dc=redmine,dc=org
+member: uid=microunit,ou=Person,dc=redmine,dc=org
+
 dn: cn=MicroUsers,ou=Group,dc=redmine,dc=org
 objectclass: groupOfURLs
 cn: MicroUsers
@@ -321,15 +333,3 @@ dn: cn=TweetUsers,ou=Group,dc=redmine,dc=org
 objectclass: groupOfURLs
 cn: TweetUsers
 memberURL: ldap:///ou=Person,dc=redmine,dc=org??sub?(uid=*tweet*)
-
-dn: cn=IT отдел Системные администраторы,ou=Group,dc=redmine,dc=org
-objectClass: groupOfNames
-objectClass: posixAccount
-homeDirectory: /nonexistent
-gidNumber: 4015
-uidNumber: 4015
-uid: IT отдел Системные администраторы
-cn: IT отдел Системные администраторы
-description: Issue #93
-member: uid=LoadGeek,ou=Person,dc=redmine,dc=org
-member: uid=microunit,ou=Person,dc=redmine,dc=org

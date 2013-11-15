@@ -249,7 +249,7 @@ class AuthSourceLdapTest < ActiveSupport::TestCase
     end
 
     should "add both loadgeek and microunit to an utf-8 named group (\#93)" do
-      group_name = 'IT отдел Системные администраторы'
+      group_name = 'IT отдел Системные'
       assert_nil Group.find_by_lastname group_name
 
       @auth_source.sync_users
@@ -625,7 +625,7 @@ class AuthSourceLdapTest < ActiveSupport::TestCase
 
       user_groups = Set.new(user.groups.map(&:name))
       assert_equal Set.new(%w(therß ldap.users Bluil Issekin Iardum) <<
-       'IT отдел Системные администраторы'), user_groups
+       'IT отдел Системные'), user_groups
       assert_equal 'pt', user.custom_field_values[0].value
       assert_equal '301', user.custom_field_values[1].value
       assert_equal 'loadgeek@fakemail.com', user.mail
