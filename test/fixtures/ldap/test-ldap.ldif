@@ -70,6 +70,7 @@ pwdLockout: TRUE
 o: 4005
 o: 4007
 o: 4009
+o: 4015
 
 dn: uid=tweetmicro,ou=Person,dc=redmine,dc=org
 mail: tweetmicro@fakemail.com
@@ -149,6 +150,7 @@ o: 4005
 o: 4007
 o: 4008
 o: 4009
+o: 4015
 
 dn: uid=incomplete,ou=Person,dc=redmine,dc=org
 uid: incomplete
@@ -319,3 +321,20 @@ dn: cn=TweetUsers,ou=Group,dc=redmine,dc=org
 objectclass: groupOfURLs
 cn: TweetUsers
 memberURL: ldap:///ou=Person,dc=redmine,dc=org??sub?(uid=*tweet*)
+
+dn: cn=TweetUsers,ou=Group,dc=redmine,dc=org
+objectclass: groupOfURLs
+cn: TweetUsers
+memberURL: ldap:///ou=Person,dc=redmine,dc=org??sub?(uid=*tweet*)
+
+dn: cn=IT отдел Системные администраторы,ou=Group,dc=redmine,dc=org
+objectClass: groupOfNames
+objectClass: posixAccount
+homeDirectory: /nonexistent
+gidNumber: 4015
+uidNumber: 4015
+uid: IT отдел Системные администраторы
+cn: IT отдел Системные администраторы
+description: Issue #93
+member: uid=LoadGeek,ou=Person,dc=redmine,dc=org
+member: uid=microunit,ou=Person,dc=redmine,dc=org

@@ -36,8 +36,8 @@ class AuthSourceLdapTest < ActiveSupport::TestCase
 
       @auth_source.sync_groups
 
-      assert_equal group_count + 8, Group.count, "Group.count"
-      assert_equal custom_value_count + 10, CustomValue.count, "CustomValue.count"
+      assert_equal group_count + 9, Group.count, "Group.count"
+      assert_equal custom_value_count + 11, CustomValue.count, "CustomValue.count"
 
       group = Group.find_by_lastname('therß')
       assert_equal 'Therß Team Group', group.custom_field_values[0].value
@@ -122,8 +122,8 @@ class AuthSourceLdapTest < ActiveSupport::TestCase
       @auth_source.sync_users
 
       assert_equal user_count + 5, User.count, "User.count"
-      assert_equal group_count + 8, Group.count, "Group.count"
-      assert_equal custom_value_count + 20, CustomValue.count, "CustomValue.count"
+      assert_equal group_count + 9, Group.count, "Group.count"
+      assert_equal custom_value_count + 21, CustomValue.count, "CustomValue.count"
     end
 
     should "create users and groups without sync attrs" do
@@ -141,7 +141,7 @@ class AuthSourceLdapTest < ActiveSupport::TestCase
       @auth_source.sync_users
 
       assert_equal user_count + 5, User.count, "User.count"
-      assert_equal group_count + 8, Group.count, "Group.count"
+      assert_equal group_count + 9, Group.count, "Group.count"
     end
 
     should "not sync users when disabled" do
@@ -248,6 +248,19 @@ class AuthSourceLdapTest < ActiveSupport::TestCase
       assert_include 'robert hill', actual
     end
 
+    should "add both loadgeek and microunit to an utf-8 named group (\#93)" do
+      group_name = 'IT отдел Системные администраторы'
+      assert_nil Group.find_by_lastname group_name
+
+      @auth_source.sync_users
+
+      user1 = User.find_by_login 'loadgeek'
+      user2 = User.find_by_login 'microunit'
+
+      assert_include group_name, user1.groups.map(&:lastname)
+      assert_include group_name, user2.groups.map(&:lastname)
+    end
+
     context "script output" do
       should "be verbose when running on rake with level :debug" do
         old_stdout, $stdout = $stdout, StringIO.new
@@ -284,7 +297,7 @@ class AuthSourceLdapTest < ActiveSupport::TestCase
         actual, $stdout = $stdout.string, old_stdout
 
         assert_not_include '-- Updating user \'loadgeek\'...', actual
-        assert_include '[loadgeek] 4 groups added, 1 deleted and 1 not created', actual
+        assert_include '[loadgeek] 5 groups added, 1 deleted and 1 not created', actual
       end
     end
 
@@ -611,7 +624,8 @@ class AuthSourceLdapTest < ActiveSupport::TestCase
       assert_not_nil user = User.try_to_login('loadgeek', 'password')
 
       user_groups = Set.new(user.groups.map(&:name))
-      assert_equal Set.new(%w(therß ldap.users Bluil Issekin Iardum)), user_groups
+      assert_equal Set.new(%w(therß ldap.users Bluil Issekin Iardum) <<
+       'IT отдел Системные администраторы'), user_groups
       assert_equal 'pt', user.custom_field_values[0].value
       assert_equal '301', user.custom_field_values[1].value
       assert_equal 'loadgeek@fakemail.com', user.mail

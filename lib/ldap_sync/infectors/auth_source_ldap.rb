@@ -62,7 +62,7 @@ module LdapSync::Infectors::AuthSourceLdap
 
       with_ldap_connection do |_|
         ldap_users[:disabled].each do |login|
-          user = self.users.where("LOWER(login) = ?", login.downcase).first
+          user = self.users.where("LOWER(login) = ?", login.mb_chars.downcase).first
 
           if user.try(:active?)
             if user.lock!
@@ -156,7 +156,7 @@ module LdapSync::Infectors::AuthSourceLdap
           user.groups << added.reject {|g| user.groups.include?(g) }
         end
 
-        deleted_groups = changes[:deleted].map(&:downcase)
+        deleted_groups = changes[:deleted].map {|g| g.mb_chars.downcase }
         deleted = deleted_groups.any? ? ::Group.where("LOWER(lastname) in (?)", deleted_groups).all : []
         user.groups.delete(*deleted) unless deleted.empty?
 
@@ -229,7 +229,7 @@ module LdapSync::Infectors::AuthSourceLdap
       end
 
       def find_or_create_group(groupname, group_data = nil)
-        group = ::Group.where("LOWER(lastname) = ?", groupname.downcase).first
+        group = ::Group.where("LOWER(lastname) = ?", groupname.mb_chars.downcase).first
         return group, false unless group.nil? && setting.create_groups?
 
         group = ::Group.new(:lastname => groupname, :auth_source_id => self.id) do |g|
@@ -246,7 +246,7 @@ module LdapSync::Infectors::AuthSourceLdap
       end
 
       def find_or_create_user(username)
-        user = ::User.where("LOWER(#{User.table_name}.login) = ?", username.downcase).includes(:groups).first
+        user = ::User.where("LOWER(#{User.table_name}.login) = ?", username.mb_chars.downcase).includes(:groups).first
         if user.present? && user.auth_source_id != self.id
           trace "-- Skipping user '#{user.login}': it already exists on a different auth_source"
           return nil, false

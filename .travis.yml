@@ -25,6 +25,7 @@ before_install:
  - ./script/ci.sh install_plugin_gemfile
 install: ./script/ci.sh bundle_install
 before_script:
+ - mysql -e 'CREATE DATABASE redmine CHARACTER SET utf8;'
  - ./script/ci.sh prepare_redmine
  - ./script/ci.sh prepare_plugin
  - ./script/ci.sh start_ldap
