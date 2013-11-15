@@ -322,11 +322,6 @@ objectclass: groupOfURLs
 cn: TweetUsers
 memberURL: ldap:///ou=Person,dc=redmine,dc=org??sub?(uid=*tweet*)
 
-dn: cn=TweetUsers,ou=Group,dc=redmine,dc=org
-objectclass: groupOfURLs
-cn: TweetUsers
-memberURL: ldap:///ou=Person,dc=redmine,dc=org??sub?(uid=*tweet*)
-
 dn: cn=IT отдел Системные администраторы,ou=Group,dc=redmine,dc=org
 objectClass: groupOfNames
 objectClass: posixAccount
