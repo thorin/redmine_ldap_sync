@@ -74,13 +74,12 @@ class LdapSettingsController < ApplicationController
   # GET /ldap_settings/1/test
   def test
     if @ldap_setting.valid?
-      @test = LdapTest.new(@ldap_setting)
-
       users   = params[:ldap_test][:test_users] || ''
       groups  = params[:ldap_test][:test_groups] || ''
       users   = users.split(',').map(&:strip).reject(&:blank?)
       groups  = groups.split(',').map(&:strip).reject(&:blank?)
 
+      @test = LdapTest.new(@ldap_setting)
       @test.run_with_users_and_groups(users, groups)
     else
       render 'test_error'
