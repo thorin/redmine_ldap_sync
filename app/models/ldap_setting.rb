@@ -257,11 +257,11 @@ class LdapSetting
 
     def validate_account_disabled_test
       if account_disabled_test.present?
-        eval("lambda { |flags| #{account_disabled_test} }")
+        eval "lambda { |flags| #{account_disabled_test} }"
       end
     rescue Exception => e
       errors.add :account_disabled_test, :invalid_expression, :error_message => e.message.gsub(/^(\(eval\):1: )?(.*?)(lambda.*|$)/m, '\2')
-      Rails.logger.error e.message + "\n " + e.backtrace.join("\n ")
+      Rails.logger.error "#{e.message}\n #{e.backtrace.join("\n ")}"
     end
 
     def validate_groupname_pattern
@@ -315,12 +315,12 @@ class LdapSetting
       end
 
       fields_ids = fields.map {|f| f.is_a?(String) ? f : f.id.to_s }
-      if fields_to_sync.any? {|f| !f.in? fields_ids  }
+      if (fields_to_sync - fields_ids).present?
         errors.add :user_group_fields, :invalid unless errors.added? :user_group_fields, :invalid
       end
       fields_to_sync.each do |f|
-        if f =~ /\A\d+\z/ && (attrs.blank? || attrs[f].blank?)
-          field_name = fields.find{|c| !c.is_a?(String) && c.id.to_s == f }.name
+        if f =~ /\A\d+\z/ && attrs[f].blank?
+          field_name = fields.find {|c| !c.is_a?(String) && c.id.to_s == f }.name
           errors.add :base, :must_have_ldap_attribute, :field => field_name
         end
       end
