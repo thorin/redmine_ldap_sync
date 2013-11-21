@@ -23,13 +23,53 @@ can only guarantee it to work correctly with Active Directory and Slapd.
 intended as it allows both ldap and non-ldap groups to coexist.
 * Deleted groups on LDAP will not be deleted on redmine.
 
-Installation & Upgrade
+Installation &amp; Upgrade
 ----------------------
 
-For upgrade and installation steps please refer to the plugin installation
-procedure described on <http://www.redmine.org/wiki/redmine/Plugins>.
+### Install/Upgrade
 
-After following the steps on *redmine.org*, update the ruby gems by executing `bundle install` inside the **redmine** folder.
+1. **install.** - Copy your plugin directory into `#{RAILS_ROOT}/plugins`.
+   If you are downloading the plugin directly from GitHub, you can do so by changing
+   into the `#{RAILS_ROOT}/plugins` directory and issuing the command:
+   ```
+   git clone git://github.com/thorin/redmine_ldap_sync.git
+   ```
+     
+   **upgrade** - Backup and replace the old plugin directory with the new plugin files. If you are downloading 
+   the plugin directly from GitHub, you can do so by changing into the plugin directory and 
+   issuing the command `git pull`.
+
+2. Update the ruby gems by changing into the redmine's directory and run the following command.
+   ```
+   bundle install
+   ```
+
+3. **upgrade** - Still on the redmine's directory, run the following command to upgrade your database (make a db backup before).
+   ```
+   rake redmine:plugins:migrate RAILS_ENV=production
+   ```
+
+4. Change into redmine's directory `#{RAILS_ROOT}` and run the following command.  
+   ```
+   rake -T redmine:plugins:ldap_sync RAILS_ENV=production
+   ```  
+   If the installation/upgrade was successful you should now see the list of [Rake Tasks](#rake-tasks).
+
+5. Restart Redmine.
+
+You should now be able to see **Redmine LDAP Sync** listed among the plugins in 
+`Administration -> Plugins`.
+
+### Uninstall
+
+1. Change into redmine's directory `#{RAILS_ROOT}` and run the following command to 
+   downgrade the database (make a db backup before):
+   ```
+   rake redmine:plugins:migrate NAME=redmine_ldap_sync VERSION=0 RAILS_ENV=production
+   ```
+
+2. Remove the plugin from the plugins folder: `#{RAILS_ROOT}/plugins`
+3. Restart Redmine.
 
 Usage
 -----
