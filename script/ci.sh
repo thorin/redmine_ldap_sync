@@ -78,7 +78,7 @@ clone_redmine()
     git checkout $REDMINE_GIT_TAG
     popd
   elif [ -n "${REDMINE_HG_TAG}" ]; then
-    git clone -r $REDMINE_HG_TAG -q $REDMINE_HG_REPO $TARGET
+    hg clone -r $REDMINE_HG_TAG -q $REDMINE_HG_REPO $TARGET
   else
     mkdir -p $TARGET
     wget $REDMINE_TARBALL -O- | tar -C $TARGET -xz --strip=1 --show-transformed -f -
