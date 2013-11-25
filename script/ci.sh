@@ -27,8 +27,10 @@ setenv() {
     2.*-stable) export PATH_TO_PLUGINS=./plugins # for redmine 2.0
             export GENERATE_SECRET=generate_secret_token
             export MIGRATE_PLUGINS=redmine:plugins:migrate
-            export REDMINE_GIT_REPO=git://github.com/edavis10/redmine.git
-            export REDMINE_GIT_TAG=$REDMINE
+            #export REDMINE_GIT_REPO=git://github.com/edavis10/redmine.git
+            #export REDMINE_GIT_TAG=$REDMINE
+            export REDMINE_HG_REPO=https://bitbucket.org/redmine/redmine
+            export REDMINE_HG_TAG=$REDMINE
             ;;
     master) export PATH_TO_PLUGINS=./plugins
             export GENERATE_SECRET=generate_secret_token
@@ -75,6 +77,8 @@ clone_redmine()
     pushd $TARGET > /dev/null
     git checkout $REDMINE_GIT_TAG
     popd
+  elif [ -n "${REDMINE_HG_TAG}" ]; then
+    git clone -r $REDMINE_HG_TAG -q $REDMINE_HG_REPO $TARGET
   else
     mkdir -p $TARGET
     wget $REDMINE_TARBALL -O- | tar -C $TARGET -xz --strip=1 --show-transformed -f -
