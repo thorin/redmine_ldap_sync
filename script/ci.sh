@@ -19,16 +19,14 @@ setenv() {
             export MIGRATE_PLUGINS=db:migrate_plugins
             export REDMINE_TARBALL=https://github.com/edavis10/redmine/archive/$REDMINE.tar.gz
             ;;
-    2.*.*)  export PATH_TO_PLUGINS=./plugins # for redmine 2.0
+    2.*.*)  export PATH_TO_PLUGINS=./plugins # for redmine 2.x.x
             export GENERATE_SECRET=generate_secret_token
             export MIGRATE_PLUGINS=redmine:plugins:migrate
             export REDMINE_TARBALL=https://github.com/edavis10/redmine/archive/$REDMINE.tar.gz
             ;;
-    2.*-stable) export PATH_TO_PLUGINS=./plugins # for redmine 2.0
+    2.*-stable) export PATH_TO_PLUGINS=./plugins # for redmine 2.x-stable
             export GENERATE_SECRET=generate_secret_token
             export MIGRATE_PLUGINS=redmine:plugins:migrate
-            #export REDMINE_GIT_REPO=git://github.com/edavis10/redmine.git
-            #export REDMINE_GIT_TAG=$REDMINE
             export REDMINE_HG_REPO=https://bitbucket.org/redmine/redmine
             export REDMINE_HG_TAG=$REDMINE
             ;;
