@@ -33,8 +33,8 @@ setenv() {
     master) export PATH_TO_PLUGINS=./plugins
             export GENERATE_SECRET=generate_secret_token
             export MIGRATE_PLUGINS=redmine:plugins:migrate
-            export REDMINE_GIT_REPO=git://github.com/edavis10/redmine.git
-            export REDMINE_GIT_TAG=master
+            export REDMINE_HG_REPO=https://bitbucket.org/redmine/redmine
+            export REDMINE_HG_TAG=default
             ;;
     v3.8.0) export PATH_TO_PLUGINS=./vendor/chilliproject_plugins
             export GENERATE_SECRET=generate_session_store
