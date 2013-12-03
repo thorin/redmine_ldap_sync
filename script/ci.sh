@@ -27,14 +27,12 @@ setenv() {
     2.*-stable) export PATH_TO_PLUGINS=./plugins # for redmine 2.x-stable
             export GENERATE_SECRET=generate_secret_token
             export MIGRATE_PLUGINS=redmine:plugins:migrate
-            export REDMINE_HG_REPO=https://bitbucket.org/redmine/redmine
-            export REDMINE_HG_TAG=$REDMINE
+            export REDMINE_SVN_REPO=http://svn.redmine.org/redmine/branches/$REDMINE
             ;;
     master) export PATH_TO_PLUGINS=./plugins
             export GENERATE_SECRET=generate_secret_token
             export MIGRATE_PLUGINS=redmine:plugins:migrate
-            export REDMINE_HG_REPO=https://bitbucket.org/redmine/redmine
-            export REDMINE_HG_TAG=default
+            export REDMINE_SVN_REPO=http://svn.redmine.org/redmine/trunk/
             ;;
     v3.8.0) export PATH_TO_PLUGINS=./vendor/chilliproject_plugins
             export GENERATE_SECRET=generate_session_store
@@ -70,13 +68,15 @@ clone_redmine()
   fi
 
   rm -rf $TARGET
-  if [ -n "${REDMINE_GIT_TAG}" ]; then
+  if [ -n "${REDMINE_GIT_REPO}" ]; then
     git clone -b $REDMINE_GIT_TAG --depth=100 $QUIET $REDMINE_GIT_REPO $TARGET
     pushd $TARGET > /dev/null
     git checkout $REDMINE_GIT_TAG
     popd
-  elif [ -n "${REDMINE_HG_TAG}" ]; then
-    hg clone -r $REDMINE_HG_TAG -q $REDMINE_HG_REPO $TARGET
+  elif [ -n "${REDMINE_HG_REPO}" ]; then
+    hg clone -r $REDMINE_HG_TAG $QUIET $REDMINE_HG_REPO $TARGET
+  elif [ -n "${REDMINE_SVN_REPO}" ]; then
+    svn co $QUIET $REDMINE_SVN_REPO $TARGET
   else
     mkdir -p $TARGET
     wget $REDMINE_TARBALL -O- | tar -C $TARGET -xz --strip=1 --show-transformed -f -
