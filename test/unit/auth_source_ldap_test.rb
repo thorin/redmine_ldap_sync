@@ -36,8 +36,8 @@ class AuthSourceLdapTest < ActiveSupport::TestCase
 
       @auth_source.sync_groups
 
-      assert_equal group_count + 9, Group.count, "Group.count"
-      assert_equal custom_value_count + 11, CustomValue.count, "CustomValue.count"
+      assert_equal group_count + 11, Group.count, "Group.count"
+      assert_equal custom_value_count + 13, CustomValue.count, "CustomValue.count"
 
       group = Group.find_by_lastname('therß')
       assert_equal 'Therß Team Group', group.custom_field_values[0].value
@@ -121,9 +121,9 @@ class AuthSourceLdapTest < ActiveSupport::TestCase
 
       @auth_source.sync_users
 
-      assert_equal user_count + 5, User.count, "User.count"
-      assert_equal group_count + 9, Group.count, "Group.count"
-      assert_equal custom_value_count + 21, CustomValue.count, "CustomValue.count"
+      assert_equal user_count + 6, User.count, "User.count"
+      assert_equal group_count + 10, Group.count, "Group.count"
+      assert_equal custom_value_count + 24, CustomValue.count, "CustomValue.count"
     end
 
     should "create users and groups without sync attrs" do
@@ -140,8 +140,8 @@ class AuthSourceLdapTest < ActiveSupport::TestCase
 
       @auth_source.sync_users
 
-      assert_equal user_count + 5, User.count, "User.count"
-      assert_equal group_count + 9, Group.count, "Group.count"
+      assert_equal user_count + 6, User.count, "User.count"
+      assert_equal group_count + 10, Group.count, "Group.count"
     end
 
     should "not sync users when disabled" do
@@ -331,6 +331,39 @@ class AuthSourceLdapTest < ActiveSupport::TestCase
 
       user = User.find_by_login('tweetsave')
       assert_not_include 'TweetUsers', user.groups.map(&:lastname)
+    end
+
+    context "with a primary group configured" do
+      setup do
+        @ldap_setting.primary_group = 'gidNumber'
+        assert @ldap_setting.save, @ldap_setting.errors.full_messages.join(', ')
+      end
+
+      should "add users the group with nested groups on parents" do
+        @ldap_setting.nested_groups = 'on_parents'
+        assert @ldap_setting.save, @ldap_setting.errors.full_messages.join(', ')
+
+        @auth_source.sync_users
+
+        user = User.find_by_login('rubycalm')
+        assert_include 'Rill', user.groups.map(&:lastname)
+
+        user = User.find_by_login('tweetsave')
+        assert_include 'Smuaddan', user.groups.map(&:lastname)
+      end
+
+      should "add users the group with nested groups on members" do
+        @ldap_setting.nested_groups = 'on_members'
+        assert @ldap_setting.save, @ldap_setting.errors.full_messages.join(', ')
+
+        @auth_source.sync_users
+
+        user = User.find_by_login('rubycalm')
+        assert_include 'Rill', user.groups.map(&:lastname)
+
+        user = User.find_by_login('tweetsave')
+        assert_include 'Smuaddan', user.groups.map(&:lastname)
+      end
     end
   end
 

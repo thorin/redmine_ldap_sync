@@ -26,7 +26,7 @@ class LdapSetting
   include ActiveModel::AttributeMethods
 
   # LDAP_DESCRIPTORS
-  LDAP_ATTRIBUTES = %w( groupname member user_memberid user_groups groupid parent_group group_parentid member_group group_memberid account_flags )
+  LDAP_ATTRIBUTES = %w( groupname member user_memberid user_groups groupid parent_group primary_group group_parentid member_group group_memberid account_flags )
   CLASS_NAMES = %w( class_user class_group )
   FLAGS = %w( create_groups create_users active )
   COMBOS = %w( group_membership nested_groups sync_on_login dyngroups )

@@ -120,7 +120,8 @@ module LdapSync::EntityManager
           changes[:deleted] << group.first
         end if names_filter
 
-        user_dn = nil
+        changes[:added] += get_primary_group(ldap, user) if setting.has_primary_group?
+
         case setting.group_membership
         when 'on_groups'
           # Find user's memberid
@@ -167,6 +168,15 @@ module LdapSync::EntityManager
       changes
     ensure
       reset_parents_cache! unless running_rake?
+    end
+
+    def get_primary_group(ldap, user)
+      primary_group_id = find_user(ldap, user.login, n(:primary_group)).first
+      return [] if primary_group_id.nil?
+
+      # Map GID to group name
+      gid_filter = Net::LDAP::Filter.eq( setting.primary_group, primary_group_id )
+      find_all_groups(ldap, gid_filter, n(:groupname)).first || []
     end
 
     def get_dynamic_groups(user_dn)

@@ -47,6 +47,7 @@ cn: Eric Davis
 uidNumber: 902
 userPassword:: e1NIQX1mRXFOQ2NvM1lxOWg1WlVnbEQzQ1pKVDRsQnM9
 o: 4003
+o: 100
 
 dn: uid=LoadGeek,ou=Person,dc=redmine,dc=org
 mail: loadgeek@fakemail.com
@@ -171,6 +172,44 @@ o: 4003
 o: 4006
 o: 4009
 
+dn: uid=rubycalm,ou=Person,dc=redmine,dc=org
+mail: rubycalm@fakemail.com
+uid: rubycalm
+cn: Fernando Stemm
+preferredLanguage: va
+description: User with primary group Smuaddan
+uidNumber: 307
+gidNumber: 4000
+homeDirectory: /home/incomplete
+objectClass: posixAccount
+objectClass: person
+objectClass: inetOrgPerson
+givenName: Fernando
+sn: Stemm
+userPassword: {SSHA}Si9/UcgqKWBlN/+SQb+X1IHZnokzaicm
+loginShell: /bin/sh
+o: 4001
+
+dn: cn=Smuaddan,ou=Group,dc=redmine,dc=org
+objectClass: groupOfNames
+objectClass: posixAccount
+homeDirectory: /nonexistent
+gidNumber: 100
+uidNumber: 100
+uid: Smuaddan
+cn: Smuaddan
+member: uid=edavis,ou=Person,dc=redmine,dc=org
+
+dn: cn=Rill,ou=Group,dc=redmine,dc=org
+objectClass: groupOfNames
+objectClass: posixAccount
+homeDirectory: /nonexistent
+gidNumber: 4000
+uidNumber: 4000
+uid: Rill
+cn: Rill
+member: uid=tweetmicro,ou=Person,dc=redmine,dc=org
+
 dn: cn=Rynever,ou=Group,dc=redmine,dc=org
 objectClass: groupOfNames
 objectClass: posixAccount
@@ -180,7 +219,7 @@ uidNumber: 4001
 uid: Rynever
 cn: Rynever
 member: uid=tweetmicro,ou=Person,dc=redmine,dc=org
-
+member: uid=rubycalm,ou=Person,dc=redmine,dc=org
 
 dn: cn=Worathest,ou=Group,dc=redmine,dc=org
 objectClass: groupOfNames
@@ -195,7 +234,6 @@ member: uid=tweetsave,ou=Person,dc=redmine,dc=org
 member: uid=systemhack,ou=Person,dc=redmine,dc=org
 member: uid=incomplete,ou=Person,dc=redmine,dc=org
 o: 4004
-
 
 dn: cn=Säyeldas,ou=Group,dc=redmine,dc=org
 objectClass: groupOfNames

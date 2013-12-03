@@ -71,6 +71,9 @@ Open `Administration > Ldap Synchronization` to access the plugin configuration:
   group's name. Eg, `sAMAccountName`.
 + **Account flags (user)** - The ldap attribute containing the account disabled
   flag. Eg., `userAccountControl`.
++ **Primary group (user)** - The ldap attribute that identifies the primary
+  group of the user. This attribute will also be used as group id when searching
+  for the group. Eg, `gidNumber`
 + **Members (group)** - The ldap attribute from where to fetch the
   group's members. Visible if the group membership is __on the group class__.
   Eg, `member`.

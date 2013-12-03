@@ -59,6 +59,7 @@ de:
   field_user_groups: "Groups (user)"
   field_groupid: "Groupid (group)"
   field_account_flags: "Account flags (user)"
+  field_primary_group: "Primary group (user)"
 
   field_required_group: "Benutzer müssen Gruppenteilnehmer sein"
   field_admin_group: "Administrators group"
