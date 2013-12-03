@@ -126,7 +126,7 @@ prepare_plugin()
   ln -s $PATH_TO_LDAPSYNC/* $PATH_TO_PLUGINS/redmine_ldap_sync
 
   trace 'Prepare plugins'
-  bundle exec rake redmine:plugins NAME=redmine_ldap_sync $TRACE
+  bundle exec rake $MIGRATE_PLUGINS NAME=redmine_ldap_sync $TRACE
 
   popd
 }
