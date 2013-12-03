@@ -56,3 +56,14 @@ samba_ldap:
   account_flags: sambaAcctFlags
   member: member
   user_memberid: dn
+novell_edirectory_nn:
+  name: Novell eDirectory (not nested)
+  class_user: organizationalPerson
+  class_group: groupOfNames
+  nested_groups: ""
+  group_membership: on_groups
+  groupname: cn
+  member: member
+  groupid: entryDN
+  user_memberid: entryDN
+  user_groups: groupMembership
