@@ -14,11 +14,6 @@ setenv() {
   if [ ! "$VERBOSE" = "yes" ]; then export QUIET=--quiet; fi
 
   case $REDMINE in
-    1.4.*)  export PATH_TO_PLUGINS=./vendor/plugins # for redmine < 2.0
-            export GENERATE_SECRET=generate_session_store
-            export MIGRATE_PLUGINS=db:migrate_plugins
-            export REDMINE_TARBALL=https://github.com/edavis10/redmine/archive/$REDMINE.tar.gz
-            ;;
     2.*.*)  export PATH_TO_PLUGINS=./plugins # for redmine 2.x.x
             export GENERATE_SECRET=generate_secret_token
             export MIGRATE_PLUGINS=redmine:plugins:migrate
@@ -34,7 +29,7 @@ setenv() {
             export MIGRATE_PLUGINS=redmine:plugins:migrate
             export REDMINE_SVN_REPO=http://svn.redmine.org/redmine/trunk/
             ;;
-    v3.8.0) export PATH_TO_PLUGINS=./vendor/chilliproject_plugins
+    v3.8.0) export PATH_TO_PLUGINS=./vendor/chiliproject_plugins
             export GENERATE_SECRET=generate_session_store
             export MIGRATE_PLUGINS=db:migrate:plugins
             export REDMINE_TARBALL=https://github.com/chiliproject/chiliproject/archive/$REDMINE.tar.gz
