@@ -44,8 +44,9 @@ open_ldap_posix_groups:
   class_group: posixGroup
   group_membership: on_groups
   groupname: cn
-  member: member
-  user_memberid: dn
+  primary_group: gidNumber
+  member: memberUid
+  user_memberid: uid
 samba_ldap:
   name: Samba LDAP
   class_user: sambaSamAccount
