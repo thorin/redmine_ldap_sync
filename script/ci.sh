@@ -16,17 +16,17 @@ setenv() {
   case $REDMINE in
     2.*.*)  export PATH_TO_PLUGINS=./plugins # for redmine 2.x.x
             export GENERATE_SECRET=generate_secret_token
-            export MIGRATE_PLUGINS=redmine:plugins:migrate
+            export MIGRATE_PLUGINS=redmine:plugins
             export REDMINE_TARBALL=https://github.com/edavis10/redmine/archive/$REDMINE.tar.gz
             ;;
     2.*-stable) export PATH_TO_PLUGINS=./plugins # for redmine 2.x-stable
             export GENERATE_SECRET=generate_secret_token
-            export MIGRATE_PLUGINS=redmine:plugins:migrate
+            export MIGRATE_PLUGINS=redmine:plugins
             export REDMINE_SVN_REPO=http://svn.redmine.org/redmine/branches/$REDMINE
             ;;
     master) export PATH_TO_PLUGINS=./plugins
             export GENERATE_SECRET=generate_secret_token
-            export MIGRATE_PLUGINS=redmine:plugins:migrate
+            export MIGRATE_PLUGINS=redmine:plugins
             export REDMINE_SVN_REPO=http://svn.redmine.org/redmine/trunk/
             ;;
     v3.8.0) export PATH_TO_PLUGINS=./vendor/chiliproject_plugins
