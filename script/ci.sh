@@ -33,6 +33,7 @@ setenv() {
             export GENERATE_SECRET=generate_session_store
             export MIGRATE_PLUGINS=db:migrate:plugins
             export REDMINE_TARBALL=https://github.com/chiliproject/chiliproject/archive/$REDMINE.tar.gz
+            export RUBYGEMS=1.8.29
             ;;
     *)      echo "Unsupported platform $REDMINE"
             exit 1
@@ -91,6 +92,9 @@ install_plugin_gemfile()
 
 bundle_install()
 {
+  if [ -n "${RUBYGEMS}" ]; then
+    rvm rubygems ${RUBYGEMS}
+  fi
   pushd $REDMINE_DIR > /dev/null
   for i in {1..3}; do
     gem install bundler --no-rdoc --no-ri && \
