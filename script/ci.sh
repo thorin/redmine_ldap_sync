@@ -92,6 +92,7 @@ install_plugin_gemfile()
 
 bundle_install()
 {
+  setenv
   if [ -n "${RUBYGEMS}" ]; then
     rvm rubygems ${RUBYGEMS}
     gem --version
