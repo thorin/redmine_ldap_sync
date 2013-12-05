@@ -66,9 +66,9 @@ clone_redmine()
   rm -rf $TARGET
   if [ -n "${REDMINE_GIT_REPO}" ]; then
     git clone -b $REDMINE_GIT_TAG --depth=100 $QUIET $REDMINE_GIT_REPO $TARGET
-    pushd $TARGET > /dev/null
+    pushd $TARGET 1>&-
     git checkout $REDMINE_GIT_TAG
-    popd
+    popd 1>&-
   elif [ -n "${REDMINE_HG_REPO}" ]; then
     hg clone -r $REDMINE_HG_TAG $QUIET $REDMINE_HG_REPO $TARGET
   elif [ -n "${REDMINE_SVN_REPO}" ]; then
