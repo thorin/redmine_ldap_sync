@@ -99,8 +99,8 @@ bundle_install()
   fi
   pushd $REDMINE_DIR > /dev/null
   for i in {1..3}; do
-    gem install bundler --no-rdoc --no-ri && \
-    bundle install --gemfile=./Gemfile --path vendor/bundle --without development rmagick && break
+    gem install bundler $QUIET --no-rdoc --no-ri && \
+    bundle install $QUIET --gemfile=./Gemfile --path vendor/bundle --without development rmagick && break
   done && popd
 }
 
