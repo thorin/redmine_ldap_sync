@@ -87,7 +87,7 @@ install_plugin_gemfile()
   setenv
 
   mkdir $REDMINE_DIR/$PATH_TO_PLUGINS/redmine_ldap_sync
-  ln -s "$PATH_TO_LDAPSYNC/Gemfile" "$REDMINE_DIR/$PATH_TO_PLUGINS/redmine_ldap_sync/Gemfile"
+  ln -s "$PATH_TO_LDAPSYNC/config/Gemfile.travis" "$REDMINE_DIR/$PATH_TO_PLUGINS/redmine_ldap_sync/Gemfile"
 }
 
 bundle_install()
@@ -128,7 +128,6 @@ prepare_plugin()
 
   pushd $REDMINE_DIR > /dev/null
 
-  rm $PATH_TO_PLUGINS/redmine_ldap_sync/Gemfile
   ln -s $PATH_TO_LDAPSYNC/* $PATH_TO_PLUGINS/redmine_ldap_sync
 
   trace 'Prepare plugins'
