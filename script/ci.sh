@@ -66,9 +66,9 @@ clone_redmine()
   rm -rf $TARGET
   if [ -n "${REDMINE_GIT_REPO}" ]; then
     git clone -b $REDMINE_GIT_TAG --depth=100 $QUIET $REDMINE_GIT_REPO $TARGET
-    pushd $TARGET > /dev/null
+    pushd $TARGET 1>&-
     git checkout $REDMINE_GIT_TAG
-    popd
+    popd 1>&-
   elif [ -n "${REDMINE_HG_REPO}" ]; then
     hg clone -r $REDMINE_HG_TAG $QUIET $REDMINE_HG_REPO $TARGET
   elif [ -n "${REDMINE_SVN_REPO}" ]; then
@@ -97,18 +97,18 @@ bundle_install()
   if [ -n "${RUBYGEMS}" ]; then
     rvm rubygems ${RUBYGEMS}
   fi
-  pushd $REDMINE_DIR > /dev/null
+  pushd $REDMINE_DIR 1>&-
   for i in {1..3}; do
-    gem install bundler --no-rdoc --no-ri && \
-    bundle install --gemfile=./Gemfile --path vendor/bundle --without development rmagick && break
-  done && popd
+    gem install bundler $QUIET --no-rdoc --no-ri && \
+    bundle install $QUIET --gemfile=./Gemfile --path vendor/bundle --without development rmagick && break
+  done && popd 1>&-
 }
 
 prepare_redmine()
 {
   setenv
 
-  pushd $REDMINE_DIR > /dev/null
+  pushd $REDMINE_DIR 1>&-
 
   trace 'Database migrations'
   bundle exec rake db:migrate $TRACE
@@ -119,21 +119,21 @@ prepare_redmine()
   trace 'Session token'
   bundle exec rake $GENERATE_SECRET $TRACE
 
-  popd
+  popd 1>&-
 }
 
 prepare_plugin()
 {
   setenv
 
-  pushd $REDMINE_DIR > /dev/null
+  pushd $REDMINE_DIR 1>&-
 
   ln -s $PATH_TO_LDAPSYNC/* $PATH_TO_PLUGINS/redmine_ldap_sync
 
   trace 'Prepare plugins'
   bundle exec rake $MIGRATE_PLUGINS NAME=redmine_ldap_sync $TRACE
 
-  popd
+  popd 1>&-
 }
 
 start_ldap()
@@ -176,7 +176,7 @@ run_tests()
 {
   setenv
 
-  pushd $REDMINE_DIR > /dev/null
+  pushd $REDMINE_DIR 1>&-
 
   if [ "$REDMINE" == "master" ] && [ "$RUBY_VERSION"  == "1.9.3" ]; then
     bundle exec rake redmine:plugins:ldap_sync:coveralls:test $TRACE
@@ -184,18 +184,18 @@ run_tests()
     bundle exec rake redmine:plugins:ldap_sync:test $TRACE
   fi
 
-  popd
+  popd 1>&-
 }
 
 test_uninstall()
 {
   setenv
 
-  pushd $REDMINE_DIR > /dev/null
+  pushd $REDMINE_DIR 1>&-
 
   bundle exec rake $TRACE $MIGRATE_PLUGINS NAME=redmine_ldap_sync VERSION=0
 
-  popd
+  popd 1>&-
 }
 
 case "$1" in
