@@ -9,61 +9,68 @@ __Features__:
  * Synchronization of user fields and groups on login.
  * Detects and disables users that have been removed from LDAP.
  * Detects and disables users that have been marked as disabled on Active
- Directory (see [MS KB Article 305144][uacf] for more details).
+   Directory (see [MS KB Article 305144][uacf] for more details).
  * Can detect and include nested groups. Upon login the nested groups are
- retrieve from disk cache. This cache will only be updated by running the rake
- task.
- * Rake task available for manual or periodic synchronization of groups and users.
+   retrieve from disk cache. This cache will only be updated by running the
+   rake task.
+ * Rake task available for manual or periodic synchronization of groups and
+   users.
 
 __Remarks__:
 
-* The plugin is prepared and intended to run with any LDAP directory. But, the author
-can only guarantee it to work correctly with Active Directory and Slapd.
-* An user will only be removed from groups that exist on LDAP. This behaviour is
-intended as it allows both ldap and non-ldap groups to coexist.
+* The plugin is prepared and intended to run with any LDAP directory. But, the
+  author can only guarantee it to work correctly with Active Directory and
+  Slapd.
+* An user will only be removed from groups that exist on LDAP. This behaviour
+  is intended as it allows both ldap and non-ldap groups to coexist.
 * Deleted groups on LDAP will not be deleted on redmine.
 
-Installation &amp; Upgrade
+Installation & Upgrade
 ----------------------
 
 ### Install/Upgrade
 
 1. **install.** - Copy your plugin directory into `#{RAILS_ROOT}/plugins`.
-   If you are downloading the plugin directly from GitHub, you can do so by changing
-   into the `#{RAILS_ROOT}/plugins` directory and issuing the command:
+   If you are downloading the plugin directly from GitHub, you can do so by
+   changing into the `#{RAILS_ROOT}/plugins` directory and issuing the command:
    ```
    git clone git://github.com/thorin/redmine_ldap_sync.git
    ```
-     
-   **upgrade** - Backup and replace the old plugin directory with the new plugin files. If you are downloading 
-   the plugin directly from GitHub, you can do so by changing into the plugin directory and 
-   issuing the command `git pull`.
 
-2. Update the ruby gems by changing into the redmine's directory and run the following command.
+   **upgrade** - Backup and replace the old plugin directory with the new
+   plugin files. If you are downloading the plugin directly from GitHub, you
+   can do so by changing into the plugin directory and issuing the command
+   `git pull`.
+
+2. Update the ruby gems by changing into the redmine's directory and run the
+   following command.
    ```
    bundle install
    ```
 
-3. **upgrade** - Still on the redmine's directory, run the following command to upgrade your database (make a db backup before).
+3. **upgrade** - Still on the redmine's directory, run the following command
+   to upgrade your database (make a db backup before).
    ```
    rake redmine:plugins:migrate RAILS_ENV=production
    ```
 
-4. Change into redmine's directory `#{RAILS_ROOT}` and run the following command.  
+4. Change into redmine's directory `#{RAILS_ROOT}` and run the following
+   command.
    ```
    rake -T redmine:plugins:ldap_sync RAILS_ENV=production
-   ```  
-   If the installation/upgrade was successful you should now see the list of [Rake Tasks](#rake-tasks).
+   ```
+   If the installation/upgrade was successful you should now see the list of
+   [Rake Tasks](#rake-tasks).
 
 5. Restart Redmine.
 
-You should now be able to see **Redmine LDAP Sync** listed among the plugins in 
+You should now be able to see **Redmine LDAP Sync** listed among the plugins in
 `Administration -> Plugins`.
 
 ### Uninstall
 
-1. Change into redmine's directory `#{RAILS_ROOT}` and run the following command to 
-   downgrade the database (make a db backup before):
+1. Change into redmine's directory `#{RAILS_ROOT}` and run the following
+   command to downgrade the database (make a db backup before):
    ```
    rake redmine:plugins:migrate NAME=redmine_ldap_sync VERSION=0 RAILS_ENV=production
    ```
@@ -76,7 +83,8 @@ Usage
 
 ### Configuration
 
-Open `Administration > Ldap Synchronization` to access the plugin configuration:
+Open `Administration > Ldap Synchronization` to access the plugin
+configuration:
 
 **LDAP settings:**
 
@@ -92,7 +100,8 @@ Open `Administration > Ldap Synchronization` to access the plugin configuration:
 + **Account disabled test** - A ruby boolean expression that should evaluate an
   account's flags (the variable `flags`) and return `true` if the account is
   disabled. Eg., `flags.to**i & 2 != 0` or `flags.include? 'D'`.
-+ **Group membership** - Specifies how to determine the user's group membership.
++ **Group membership** - Specifies how to determine the user's group
+  membership.
   The possible values are:
   - **On the group class**: membership determined from the list of users
     contained on the group.
@@ -107,13 +116,14 @@ Open `Administration > Ldap Synchronization` to access the plugin configuration:
     list of groups contained on the member group.
 
 **LDAP attributes:**
+
 + **Group name (group)** - The ldap attribute from where to fetch the
   group's name. Eg, `sAMAccountName`.
 + **Account flags (user)** - The ldap attribute containing the account disabled
   flag. Eg., `userAccountControl`.
 + **Primary group (user)** - The ldap attribute that identifies the primary
-  group of the user. This attribute will also be used as group id when searching
-  for the group. Eg, `gidNumber`
+  group of the user. This attribute will also be used as group id when
+  searching for the group. Eg, `gidNumber`
 + **Members (group)** - The ldap attribute from where to fetch the
   group's members. Visible if the group membership is __on the group class__.
   Eg, `member`.
@@ -152,14 +162,24 @@ Open `Administration > Ldap Synchronization` to access the plugin configuration:
 + **Create new groups** - If enabled, groups that don't already exist on
   redmine will be created.
 + **Create new users** - If enabled, users that don't already exist on redmine
-  will be created when running the rake task.
-+ **Synchronize on login** - Enables/Disables users synchronization on login. The possible values are:
-  - **User fields and groups**: Both the fields and groups will be synchronized on login. If a user is disabled on LDAP or removed from the *users must be member of* group, the user will be locked and the access denied.
-  - **User fields**: Only the fields will be synchronized on login. If a user is disabled on LDAP, the user will be locked and the access denied. Changes on groups will not lock the user.
+                         will be created when running the rake task.
++ **Synchronize on login** - Enables/Disables users synchronization on login.
+The possible values are:
+  - **User fields and groups**: Both the fields and groups will be
+                                synchronized on login. If a user is disabled
+                                on LDAP or removed from the *users must be
+                                member of* group, the user will be locked and
+                                the access denied.
+  - **User fields**: Only the fields will be synchronized on login. If a user
+                     is disabled on LDAP, the user will be locked and the
+                     access denied. Changes on groups will not lock the user.
   - **Disabled**: No synchronization is done on login.
-+ **Dynamic groups**[¹](#license) - Enables/Disables dynamic groups. The possible values are:
-  - **Enabled**: While searching for groups, *Ldap Sync* will also search for dynamic groups.
-  - **Enabled with a ttl**: The dynamic groups cache[²](#license) will expire every **t** minutes.
++ **Dynamic groups**[¹](#license) - Enables/Disables dynamic groups. The
+possible values are:
+  - **Enabled**: While searching for groups, *Ldap Sync* will also search for
+                 dynamic groups.
+  - **Enabled with a ttl**: The dynamic groups cache[²](#license) will expire
+                            every **t** minutes.
   - **Disabled**: *Ldap Sync* will not search for dynamic groups.
 + **User/Group fields:**
   - **Synchronize** - If enabled, the selected field will be synchronized
@@ -191,23 +211,29 @@ The tasks recognize three environment variables:
   - **silent**: Nothing is written to the output.
   - **error**: Only errors are written to the output.
   - **change**: Only writes errors and changes made to the user/group's base.
-  - **debug**: Detailed information about the execution is visible to help identify errors. This is the default value.
+  - **debug**: Detailed information about the execution is visible to help
+               identify errors. This is the default value.
 
 ### Base settings
 
-All the base settings are loaded from the plain YAML file `config/base_settings.yml`.
+All the base settings are loaded from the plain YAML file
+`config/base_settings.yml`.
 Please be aware that those settings weren't tested and may not work.
 Saying so, I'll need your help to make these settings more accurate.
 
 License
 -------
 This plugin is released under the GPL v3 license. See LICENSE for more
- information.
+information.
 
 
 ---
-1. For details about dynamic groups see [OpenLDAP Overlays - Dynamic Lists][overlays-dynlist] or [slapo-dynlist(5) - Linux man page][slapo-dynlist].
-2. Searching for an user's dynamic groups is an costly task. To easy it up, a cache is used to store the relationship between dynamic groups and users. When running the rake task this cache will be refreshed.
+1. For details about dynamic groups see
+   [OpenLDAP Overlays - Dynamic Lists][overlays-dynlist] or
+   [slapo-dynlist(5) - Linux man page][slapo-dynlist].
+2. Searching for an user's dynamic groups is an costly task. To easy it up, a
+   cache is used to store the relationship between dynamic groups and users.
+   When running the rake task this cache will be refreshed.
 
 [uacf]: http://support.microsoft.com/kb/305144
 [overlays-dynlist]: http://www.openldap.org/doc/admin24/overlays.html#Dynamic%20Lists
