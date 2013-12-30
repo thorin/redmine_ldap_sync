@@ -12,6 +12,7 @@ setenv() {
   fi
   if [ "$VERBOSE" = "yes" ]; then export TRACE=--trace; fi
   if [ ! "$VERBOSE" = "yes" ]; then export QUIET=--quiet; fi
+  if [[ "$RUBY_VERSION" < "1.9" ]]; then export RUBYGEMS=2.1.11; fi
 
   case $REDMINE in
     2.*.*)  export PATH_TO_PLUGINS=./plugins # for redmine 2.x.x
