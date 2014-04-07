@@ -504,10 +504,6 @@ class AuthSourceLdapTest < ActiveSupport::TestCase
       assert @user.active?
     end
 
-    should "not lock a user if it is already locked" do
-      pending "(locked is status 3)"
-    end
-
     should "fill in mandatory fields with the default value if their not present" do
       cf = UserCustomField.create!(
           :name => 'group', :field_format => 'string',
@@ -705,13 +701,43 @@ class AuthSourceLdapTest < ActiveSupport::TestCase
 
       assert_nil User.try_to_login('tweetmicro', 'password')
 
-
       assert_not_nil user = User.try_to_login('loadgeek', 'password')
 
       assert_equal ['rynever'], user.groups.map(&:lastname)
       assert_equal 'loadgeek@fakemail.com', user.mail
       assert_equal 'pt', user.custom_field_values[0].value
       assert_equal '301', user.custom_field_values[1].value
+    end
+
+    # Ldap sync keeps locking AD users trying to login (#108)
+    should "not lock users if disabled on settings" do
+      @ldap_setting.required_group = 'missing_group'
+      @ldap_setting.sync_on_login = 'user_fields_and_groups'
+      @ldap_setting.active = false
+      assert @ldap_setting.save, @ldap_setting.errors.full_messages.join(', ')
+
+      assert_not_nil user = User.try_to_login('loadgeek', 'password')
+      assert user.active?
+    end
+
+    # Ldap sync keeps locking AD users trying to login (#108)
+    should "allow access to members of the required group with sync fields and groups" do
+      @ldap_setting.required_group = 'therß'
+      @ldap_setting.sync_on_login = 'user_fields_and_groups'
+      assert @ldap_setting.save, @ldap_setting.errors.full_messages.join(', ')
+
+      assert_not_nil user = User.try_to_login('loadgeek', 'password')
+      assert user.active?
+    end
+
+    # Ldap sync keeps locking AD users trying to login (#108)
+    should "allow access to members of the required group with sync fields" do
+      @ldap_setting.required_group = 'rynever'
+      @ldap_setting.sync_on_login = 'user_fields'
+      assert @ldap_setting.save, @ldap_setting.errors.full_messages.join(', ')
+
+      assert_not_nil user = User.try_to_login('loadgeek', 'password')
+      assert user.active?
     end
   end
 
