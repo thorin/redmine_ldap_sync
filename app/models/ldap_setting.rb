@@ -123,7 +123,7 @@ class LdapSetting
   end
 
   def sync_on_login?
-    has_sync_on_login?
+    active? && has_sync_on_login?
   end
 
   def sync_groups_on_login?
