@@ -9,15 +9,12 @@ rvm:
 env:
   global: REDMINE_DIR=./workspace/redmine
   matrix:
-   - REDMINE=2.2.4
-   - REDMINE=2.4-stable
+   - REDMINE=2.4.5
+   - REDMINE=2.5-stable
    - REDMINE=v3.8.0
    - REDMINE=master
 matrix:
   exclude:
-   - rvm: 2.0.0
-     env: REDMINE=2.2.4
-     gemfile: workspace/redmine/Gemfile
    - rvm: 1.8.7
      env: REDMINE=v3.8.0
      gemfile: workspace/redmine/Gemfile
