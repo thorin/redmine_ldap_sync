@@ -7,9 +7,7 @@ rvm:
  - 1.9.3
  - 2.0.0
 env:
-  global: 
-   - VERBOSE=yes
-   - REDMINE_DIR=./workspace/redmine
+  global: REDMINE_DIR=./workspace/redmine
   matrix:
    - REDMINE=2.4.6
    - REDMINE=2.5-stable
