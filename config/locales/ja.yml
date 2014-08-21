@@ -1,0 +1,103 @@
+ja:
+  label_ldap_synchronization: "LDAP同期" # "LDAP synchronization"
+  label_ldap_settings: "LDAP設定" # "LDAP settings"
+  label_ldap_servers: "LDAPサーバー" # "LDAP servers"
+  label_synchronization_actions: "同期動作" # "Synchronization actions"
+  label_synchronize: "同期" # "Synchronize"
+  label_ldap_attribute: "LDAP属性" # "LDAP attribute"
+  label_default_value: "デフォルト値" # "Default value"
+  label_test: "テスト" # "Test"
+  label_result: "リザルト" # "Result"
+  label_minutes: "分" # "minutes"
+
+  label_not_executed: "未実行" # "Not executed"
+  label_no_fields: "フィールド無し" # "No fields"
+  label_not_found: "見つかりません" # "Not found"
+  label_users_enabled: "有効ユーザー" # "Users enabled"
+  label_a_total_of: "%{count} 個" # "a total of %{count}"
+  label_users_disabled_by_flag: "フラグによって無効化されたユーザー" # "Users disabled by flag"
+  label_users_disabled_by_group: "グループによって無効化されたユーザー"
+  label_admin_users: "管理者" # "Admin users"
+  label_dynamic_groups: "ダイナミックグループ" # "Dynamic groups"
+  label_ldap_attributes_on_a_user: "ユーザー中に在るLDAP属性" # "LDAP attributes on a user"
+  label_ldap_attributes_on_a_group: "グループ中に在るLDAP属性" # "LDAP attributes on a group"
+  label_log_messages: "ログメッセージ" # "Log messages"
+
+  button_test: "テスト" # "Test"
+  button_execute: "実行" # "Execute"
+  button_enable: "有効" # "Enable"
+  button_disable: "無効" # "Disable"
+
+  header_create_groups: "グループを作成する" # "Create groups"
+  header_create_users: "ユーザーを作成する" # "Create users"
+  header_sync_user_fields: "ユーザーフィールドを同期する" # "Sync user fields"
+  header_sync_group_fields: "グループフィールドを同期する" # "Sync groups fields"
+
+  field_nested_groups: "ネストされたグループ" # "Nested groups"
+  field_create_groups: "グループを作成する" # "Create groups"
+  field_create_users: "ユーザーを作成する" # "Create users"
+  field_sync_on_login: "ログイン時に同期" # "Synchronize on login"
+  field_dyngroups: "ダイナミックグループ" # "Dynamic groups"
+  field_dyngroups_cache_ttl: "キャッシュTTL" # "Cache TTL"
+
+  field_groups_base_dn: "グループベースDN" # "Groups base DN"
+  field_group_membership: "グループ メンバーシップ" # "Group membership"
+  field_class_user: "ユーザー オブジェクトクラス" # "Users objectclass"
+  field_class_group: "グループ オブジェクトクラス" # "Groups objectclass"
+  field_account_disabled_test: "無効アカウントの判別方法" # "Account disabled test"
+
+  field_groupname_pattern: "グループネームパターン" # "Group name pattern"
+  field_group_search_filter: "グループフィルター" # "Group search filter"
+
+  field_groupname: "グループ名(group)" # "Group name (group)"
+  field_member: "メンバーユーザー(group)" # "Member users (group)"
+  field_member_group: "メンバーグループ(group)" # "Member groups (group)"
+  field_parent_group: "親グループ(group)" # "Parent groups (group)"
+  field_user_memberid: "メンバーID(user)" # "Memberid (user)"
+  field_group_memberid: "メンバーID(group)" # "Memberid (group)"
+  field_group_parentid: "親ID(group)" # "Parentid (group)"
+  field_user_groups: "グループ(user)" # "Groups (user)"
+  field_groupid: "グループID(group)" # "Groupid (group)"
+  field_account_flags: "アカウントフラグ(user)" # "Account flags (user)"
+  field_primary_group: "プライマリーグループ(user)" # "Primary group (user)"
+
+  field_required_group: "登録必須グループ" # "Users must be members of"
+  field_admin_group: "管理者グループ" # "Administrators group"
+  field_fixed_group: "ユーザ追加先グループ" # "Add users to group"
+
+  field_user_group_fields: "ユーザー/グループ フィールド" # "User/Group fields"
+  field_firstname: "名前" # "First name"
+  field_lastname: "名字" # "Last name"
+  field_mail: "メールアドレス" # "Email"
+
+  field_test_users: "ユーザー" # "Users"
+  field_test_groups: "グループ" # "Groups"
+
+  option_group_membership_on_groups: "グループ情報中" # "On the group class"
+  option_group_membership_on_members: "ユーザー情報中" # "On the user class"
+
+  option_nested_groups_disabled: "無効" # "Disabled"
+  option_nested_groups_on_parents: "メンバーシップは親情報中" # "Membership on the parent class"
+  option_nested_groups_on_members: "メンバーシップは子情報中" # "Membership on the member class"
+
+  option_dyngroups_disabled:  "無効" # "Disabled"
+  option_dyngroups_enabled: "有効" # "Enabled"
+  option_dyngroups_enabled_with_ttl: "有効+持続時間指定" # "Enabled with a TTL"
+
+  option_sync_on_login_disabled: "無効" # "Disabled"
+  option_sync_on_login_user_fields: "ユーザーフィールド" # "User fields"
+  option_sync_on_login_user_fields_and_groups: "ユーザーフィールドとグループ" # "User fields and groups"
+
+  text_ldap_setting_successfully_updated: "LDAP同期設定の更新に成功しました" # "Ldap configuration successfully updated."
+
+  field_base_settings: "ベースセッティング" # "Base settings"
+  option_custom: "カスタマイズ" # "Customized"
+
+  error_cannot_enable_with_invalid_settings: "設定に誤りがあり同期を有効化できませんでした、設定を修正してください。" # "Cannot enable synchronization with invalid settings. Please revise the configuration."
+
+  errors:
+    messages:
+      invalid_ldap_attribute: "%{field} に不正なLDAP属性が在ります" # "%{field} has an invalid LDAP attribute"
+      must_have_ldap_attribute: "同期するにはLDAP属性に %{field} が必須です" # "%{field} must have an LDAP attribute for it to be synchronized"
+      invalid_expression: "不正な式が含まれてます: %{error_message}" # "contains an invalid expression: %{error_message}"
+      invalid_regexp: "不正な正規表現が含まれてます: %{error_message}" # "contains an invalid regular expression: %{error_message}"
