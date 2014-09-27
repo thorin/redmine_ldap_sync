@@ -1,0 +1,104 @@
+ru:
+  label_ldap_synchronization: "Синхронизация с LDAP"
+  label_ldap_settings: "Настройки LDAP"
+  label_ldap_servers: "Серверы LDAP"
+  label_synchronization_actions: "Действия синхронизации"
+  label_synchronize: "Синхронизировать"
+  label_ldap_attribute: "Атрибут LDAP"
+  label_default_value: "Значение по умолчанию"
+  label_test: "Проверка"
+  label_result: "Результат"
+  label_minutes: "минут"
+
+  label_not_executed: "Не выполнялась"
+  label_no_fields: "Нет полей"
+  label_not_found: "Не найден"
+  label_users_enabled: "пользователей разблокировано"
+  label_a_total_of: "Всего %{count}"
+  label_users_disabled_by_flag: "пользователей заблокировано по флагу"
+  label_users_disabled_by_group: "пользователей заблокировано по группе"
+  label_admin_users: "Администраторы"
+  label_dynamic_groups: "Динамические группы"
+  label_ldap_attributes_on_a_user: "Атрибуты LDAP пользователя"
+  label_ldap_attributes_on_a_group: "Атрибуты LDAP группы"
+  label_log_messages: "Сообщения журнала"
+
+  button_test: "Проверка"
+  button_execute: "Выполнить"
+  button_enable: "Включить"
+  button_disable: "Выключить"
+
+  header_create_groups: "Создание групп"
+  header_create_users: "Создание пользователей"
+  header_sync_user_fields: "Синх. пользователей"
+  header_sync_group_fields: "Синх. группы"
+
+  field_nested_groups: "Вложенные группы"
+  field_create_groups: "Создавать группы"
+  field_create_users: "Создавать пользователей"
+  field_sync_on_login: "Синхронизировать при входе"
+  field_dyngroups: "Динамические группы"
+  field_dyngroups_cache_ttl: "TTL кеша"
+
+  field_groups_base_dn: "Базовый DN для групп"
+  field_group_membership: "Членство в группах"
+  field_class_user: "objectclass пользователей"
+  field_class_group: "objectclass групп"
+  field_account_disabled_test: "Проверка заблокированности учетной записи"
+
+  field_groupname_pattern: "Шаблон имени группы"
+  field_group_search_filter: "Фильтр поиска групп"
+
+  field_groupname: "Название группы (группа)"
+  field_member: "Подчиненные пользователи (группа)"
+  field_member_group: "Подчиненные группы (группа)"
+  field_parent_group: "Родительские группы (группа)"
+  field_user_memberid: "id подчиненного (пользователь)"
+  field_group_memberid: "id подчиненного (группа)"
+  field_group_parentid: "id родителя (группа)"
+  field_user_groups: "Группы (пользователь)"
+  field_groupid: "id группы (группа)"
+  field_account_flags: "Флаги учетной записи (пользователь)"
+  field_primary_group: "Основная группа (пользователь)"
+
+  field_required_group: "Пользователи должны входить в группу"
+  field_admin_group: "Группа администраторов"
+  field_fixed_group: "Добавлять пользователей в группы"
+  field_group_prefix: "Добавлять префикс к имени группы"
+
+  field_user_group_fields: "Поля пользователя/группы"
+  field_firstname: "Имя"
+  field_lastname: "Фамилия"
+  field_mail: "Email"
+
+  field_test_users: "Пользователи"
+  field_test_groups: "Группы"
+
+  option_group_membership_on_groups: "Список пользователей содержится в группе "
+  option_group_membership_on_members: "Список групп содержится в пользователе"
+
+  option_nested_groups_disabled: "Выключены"
+  option_nested_groups_on_parents: "Список подчиненных групп содержится в родительской группе"
+  option_nested_groups_on_members: "Список родительских групп содержится в подчиненной группе"
+
+  option_dyngroups_disabled:  "Выключены"
+  option_dyngroups_enabled: "Включены"
+  option_dyngroups_enabled_with_ttl: "Включены с TTL"
+
+  option_sync_on_login_disabled: "Ничего"
+  option_sync_on_login_user_fields: "Данные пользователя"
+  option_sync_on_login_user_fields_and_groups: "Данные и группы пользователя"
+
+  text_ldap_setting_successfully_updated: "Конфигурация Ldap успешно обновлена."
+
+  field_base_settings: "Базовые настройки"
+  option_custom: "Вручную"
+
+  error_cannot_enable_with_invalid_settings: "Нельзя включить синхронизацию с неправильными настройками. Пожалуйста проверьте настройки."
+
+  errors:
+    messages:
+      invalid_ldap_attribute: "Поле '%{field}' имеет неправильный атрибут LDAP"
+      must_have_ldap_attribute: "Для синхронизации поле '%{field}' должно иметь атрибут LDAP"
+      invalid_expression: "содержит неправильное выражение: %{error_message}"
+      invalid_regexp: "содержит неправильное регулярное выражение: %{error_message}"
