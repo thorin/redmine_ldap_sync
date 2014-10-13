@@ -86,13 +86,9 @@ module LdapSync::Infectors::AuthSourceLdap
 
     def sync_user(user, is_new_user = false, options = {})
       with_ldap_connection(options[:login], options[:password]) do |ldap|
-        if user.locked? && !(activate_users? || setting.has_required_group?)
-          trace "-- Not #{is_new_user ? 'creating': 'updating'} locked user '#{user.login}'"; return
-        else
-          trace "-- #{is_new_user ? 'Creating' : 'Updating'} user '#{user.login}'...",
-            :level => is_new_user ? :change : :debug,
-            :obj => user.login
-        end
+        trace "-- #{is_new_user ? 'Creating' : 'Updating'} user '#{user.login}'...",
+          :level => is_new_user ? :change : :debug,
+          :obj => user.login
 
         user_data, flags = if options[:try_to_login] && setting.has_account_flags? && setting.sync_fields_on_login?
           user_data = find_user(ldap, user.login, setting.user_ldap_attrs_to_sync + ns(:account_flags))

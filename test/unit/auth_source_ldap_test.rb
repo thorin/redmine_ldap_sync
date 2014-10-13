@@ -234,7 +234,7 @@ class AuthSourceLdapTest < ActiveSupport::TestCase
       assert_not_nil User.find_by_login 'loadgeek'
     end
 
-    should "show an user's name when it's mail address has already been used" do
+    should "show an user's name when its mail address has already been used" do
       AuthSourceLdap.running_rake!
       AuthSourceLdap.trace_level = :change
 
@@ -259,6 +259,18 @@ class AuthSourceLdapTest < ActiveSupport::TestCase
 
       assert_include group_name, user1.groups.map(&:lastname)
       assert_include group_name, user2.groups.map(&:lastname)
+    end
+
+    should "sync locked users" do
+      user1 = User.find_by_login 'loadgeek'
+      user1.lock!
+      assert user1.locked?
+
+      @auth_source.sync_users
+
+      assert_include 'Issekin', user1.groups.map(&:lastname)
+      assert_include 'Iardum', user1.groups.map(&:lastname)
+      assert_include 'Bluil', user1.groups.map(&:lastname)
     end
 
     context "script output" do
