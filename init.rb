@@ -9,7 +9,6 @@ Redmine::Plugin.register :redmine_ldap_sync do
   version LdapSync::VERSION.to_s
   requires_redmine :version_or_higher => '2.1.0'
 
-
   settings :default => HashWithIndifferentAccess.new()
   menu :admin_menu, :ldap_sync, { :controller => 'ldap_settings', :action => 'index' }, :caption => :label_ldap_synchronization
 end

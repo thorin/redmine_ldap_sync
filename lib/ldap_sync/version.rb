@@ -2,7 +2,7 @@ module LdapSync
   module VERSION #:nodoc:
     MAJOR = 2
     MINOR = 0
-    TINY  = 3
+    TINY  = 4
 
     # Branch values:
     # * official release: nil

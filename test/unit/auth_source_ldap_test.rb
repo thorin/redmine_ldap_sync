@@ -528,6 +528,20 @@ class AuthSourceLdapTest < ActiveSupport::TestCase
       @auth_source.sync_user(@user)
       assert_equal 'none', User.find(@user.id).custom_field_value(cf)
     end
+
+    should "synchronize groups of users locked on ldap" do
+      @ldap_setting.account_flags = 'uid'
+      @ldap_setting.account_disabled_test = 'true'
+      assert @ldap_setting.save, @ldap_setting.errors.full_messages.join(', ')
+
+      assert @user.active?, 'User should be active'
+      assert_not_include 'Issekin', @user.groups.map(&:name)
+
+      @auth_source.sync_user(@user, false, :try_to_login => true)
+
+      assert @user.locked?, "User '#{@user.login}' should be locked"
+      assert_include 'Issekin', @user.groups.map(&:name)
+    end
   end
 
   context "#try_login" do

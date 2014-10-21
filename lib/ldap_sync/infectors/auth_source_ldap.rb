@@ -73,6 +73,8 @@ module LdapSync::Infectors::AuthSourceLdap
           elsif user.present?
             trace "-- Not locking locked user '#{user.login}'"
           end
+          user, = find_local_user(login)
+          sync_user(user, false) if user.present?
         end
 
         ldap_users[:enabled].each do |login|
@@ -241,12 +243,18 @@ module LdapSync::Infectors::AuthSourceLdap
         end
       end
 
-      def find_or_create_user(username)
+      def find_local_user(username)
         user = ::User.where("LOWER(#{User.table_name}.login) = ?", username.mb_chars.downcase).includes(:groups).first
         if user.present? && user.auth_source_id != self.id
           trace "-- Skipping user '#{user.login}': it already exists on a different auth_source"
-          return nil, false
+          return nil, true
         end
+        return user, false
+      end
+
+      def find_or_create_user(username)
+        user, is_invalid = find_local_user(username)
+        return nil, false if is_invalid
         return user unless user.nil? && setting.create_users?
 
         user = ::User.new do |u|
