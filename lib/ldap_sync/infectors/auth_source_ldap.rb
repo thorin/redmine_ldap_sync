@@ -94,7 +94,7 @@ module LdapSync::Infectors::AuthSourceLdap
 
         user_data, flags = if options[:try_to_login] && setting.has_account_flags? && setting.sync_fields_on_login?
           user_data = find_user(ldap, user.login, setting.user_ldap_attrs_to_sync + ns(:account_flags))
-          [user_data, user_data[n(:account_flags)].first]
+          [user_data, user_data.present? ? user_data[n(:account_flags)].first : :deleted]
         end
 
         sync_user_groups(user) unless options[:try_to_login] && !setting.sync_groups_on_login?
@@ -181,7 +181,7 @@ module LdapSync::Infectors::AuthSourceLdap
       end
 
       def sync_user_status(user, flags = nil)
-        if flags && account_disabled?(flags)
+        if flags && (flags == :deleted || account_disabled?(flags))
           user.lock!
           change user.login, "   -> locked: user disabled on ldap with flags '#{flags}'"
         elsif setting.has_required_group?

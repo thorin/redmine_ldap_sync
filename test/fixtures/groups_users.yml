@@ -2,3 +2,9 @@
 rynever_loadgeek:
   group_id: 11
   user_id: 8
+rynever_someone:
+  group_id: 11
+  user_id: 7
+therb_someone:
+  group_id: 10
+  user_id: 7

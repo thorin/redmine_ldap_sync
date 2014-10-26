@@ -100,7 +100,7 @@ users_006:
   mail_notification: only_my_events
   login: ''
   type: AnonymousUser
-users_007:
+someone:
   created_on: 2006-07-19 19:33:19 +02:00
   status: 1
   last_login_on:
@@ -111,7 +111,7 @@ users_007:
   mail: someone@foo.bar
   lastname: One
   firstname: Some
-  auth_source_id:
+  auth_source_id: 1
   mail_notification: only_my_events
   login: someone
   type: User

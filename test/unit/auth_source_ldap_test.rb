@@ -123,7 +123,7 @@ class AuthSourceLdapTest < ActiveSupport::TestCase
 
       assert_equal user_count + 6, User.count, "User.count"
       assert_equal group_count + 10, Group.count, "Group.count"
-      assert_equal custom_value_count + 24, CustomValue.count, "CustomValue.count"
+      assert_equal custom_value_count + 26, CustomValue.count, "CustomValue.count"
     end
 
     should "create users and groups without sync attrs" do
@@ -506,6 +506,20 @@ class AuthSourceLdapTest < ActiveSupport::TestCase
       @auth_source = AuthSource.find(@auth_source.id)
       @auth_source.sync_user(@user)
       assert @user.reload.active?
+    end
+
+    should "not failed with an user that doesn't exist on ldap and remove all groups" do
+      @ldap_setting.sync_on_login  = 'user_fields_and_groups'
+      assert @ldap_setting.save, @ldap_setting.errors.full_messages.join(', ')
+
+      user = users(:someone)
+      @auth_source.sync_user(user, nil, :try_to_login => true)
+
+      assert user.locked?, "User 'someone' should be locked"
+      assert_equal ['ldap.users'], user.groups.map(&:name)
+      assert_equal 'Some', user.firstname
+      assert_equal 'One', user.lastname
+      assert_equal 'someone@foo.bar', user.mail
     end
 
     should "activate user if activate_users flag is set" do
