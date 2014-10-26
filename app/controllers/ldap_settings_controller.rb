@@ -23,6 +23,8 @@ class LdapSettingsController < ApplicationController
   before_filter :find_ldap_setting, :only => [:show, :edit, :update, :test, :enable, :disable]
   before_filter :update_ldap_setting_from_params, :only => [:edit, :update, :test]
 
+  skip_before_action :verify_authenticity_token, if: :js_request?
+
   # GET /ldap_settings
   def index
     @ldap_settings = LdapSetting.all
@@ -96,6 +98,10 @@ class LdapSettingsController < ApplicationController
   end
 
   private
+
+    def js_request?
+      request.format.js?
+    end
 
     def update_ldap_setting_from_params
       %w(user group).each do |e|
