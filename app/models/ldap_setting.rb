@@ -71,6 +71,11 @@ class LdapSetting
     @auth_source_ldap_id
   end
 
+  def to_key
+    return nil unless persisted?
+    id ? [id] : nil
+  end
+
   def name
     auth_source_ldap.name
   end
@@ -78,7 +83,7 @@ class LdapSetting
   def active?
     return @active if defined? @active
 
-    @active = active.in?(true, '1', 'yes')
+    @active = [true, '1', 'yes'].include? active
   end
 
   def active=(value)
@@ -299,7 +304,7 @@ class LdapSetting
 
       field_ids = fields.map {|f| f.id.to_s }
       ldap_attrs.each do |k, v|
-        if !k.in? field_ids
+        if !field_ids.include?(k)
           errors.add :user_group_fields, :invalid unless errors.added? :user_group_fields, :invalid
 
         elsif v.present? && v !~ /\A[a-z][a-z0-9-]*\z/i
@@ -356,7 +361,7 @@ class LdapSetting
     end
 
     def attribute?(attr)
-      @attributes[attr].in? true, '1', 'yes'
+      [true, '1', 'yes'].include? @attributes[attr]
     end
 
     def has_attribute?(attr)

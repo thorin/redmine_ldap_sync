@@ -25,7 +25,7 @@ class LdapTest
   attr_accessor :setting, :test_users, :test_groups, :messages, :user_attrs, :group_attrs, :users_at_ldap, :groups_at_ldap, :non_dynamic_groups, :dynamic_groups, :users_disabled_by_group, :admin_users, :user_changes
 
   delegate :auth_source_ldap, :to => :setting
-  delegate :users, :initialize_ldap_con, :to => :auth_source_ldap
+  delegate :users, :to => :auth_source_ldap
 
   def initialize(setting)
     setting.active = true
@@ -39,7 +39,10 @@ class LdapTest
     @dynamic_groups = {}
     @users_disabled_by_group = []
     @admin_users = []
+  end
 
+  def initialize_ldap_con(login, password)
+    auth_source_ldap.send(:initialize_ldap_con, login, password)
   end
 
   def run_with_users_and_groups(users, groups)

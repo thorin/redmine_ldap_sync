@@ -22,7 +22,7 @@ module LdapSync::Infectors::User
     def add_to_fixed_group
       return unless auth_source.try :has_fixed_group?
 
-      self.groups << ::Group.find_or_create_by_lastname(auth_source.fixed_group)
+      self.groups << ::Group.where(:lastname => auth_source.fixed_group).first_or_create
     end
 
     def sync_fields_and_groups
