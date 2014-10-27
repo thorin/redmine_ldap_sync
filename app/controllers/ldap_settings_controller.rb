@@ -23,7 +23,9 @@ class LdapSettingsController < ApplicationController
   before_filter :find_ldap_setting, :only => [:show, :edit, :update, :test, :enable, :disable]
   before_filter :update_ldap_setting_from_params, :only => [:edit, :update, :test]
 
-  skip_before_action :verify_authenticity_token, :if => :js_request?
+  if defined? :skip_before_action
+    skip_before_action :verify_authenticity_token, :if => :js_request?
+  end
 
   # GET /ldap_settings
   def index
