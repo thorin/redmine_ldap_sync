@@ -179,7 +179,7 @@ run_tests()
 
   pushd $REDMINE_DIR 1> /dev/null
 
-  if [ "$REDMINE" == "master" ] && [ "$RUBY_VERSION"  == "1.9.3" ]; then
+  if [ "$REDMINE" == "master" ] && [ "$RUBY_VERSION"  == "2.1.4" ]; then
     bundle exec rake redmine:plugins:ldap_sync:coveralls:test $TRACE
   else
     bundle exec rake redmine:plugins:ldap_sync:test $TRACE
