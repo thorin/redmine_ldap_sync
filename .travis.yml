@@ -14,6 +14,13 @@ env:
    - REDMINE=v3.8.0
    - REDMINE=master
 matrix:
+  include:
+   - rvm: 2.1.0
+     env: REDMINE=master
+     gemfile: workspace/redmine/Gemfile
+   - rvm: 2.1.0
+     env: REDMINE=2.6-stable
+     gemfile: workspace/redmine/Gemfile
   exclude:
    - rvm: 1.8.7
      env: REDMINE=master
