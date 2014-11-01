@@ -15,10 +15,10 @@ env:
    - REDMINE=master
 matrix:
   include:
-   - rvm: 2.1.0
+   - rvm: 2.1.4
      env: REDMINE=master
      gemfile: workspace/redmine/Gemfile
-   - rvm: 2.1.0
+   - rvm: 2.1.4
      env: REDMINE=2.6-stable
      gemfile: workspace/redmine/Gemfile
   exclude:
