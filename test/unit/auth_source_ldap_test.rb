@@ -273,6 +273,20 @@ class AuthSourceLdapTest < ActiveSupport::TestCase
       assert_include 'Bluil', user1.groups.map(&:lastname)
     end
 
+    should "not activate locked users if activate_users flag is set" do
+      @ldap_setting.account_flags = 'uid'
+      @ldap_setting.account_disabled_test = 'true'
+      assert @ldap_setting.save, @ldap_setting.errors.full_messages.join(', ')
+
+      user1 = User.find_by_login 'loadgeek'
+      user1.lock!
+      assert user1.locked?
+
+      AuthSourceLdap.activate_users!
+      @auth_source.sync_users
+      assert user1.locked?
+    end
+
     context "script output" do
       should "be verbose when running on rake with level :debug" do
         old_stdout, $stdout = $stdout, StringIO.new

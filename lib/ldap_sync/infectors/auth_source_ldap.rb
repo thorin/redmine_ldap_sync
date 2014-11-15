@@ -74,7 +74,7 @@ module LdapSync::Infectors::AuthSourceLdap
             trace "-- Not locking locked user '#{user.login}'"
           end
           user, = find_local_user(login)
-          sync_user(user, false) if user.present?
+          sync_user(user, false, :disabled => true) if user.present?
         end
 
         ldap_users[:enabled].each do |login|
@@ -98,7 +98,7 @@ module LdapSync::Infectors::AuthSourceLdap
         end
 
         sync_user_groups(user) unless options[:try_to_login] && !setting.sync_groups_on_login?
-        sync_user_status(user, flags)
+        sync_user_status(user, flags, options[:disabled] || false)
 
         return if user.locked?
 
@@ -180,7 +180,7 @@ module LdapSync::Infectors::AuthSourceLdap
         end
       end
 
-      def sync_user_status(user, flags = nil)
+      def sync_user_status(user, flags, disabled)
         if flags && (flags == :deleted || account_disabled?(flags))
           user.lock!
           change user.login, "   -> locked: user disabled on ldap with flags '#{flags}'"
@@ -194,7 +194,7 @@ module LdapSync::Infectors::AuthSourceLdap
             user.lock!
             change user.login, "   -> locked: not member of group '#{setting.required_group}'"
           end
-        elsif activate_users? && user.locked?
+        elsif activate_users? && user.locked? && !disabled
           user.activate!
           change user.login, "   -> activated: ACTIVATE_USERS flag is on"
         end
