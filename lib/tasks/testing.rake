@@ -33,7 +33,7 @@ namespace :redmine do
       end
 
       namespace :test do
-        desc 'Runs the plugins unit tests.'
+        desc 'Runs the plugins ui tests.'
         Rake::TestTask.new :ui => "db:test:prepare" do |t|
           t.libs << "test"
           t.verbose = true
