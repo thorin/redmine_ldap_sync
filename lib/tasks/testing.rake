@@ -18,7 +18,7 @@
 namespace :redmine do
   namespace :plugins do
     namespace :ldap_sync do
-      PLUGIN_NAME='redmine_ldap_sync'
+      LDAP_SYNC='redmine_ldap_sync'
 
       desc 'Runs the ldap_sync tests.'
       task :test do
@@ -33,32 +33,32 @@ namespace :redmine do
       end
 
       namespace :test do
-        desc 'Runs the plugins unit tests.'
+        desc 'Runs the plugins ui tests.'
         Rake::TestTask.new :ui => "db:test:prepare" do |t|
           t.libs << "test"
           t.verbose = true
-          t.pattern = "plugins/#{PLUGIN_NAME}/test/ui/**/*_test.rb"
+          t.pattern = "plugins/#{LDAP_SYNC}/test/ui/**/*_test.rb"
         end
 
         desc 'Runs the plugins unit tests.'
         Rake::TestTask.new :units => "db:test:prepare" do |t|
           t.libs << "test"
           t.verbose = true
-          t.pattern = "plugins/#{PLUGIN_NAME}/test/unit/**/*_test.rb"
+          t.pattern = "plugins/#{LDAP_SYNC}/test/unit/**/*_test.rb"
         end
 
         desc 'Runs the plugins functional tests.'
         Rake::TestTask.new :functionals => "db:test:prepare" do |t|
           t.libs << "test"
           t.verbose = true
-          t.pattern = "plugins/#{PLUGIN_NAME}/test/functional/**/*_test.rb"
+          t.pattern = "plugins/#{LDAP_SYNC}/test/functional/**/*_test.rb"
         end
 
         desc 'Runs the plugins integration tests.'
         Rake::TestTask.new :integration => "db:test:prepare" do |t|
           t.libs << "test"
           t.verbose = true
-          t.pattern = "plugins/#{PLUGIN_NAME}/test/integration/**/*_test.rb"
+          t.pattern = "plugins/#{LDAP_SYNC}/test/integration/**/*_test.rb"
         end
       end
 
@@ -66,7 +66,7 @@ namespace :redmine do
         desc "Push latest coverage results to Coveralls.io"
         task :test => 'redmine:plugins:ldap_sync:test' do
           require 'simplecov'
-          ::SimpleCov.root Rails.root.join('plugins', "#{PLUGIN_NAME}")
+          ::SimpleCov.root Rails.root.join('plugins', "#{LDAP_SYNC}")
 
           require 'coveralls'
           Coveralls.push!

@@ -90,7 +90,9 @@ class LdapTestTest < ActiveSupport::TestCase
 
     @ldap_test.run_with_users_and_groups(['tweetsave'], ['Briklør', 'Therß'])
     assert_equal 0, @ldap_test.groups_at_ldap['Therß'][:fields].size
-    assert_equal 3, @ldap_test.users_at_ldap['tweetsave'][:fields].size
+
+    # uid is required and should be set with the default value
+    assert_equal 4, @ldap_test.users_at_ldap['tweetsave'][:fields].size
 
     assert_no_match /ldap_test\.rb/, @ldap_test.messages, "Should not throw an error"
   end
@@ -143,7 +145,7 @@ class LdapTestTest < ActiveSupport::TestCase
     @ldap_test.run_with_users_and_groups([], [])
     assert_not_equal 0, @ldap_test.messages.size
     assert_not_equal 0, @ldap_test.user_changes[:enabled].size
-    assert_equal 0, @ldap_test.user_changes[:disabled].size
+    assert_equal 1, @ldap_test.user_changes[:disabled].size
     assert_equal 0, @ldap_test.users_at_ldap.size
     assert_equal 0, @ldap_test.groups_at_ldap.size
     assert_not_equal 0, @ldap_test.non_dynamic_groups.size

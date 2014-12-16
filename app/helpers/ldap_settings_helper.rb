@@ -86,22 +86,23 @@ module LdapSettingsHelper
     has_user_ldap_attrs = @ldap_setting.has_user_ldap_attrs?
 
     (User::STANDARD_FIELDS + UserCustomField.all).map do |f|
-      id = f.is_a?(String) ? f : f.id
-
-      ldap_attribute = if f.is_a?(String)
-        @ldap_setting.auth_source_ldap.send("attr_#{f}")
+      if f.is_a?(String)
+        id        = f
+        name      = l("field_#{f}")
+        required  = true
+        ldap_attr = @ldap_setting.auth_source_ldap.send("attr_#{f}")
+        default   = ''
       else
-        has_user_ldap_attrs ? @ldap_setting.user_ldap_attrs[id.to_s] : ''
+        id        = f.id
+        name      = f.name
+        required  = f.is_required?
+        ldap_attr = has_user_ldap_attrs ? @ldap_setting.user_ldap_attrs[id.to_s] : ''
+        default   = f.default_value
       end
 
-      SyncField.new(
-        id,
-        f.is_a?(String) ? l("field_#{f}"): f.name,
-        f.is_a?(String) ? true : f.is_required?,
-        @ldap_setting.sync_user_fields? && @ldap_setting.user_fields_to_sync.include?(id.to_s),
-        ldap_attribute,
-        f.is_a?(String) ? '' : f.default_value
-      )
+      sync = @ldap_setting.sync_user_fields? && @ldap_setting.user_fields_to_sync.include?(id.to_s)
+
+      SyncField.new(id, name, required, sync, ldap_attr, default)
     end
   end
 

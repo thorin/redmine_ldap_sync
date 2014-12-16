@@ -23,6 +23,10 @@ class LdapSettingsController < ApplicationController
   before_filter :find_ldap_setting, :only => [:show, :edit, :update, :test, :enable, :disable]
   before_filter :update_ldap_setting_from_params, :only => [:edit, :update, :test]
 
+  if respond_to? :skip_before_action
+    skip_before_action :verify_authenticity_token, :if => :js_request?
+  end
+
   # GET /ldap_settings
   def index
     @ldap_settings = LdapSetting.all
@@ -73,17 +77,15 @@ class LdapSettingsController < ApplicationController
 
   # GET /ldap_settings/1/test
   def test
-    users   = params[:ldap_test][:test_users]
-    groups  = params[:ldap_test][:test_groups]
-    users   = users.split(',').map(&:strip).reject { |e| e.blank? } if users
-    groups  = groups.split(',').map(&:strip).reject { |e| e.blank? } if groups
+    return render 'test_error' unless @ldap_setting.valid?
 
-    if @ldap_setting.valid?
-      @test = LdapTest.new(@ldap_setting)
-      @test.run_with_users_and_groups(users, groups)
-    else
-      render 'test_error'
-    end
+    ldap_test = params[:ldap_test]
+    users     = ldap_test.fetch(:test_users, '').split(',')
+    groups    = ldap_test.fetch(:test_groups, '').split(',')
+    [users, groups].each {|l| l.map(&:strip).reject(&:blank?) }
+
+    @test = LdapTest.new(@ldap_setting)
+    @test.run_with_users_and_groups(users, groups)
   end
 
   # PUT /ldap_settings/1
@@ -98,6 +100,10 @@ class LdapSettingsController < ApplicationController
   end
 
   private
+
+    def js_request?
+      request.format.js?
+    end
 
     def update_ldap_setting_from_params
       %w(user group).each do |e|

@@ -9,22 +9,39 @@ rvm:
 env:
   global: REDMINE_DIR=./workspace/redmine
   matrix:
-  - REDMINE=2.2.4
-  - REDMINE=2.3-stable
-  - REDMINE=master
+   - REDMINE=2.5.3
+   - REDMINE=2.6-stable
+   - REDMINE=v3.8.0
+   - REDMINE=master
 matrix:
+  include:
+   - rvm: 2.1.4
+     env: REDMINE=master
+     gemfile: workspace/redmine/Gemfile
+   - rvm: 2.1.4
+     env: REDMINE=2.6-stable
+     gemfile: workspace/redmine/Gemfile
   exclude:
-  - rvm: 2.0.0
-    env: REDMINE=2.2.4
-    gemfile: workspace/redmine/Gemfile
+   - rvm: 1.8.7
+     env: REDMINE=master
+     gemfile: workspace/redmine/Gemfile
+   - rvm: 1.8.7
+     env: REDMINE=v3.8.0
+     gemfile: workspace/redmine/Gemfile
+   - rvm: 2.0.0
+     env: REDMINE=v3.8.0
+     gemfile: workspace/redmine/Gemfile
+  allow_failures:
+   - env: REDMINE=v3.8.0
 gemfile: workspace/redmine/Gemfile
 before_install:
- - sudo apt-get install -qq slapd ldap-utils
+ - sudo apt-get update -qq && sudo apt-get install -qq slapd ldap-utils
  - ./script/ci.sh clone_redmine --target $REDMINE_DIR
  - cp ./config/database.yml.travis $REDMINE_DIR/config/database.yml
  - ./script/ci.sh install_plugin_gemfile
 install: ./script/ci.sh bundle_install
 before_script:
+ - mysql -e 'CREATE DATABASE redmine CHARACTER SET utf8;'
  - ./script/ci.sh prepare_redmine
  - ./script/ci.sh prepare_plugin
  - ./script/ci.sh start_ldap

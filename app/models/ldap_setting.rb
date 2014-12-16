@@ -26,7 +26,7 @@ class LdapSetting
   include ActiveModel::AttributeMethods
 
   # LDAP_DESCRIPTORS
-  LDAP_ATTRIBUTES = %w( groupname member user_memberid user_groups groupid parent_group group_parentid member_group group_memberid account_flags )
+  LDAP_ATTRIBUTES = %w( groupname member user_memberid user_groups groupid parent_group primary_group group_parentid member_group group_memberid account_flags )
   CLASS_NAMES = %w( class_user class_group )
   FLAGS = %w( create_groups create_users active )
   COMBOS = %w( group_membership nested_groups sync_on_login dyngroups )
@@ -71,6 +71,11 @@ class LdapSetting
     @auth_source_ldap_id
   end
 
+  def to_key
+    return nil unless persisted?
+    id ? [id] : nil
+  end
+
   def name
     auth_source_ldap.name
   end
@@ -78,7 +83,7 @@ class LdapSetting
   def active?
     return @active if defined? @active
 
-    @active = active.in?(true, '1', 'yes')
+    @active = [true, '1', 'yes'].include? active
   end
 
   def active=(value)
@@ -123,7 +128,7 @@ class LdapSetting
   end
 
   def sync_on_login?
-    has_sync_on_login?
+    active? && has_sync_on_login?
   end
 
   def sync_groups_on_login?
@@ -250,18 +255,18 @@ class LdapSetting
 
   # Find all the available ldap settings
   def self.all(options = {})
-    AuthSourceLdap.all(options).map {|source| find_by_auth_source_ldap_id(source.id) }
+    AuthSourceLdap.where(options).map {|source| find_by_auth_source_ldap_id(source.id) }
   end
 
   protected
 
     def validate_account_disabled_test
       if account_disabled_test.present?
-        eval("lambda { |flags| #{account_disabled_test} }")
+        eval "lambda { |flags| #{account_disabled_test} }"
       end
     rescue Exception => e
       errors.add :account_disabled_test, :invalid_expression, :error_message => e.message.gsub(/^(\(eval\):1: )?(.*?)(lambda.*|$)/m, '\2')
-      Rails.logger.error e.message + "\n " + e.backtrace.join("\n ")
+      Rails.logger.error "#{e.message}\n #{e.backtrace.join("\n ")}"
     end
 
     def validate_groupname_pattern
@@ -299,7 +304,7 @@ class LdapSetting
 
       field_ids = fields.map {|f| f.id.to_s }
       ldap_attrs.each do |k, v|
-        if !k.in? field_ids
+        if !field_ids.include?(k)
           errors.add :user_group_fields, :invalid unless errors.added? :user_group_fields, :invalid
 
         elsif v.present? && v !~ /\A[a-z][a-z0-9-]*\z/i
@@ -315,12 +320,12 @@ class LdapSetting
       end
 
       fields_ids = fields.map {|f| f.is_a?(String) ? f : f.id.to_s }
-      if fields_to_sync.any? {|f| !f.in? fields_ids  }
+      if (fields_to_sync - fields_ids).present?
         errors.add :user_group_fields, :invalid unless errors.added? :user_group_fields, :invalid
       end
       fields_to_sync.each do |f|
-        if f =~ /\A\d+\z/ && (attrs.blank? || attrs[f].blank?)
-          field_name = fields.find{|c| !c.is_a?(String) && c.id.to_s == f }.name
+        if f =~ /\A\d+\z/ && attrs[f].blank?
+          field_name = fields.find {|c| !c.is_a?(String) && c.id.to_s == f }.name
           errors.add :base, :must_have_ldap_attribute, :field => field_name
         end
       end
@@ -356,7 +361,7 @@ class LdapSetting
     end
 
     def attribute?(attr)
-      @attributes[attr].in? true, '1', 'yes'
+      [true, '1', 'yes'].include? @attributes[attr]
     end
 
     def has_attribute?(attr)

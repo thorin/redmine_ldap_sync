@@ -40,12 +40,13 @@ lotus_notes_ldap:
   user_memberid: dn
 open_ldap_posix_groups:
   name: Open LDAP (with posixGroups)
-  class_user: posixAccount 
+  class_user: posixAccount
   class_group: posixGroup
   group_membership: on_groups
   groupname: cn
-  member: member
-  user_memberid: dn
+  primary_group: gidNumber
+  member: memberUid
+  user_memberid: uid
 samba_ldap:
   name: Samba LDAP
   class_user: sambaSamAccount
@@ -56,3 +57,14 @@ samba_ldap:
   account_flags: sambaAcctFlags
   member: member
   user_memberid: dn
+novell_edirectory_nn:
+  name: Novell eDirectory (not nested)
+  class_user: organizationalPerson
+  class_group: groupOfNames
+  nested_groups: ""
+  group_membership: on_groups
+  groupname: cn
+  member: member
+  groupid: entryDN
+  user_memberid: entryDN
+  user_groups: groupMembership

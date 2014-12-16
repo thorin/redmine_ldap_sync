@@ -1,0 +1,8 @@
+group :test do
+  gem 'coveralls', :require => false
+  if RUBY_VERSION < "1.9"
+    gem "rest-client", "~> 1.6.8"
+    gem "simplecov", "~>0.8.2"
+    gem "rcov",  "=0.9.11"
+  end
+end

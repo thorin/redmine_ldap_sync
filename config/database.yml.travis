@@ -1,3 +1,5 @@
 test:
-  adapter: sqlite3
-  database: db/test.db
+  adapter: <%= RUBY_VERSION >= '1.9' ? 'mysql2' : 'mysql' %>
+  database: redmine
+  username: travis
+  encoding: utf8

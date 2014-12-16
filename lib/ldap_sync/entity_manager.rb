@@ -22,14 +22,23 @@ module LdapSync::EntityManager
       user_data ||= with_ldap_connection do |ldap|
         find_user(ldap, username, setting.user_ldap_attrs_to_sync)
       end
+      return {} if user_data.nil?
 
-      user_data.inject({}) do |fields, (attr, value)|
+      user_fields = user_data.inject({}) do |fields, (attr, value)|
         f = setting.user_field(attr)
         if f && (User::STANDARD_FIELDS.include?(f) || setting.user_fields_to_sync.include?(f))
           fields[f] = value.first unless value.nil? || value.first.blank?
         end
         fields
       end
+
+      user_required_custom_fields.each do |cf|
+        if user_fields[cf.id.to_s].blank?
+          user_fields[cf.id.to_s] = cf.default_value
+        end
+      end
+
+      user_fields
     end
 
     def get_group_fields(groupname, group_data = nil)
@@ -37,20 +46,36 @@ module LdapSync::EntityManager
         find_group(ldap, groupname, [n(:groupname), *setting.group_ldap_attrs_to_sync])
       end || {}
 
-      group_data.inject({}) do |fields, (attr, value)|
+      group_fields = group_data.inject({}) do |fields, (attr, value)|
         f = setting.group_field(attr)
         if f && setting.group_fields_to_sync.include?(f)
           fields[f] = value.first unless value.nil? || value.first.blank?
         end
         fields
       end
+
+      group_required_custom_fields.each do |cf|
+        if group_fields[cf.id.to_s].blank?
+          group_fields[cf.id.to_s] = cf.default_value
+        end
+      end
+
+      group_fields
+    end
+
+    def user_required_custom_fields
+      @user_required_custom_fields ||= UserCustomField.select(&:is_required)
+    end
+
+    def group_required_custom_fields
+      @group_required_custom_fields ||= GroupCustomField.select(&:is_required)
     end
 
     def ldap_users
       return @ldap_users if @ldap_users
 
       with_ldap_connection do |ldap|
-        changes = { :enabled => Set.new, :disabled => Set.new }
+        changes = { :enabled => SortedSet.new, :disabled => SortedSet.new }
 
         unless setting.has_account_flags?
           changes[:enabled] += find_all_users(ldap, n(:login)).map(&:first)
@@ -101,32 +126,37 @@ module LdapSync::EntityManager
           changes[:deleted] << group.first
         end if names_filter
 
-        user_dn = nil
+        changes[:added] += get_primary_group(ldap, user) if setting.has_primary_group?
+
         case setting.group_membership
         when 'on_groups'
           # Find user's memberid
           memberid = user.login
           if setting.user_memberid != setting.login
-            entry = find_user(ldap, user.login, ns(:user_memberid))
-            memberid = entry[n(:user_memberid)].first
-            user_dn = entry[:dn].first
+            entry = find_user(ldap, user.login, ns(:user_memberid)) and
+              memberid = entry[n(:user_memberid)].first and
+              user_dn = entry[:dn].first
           end
 
-          # Find the groups to which the user belongs to
-          member_filter = Net::LDAP::Filter.eq( setting.member, memberid )
-          find_all_groups(ldap, member_filter, n(:groupname)) do |group|
-            changes[:added] << group.first
-          end if memberid
+          if setting.user_memberid == setting.login || entry.present?
+            # Find the groups to which the user belongs to
+            member_filter = Net::LDAP::Filter.eq( setting.member, memberid )
+            find_all_groups(ldap, member_filter, n(:groupname)) do |group|
+              changes[:added] << group.first
+            end if memberid
+          end
 
         else # 'on_members'
           entry = find_user(ldap, user.login, ns(:user_groups))
-          groups = entry[n(:user_groups)]
-          user_dn = entry[:dn].first
+          if entry.present?
+            groups = entry[n(:user_groups)]
+            user_dn = entry[:dn].first
 
-          names_filter = groups.map{|g| Net::LDAP::Filter.eq( setting.groupid, g )}.reduce(:|)
-          find_all_groups(ldap, names_filter, n(:groupname)) do |group|
-            changes[:added] << group.first
-          end if names_filter
+            names_filter = groups.map{|g| Net::LDAP::Filter.eq( setting.groupid, g )}.reduce(:|)
+            find_all_groups(ldap, names_filter, n(:groupname)) do |group|
+              changes[:added] << group.first
+            end if names_filter
+          end
         end
 
         changes[:added] = changes[:added].inject(Set.new) do |closure, group|
@@ -136,8 +166,8 @@ module LdapSync::EntityManager
         end if setting.nested_groups_enabled?
 
         if setting.sync_dyngroups?
-          user_dn ||= find_user(ldap, user.login, :dn).first
-          changes[:added] += get_dynamic_groups(user_dn)
+          user_dn ||= find_user(ldap, user.login, :dn).try(:first)
+          changes[:added] += get_dynamic_groups(user_dn) unless user_dn.nil?
         end
       end
 
@@ -148,6 +178,15 @@ module LdapSync::EntityManager
       changes
     ensure
       reset_parents_cache! unless running_rake?
+    end
+
+    def get_primary_group(ldap, user)
+      primary_group_id = find_user(ldap, user.login, n(:primary_group)).try(:first)
+      return [] if primary_group_id.nil?
+
+      # Map GID to group name
+      gid_filter = Net::LDAP::Filter.eq( setting.primary_group, primary_group_id )
+      find_all_groups(ldap, gid_filter, n(:groupname)).first || []
     end
 
     def get_dynamic_groups(user_dn)

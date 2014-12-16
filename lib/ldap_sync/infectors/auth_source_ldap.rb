@@ -62,7 +62,7 @@ module LdapSync::Infectors::AuthSourceLdap
 
       with_ldap_connection do |_|
         ldap_users[:disabled].each do |login|
-          user = self.users.where("LOWER(login) = ?", login.downcase).first
+          user = self.users.where("LOWER(login) = ?", login.mb_chars.downcase).first
 
           if user.try(:active?)
             if user.lock!
@@ -73,6 +73,8 @@ module LdapSync::Infectors::AuthSourceLdap
           elsif user.present?
             trace "-- Not locking locked user '#{user.login}'"
           end
+          user, = find_local_user(login)
+          sync_user(user, false, :disabled => true) if user.present?
         end
 
         ldap_users[:enabled].each do |login|
@@ -86,21 +88,17 @@ module LdapSync::Infectors::AuthSourceLdap
 
     def sync_user(user, is_new_user = false, options = {})
       with_ldap_connection(options[:login], options[:password]) do |ldap|
-        if user.locked? && !(activate_users? || setting.has_required_group?)
-          trace "-- Not #{is_new_user ? 'creating': 'updating'} locked user '#{user.login}'"; return
-        else
-          trace "-- #{is_new_user ? 'Creating' : 'Updating'} user '#{user.login}'...",
-            :level => is_new_user ? :change : :debug,
-            :obj => user.login
-        end
+        trace "-- #{is_new_user ? 'Creating' : 'Updating'} user '#{user.login}'...",
+          :level => is_new_user ? :change : :debug,
+          :obj => user.login
 
         user_data, flags = if options[:try_to_login] && setting.has_account_flags? && setting.sync_fields_on_login?
           user_data = find_user(ldap, user.login, setting.user_ldap_attrs_to_sync + ns(:account_flags))
-          [user_data, user_data[n(:account_flags)].first]
+          [user_data, user_data.present? ? user_data[n(:account_flags)].first : :deleted]
         end
 
         sync_user_groups(user) unless options[:try_to_login] && !setting.sync_groups_on_login?
-        sync_user_status(user, flags)
+        sync_user_status(user, flags, options[:disabled] || false)
 
         return if user.locked?
 
@@ -151,12 +149,12 @@ module LdapSync::Infectors::AuthSourceLdap
         changes = groups_changes(user)
         added = changes[:added].map {|g| find_or_create_group(g).first }.compact
 
-        # Fix : if already member of group
-        added.each{|g|
-          user.groups << g unless user.groups.include?(g)
-        } if added.present?
+        # Fix : if already member of group (this should not be necessary)
+        if added.present?
+          user.groups << added.reject {|g| user.groups.include?(g) }
+        end
 
-        deleted_groups = changes[:deleted].map(&:downcase)
+        deleted_groups = changes[:deleted].map {|g| g.mb_chars.downcase }
         deleted = deleted_groups.any? ? ::Group.where("LOWER(lastname) in (?)", deleted_groups).all : []
         user.groups.delete(*deleted) unless deleted.empty?
 
@@ -168,32 +166,22 @@ module LdapSync::Infectors::AuthSourceLdap
 
         user.synced_fields = get_user_fields(user.login, user_data)
 
-        # Enhancement : mandatory User Custom fields, use the default cf value if not provided
-        UserCustomField.select(&:is_required).each{ |cf|
-          if user.custom_field_value(cf.id).blank?
-            user.custom_field_values=( {cf.id => cf.default_value} )
-            trace "   CustomField '#{cf.name}' set to default : #{user.custom_field_value(cf.id)}"
-          end
-        }
-        # END -- Enhancement : mandatory User Custom fields, use the default cf value if not provided
-
-        # Enhancement : give informations on the user holding the email
-        user_with_mail = User.find_by_mail(user.mail)
-        if user.mail.present? && user_with_mail.present? && (user != user_with_mail)
-          error "Could not sync user '#{user.login}/#{user.mail}': email already taken by #{user_with_mail.firstname} #{user_with_mail.lastname} (#{user_with_mail.login})"
-          return
-        end
-        # END -- Enhancement : give informations on the user holding the email
-
         if user.save
           user
         else
-          error "Could not sync user '#{user.login}': \"#{user.errors.full_messages.join('", "')}\""; nil
+          error_message = if user.errors.added? :mail, :taken
+            mail_owner = User.find_by_mail(user.mail)
+            fmt = User.name_formatter[:firstname_lastname]
+            "email already taken by #{mail_owner.name(fmt)} (#{mail_owner.login})"
+          else
+            "#{user.errors.full_messages.join('", "')}"
+          end
+          error "Could not sync user '#{user.login}': \"#{error_message}\""; nil
         end
       end
 
-      def sync_user_status(user, flags = nil)
-        if flags && account_disabled?(flags)
+      def sync_user_status(user, flags, disabled)
+        if flags && (flags == :deleted || account_disabled?(flags))
           user.lock!
           change user.login, "   -> locked: user disabled on ldap with flags '#{flags}'"
         elsif setting.has_required_group?
@@ -206,7 +194,7 @@ module LdapSync::Infectors::AuthSourceLdap
             user.lock!
             change user.login, "   -> locked: not member of group '#{setting.required_group}'"
           end
-        elsif activate_users? && user.locked?
+        elsif activate_users? && user.locked? && !disabled
           user.activate!
           change user.login, "   -> activated: ACTIVATE_USERS flag is on"
         end
@@ -239,7 +227,7 @@ module LdapSync::Infectors::AuthSourceLdap
       end
 
       def find_or_create_group(groupname, group_data = nil)
-        group = ::Group.where("LOWER(lastname) = ?", groupname.downcase).first
+        group = ::Group.where("LOWER(lastname) = ?", groupname.mb_chars.downcase).first
         return group, false unless group.nil? && setting.create_groups?
 
         group = ::Group.new(:lastname => groupname, :auth_source_id => self.id) do |g|
@@ -255,12 +243,18 @@ module LdapSync::Infectors::AuthSourceLdap
         end
       end
 
-      def find_or_create_user(username)
-        user = ::User.where("LOWER(#{User.table_name}.login) = ?", username.downcase).includes(:groups).first
+      def find_local_user(username)
+        user = ::User.where("LOWER(#{User.table_name}.login) = ?", username.mb_chars.downcase).includes(:groups).first
         if user.present? && user.auth_source_id != self.id
           trace "-- Skipping user '#{user.login}': it already exists on a different auth_source"
-          return nil, false
+          return nil, true
         end
+        return user, false
+      end
+
+      def find_or_create_user(username)
+        user, is_invalid = find_local_user(username)
+        return nil, false if is_invalid
         return user unless user.nil? && setting.create_users?
 
         user = ::User.new do |u|
@@ -270,18 +264,17 @@ module LdapSync::Infectors::AuthSourceLdap
           u.auth_source_id = self.id
         end
 
-        # Enhancement : give informations on the user holding the email
-        user_with_mail = User.find_by_mail(user.mail)
-        if user.mail.present? && user_with_mail.present?
-          trace "-- Could not create '#{username}/#{user.mail}': email already taken by #{user_with_mail.firstname} #{user_with_mail.lastname} (#{user_with_mail.login})"
-          return nil, false
-        end
-        # END -- Enhancement : give informations on the user holding the email
-
         if user.save
           return user, true
         else
-          change user.login,  "-- Could not create user '#{user.login}': \"#{user.errors.full_messages.join('", "')}\""; nil
+          error_message = if user.errors.added? :mail, :taken
+            mail_owner = User.find_by_mail(user.mail)
+            fmt = User.name_formatter[:firstname_lastname]
+            "email already taken by #{mail_owner.name(fmt)} (#{mail_owner.login})"
+          else
+            "#{user.errors.full_messages.join('", "')}"
+          end
+          change user.login, "-- Could not create user '#{user.login}': \"#{error_message}\""; nil
         end
       end
 

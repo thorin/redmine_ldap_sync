@@ -59,6 +59,7 @@ pt:
   field_user_groups: "Grupos (utilizador)"
   field_groupid: "ID do grupo (grupo)"
   field_account_flags: "Flags de controlo (utilizador)"
+  field_primary_group: "Grupo primário (utilizador)"
 
   field_required_group: "Bloquear não membros do grupo"
   field_admin_group: "Administradores são membros do grupo"

@@ -12,34 +12,29 @@ setenv() {
   fi
   if [ "$VERBOSE" = "yes" ]; then export TRACE=--trace; fi
   if [ ! "$VERBOSE" = "yes" ]; then export QUIET=--quiet; fi
+  if [[ "$RUBY_VERSION" < "1.9" ]]; then export RUBYGEMS=2.1.11; fi
 
   case $REDMINE in
-    1.4.*)  export PATH_TO_PLUGINS=./vendor/plugins # for redmine < 2.0
-            export GENERATE_SECRET=generate_session_store
-            export MIGRATE_PLUGINS=db:migrate_plugins
+    2.*.*)  export PATH_TO_PLUGINS=./plugins # for redmine 2.x.x
+            export GENERATE_SECRET=generate_secret_token
+            export MIGRATE_PLUGINS=redmine:plugins
             export REDMINE_TARBALL=https://github.com/edavis10/redmine/archive/$REDMINE.tar.gz
             ;;
-    2.*.*)  export PATH_TO_PLUGINS=./plugins # for redmine 2.0
+    2.*-stable) export PATH_TO_PLUGINS=./plugins # for redmine 2.x-stable
             export GENERATE_SECRET=generate_secret_token
-            export MIGRATE_PLUGINS=redmine:plugins:migrate
-            export REDMINE_TARBALL=https://github.com/edavis10/redmine/archive/$REDMINE.tar.gz
-            ;;
-    2.*-stable) export PATH_TO_PLUGINS=./plugins # for redmine 2.0
-            export GENERATE_SECRET=generate_secret_token
-            export MIGRATE_PLUGINS=redmine:plugins:migrate
-            export REDMINE_GIT_REPO=git://github.com/edavis10/redmine.git
-            export REDMINE_GIT_TAG=$REDMINE
+            export MIGRATE_PLUGINS=redmine:plugins
+            export REDMINE_SVN_REPO=http://svn.redmine.org/redmine/branches/$REDMINE
             ;;
     master) export PATH_TO_PLUGINS=./plugins
             export GENERATE_SECRET=generate_secret_token
-            export MIGRATE_PLUGINS=redmine:plugins:migrate
-            export REDMINE_GIT_REPO=git://github.com/edavis10/redmine.git
-            export REDMINE_GIT_TAG=master
+            export MIGRATE_PLUGINS=redmine:plugins
+            export REDMINE_SVN_REPO=http://svn.redmine.org/redmine/trunk/
             ;;
-    v3.8.0) export PATH_TO_PLUGINS=./vendor/chilliproject_plugins
+    v3.8.0) export PATH_TO_PLUGINS=./vendor/chiliproject_plugins
             export GENERATE_SECRET=generate_session_store
             export MIGRATE_PLUGINS=db:migrate:plugins
             export REDMINE_TARBALL=https://github.com/chiliproject/chiliproject/archive/$REDMINE.tar.gz
+            export RUBYGEMS=1.8.29
             ;;
     *)      echo "Unsupported platform $REDMINE"
             exit 1
@@ -70,11 +65,15 @@ clone_redmine()
   fi
 
   rm -rf $TARGET
-  if [ -n "${REDMINE_GIT_TAG}" ]; then
+  if [ -n "${REDMINE_GIT_REPO}" ]; then
     git clone -b $REDMINE_GIT_TAG --depth=100 $QUIET $REDMINE_GIT_REPO $TARGET
-    pushd $TARGET > /dev/null
+    pushd $TARGET 1> /dev/null
     git checkout $REDMINE_GIT_TAG
-    popd
+    popd 1> /dev/null
+  elif [ -n "${REDMINE_HG_REPO}" ]; then
+    hg clone -r $REDMINE_HG_TAG $QUIET $REDMINE_HG_REPO $TARGET
+  elif [ -n "${REDMINE_SVN_REPO}" ]; then
+    svn co $QUIET $REDMINE_SVN_REPO $TARGET
   else
     mkdir -p $TARGET
     wget $REDMINE_TARBALL -O- | tar -C $TARGET -xz --strip=1 --show-transformed -f -
@@ -89,23 +88,28 @@ install_plugin_gemfile()
   setenv
 
   mkdir $REDMINE_DIR/$PATH_TO_PLUGINS/redmine_ldap_sync
-  ln -s "$PATH_TO_LDAPSYNC/Gemfile" "$REDMINE_DIR/$PATH_TO_PLUGINS/redmine_ldap_sync/Gemfile"
+  ln -s "$PATH_TO_LDAPSYNC/config/Gemfile.travis" "$REDMINE_DIR/$PATH_TO_PLUGINS/redmine_ldap_sync/Gemfile"
 }
 
 bundle_install()
 {
-  pushd $REDMINE_DIR > /dev/null
+  setenv
+
+  if [ -n "${RUBYGEMS}" ]; then
+    rvm rubygems ${RUBYGEMS}
+  fi
+  pushd $REDMINE_DIR 1> /dev/null
   for i in {1..3}; do
-    gem install bundler --no-rdoc --no-ri && \
-    bundle install --gemfile=./Gemfile --path vendor/bundle --without development rmagick && break
-  done && popd
+    gem install bundler $QUIET --no-rdoc --no-ri && \
+    bundle install $QUIET --gemfile=./Gemfile --path vendor/bundle --without development rmagick && break
+  done && popd 1> /dev/null
 }
 
 prepare_redmine()
 {
   setenv
 
-  pushd $REDMINE_DIR > /dev/null
+  pushd $REDMINE_DIR 1> /dev/null
 
   trace 'Database migrations'
   bundle exec rake db:migrate $TRACE
@@ -116,22 +120,21 @@ prepare_redmine()
   trace 'Session token'
   bundle exec rake $GENERATE_SECRET $TRACE
 
-  popd
+  popd 1> /dev/null
 }
 
 prepare_plugin()
 {
   setenv
 
-  pushd $REDMINE_DIR > /dev/null
+  pushd $REDMINE_DIR 1> /dev/null
 
-  rm $PATH_TO_PLUGINS/redmine_ldap_sync/Gemfile
   ln -s $PATH_TO_LDAPSYNC/* $PATH_TO_PLUGINS/redmine_ldap_sync
 
   trace 'Prepare plugins'
-  bundle exec rake redmine:plugins NAME=redmine_ldap_sync $TRACE
+  bundle exec rake $MIGRATE_PLUGINS NAME=redmine_ldap_sync $TRACE
 
-  popd
+  popd 1> /dev/null
 }
 
 start_ldap()
@@ -174,26 +177,26 @@ run_tests()
 {
   setenv
 
-  pushd $REDMINE_DIR > /dev/null
+  pushd $REDMINE_DIR 1> /dev/null
 
-  if [ "$REDMINE" == "master" ] && [ "$RUBY_VERSION"  == "1.9.3" ]; then
+  if [ "$REDMINE" == "master" ] && [ "$RUBY_VERSION"  == "2.1.4" ]; then
     bundle exec rake redmine:plugins:ldap_sync:coveralls:test $TRACE
   else
     bundle exec rake redmine:plugins:ldap_sync:test $TRACE
   fi
 
-  popd
+  popd 1> /dev/null
 }
 
 test_uninstall()
 {
   setenv
 
-  pushd $REDMINE_DIR > /dev/null
+  pushd $REDMINE_DIR 1> /dev/null
 
   bundle exec rake $TRACE $MIGRATE_PLUGINS NAME=redmine_ldap_sync VERSION=0
 
-  popd
+  popd 1> /dev/null
 }
 
 case "$1" in
