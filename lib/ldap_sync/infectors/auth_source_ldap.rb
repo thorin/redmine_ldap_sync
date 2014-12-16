@@ -66,7 +66,7 @@ module LdapSync::Infectors::AuthSourceLdap
 
           if user.try(:active?)
             if user.lock!
-              change user.login, "-- Locked active user '#{user.login}'"
+              change user.login, "-- Locked active user '#{user.login}' (#{user.name})"
             else
               change user.login, "-- Failed to lock active user '#{user.login}'"
             end
@@ -88,7 +88,7 @@ module LdapSync::Infectors::AuthSourceLdap
 
     def sync_user(user, is_new_user = false, options = {})
       with_ldap_connection(options[:login], options[:password]) do |ldap|
-        trace "-- #{is_new_user ? 'Creating' : 'Updating'} user '#{user.login}'...",
+        trace "-- #{is_new_user ? 'Creating' : 'Updating'} user '#{user.login}' (#{user.name}) ...",
           :level => is_new_user ? :change : :debug,
           :obj => user.login
 
@@ -336,6 +336,11 @@ module LdapSync::Infectors::AuthSourceLdap
       end
 
       def update_dyngroups_cache!(mem_cache)
+        trace "   update_dyngroups_cache"
+        mem_cache.sort_by{ |u, m| u }.each{|u, m|
+          trace "      #{u} #{m.join(', ')}"
+        }
+
         opts = {}
         if setting.dyngroups_enabled_with_ttl?
           opts[:race_condition_ttl] = 5.minutes
@@ -363,10 +368,15 @@ module LdapSync::Infectors::AuthSourceLdap
         return unless running_rake?
 
         a = added.size; d = deleted.size; nc = groups[:added].size - a
+        added_names = added.collect(&:lastname)
+        deleted_names = deleted.collect(&:lastname)
+
+        nc_names = groups[:added] - added_names
+
         chg = []
-        chg << "#{pluralize(a, 'group')} added" if a > 0
-        chg << "#{pluralize(d, a == 0 ? 'group' : nil)} deleted" if d > 0
-        chg << "#{pluralize(nc, a + d == 0 ? 'group' : nil)} not created" if nc > 0
+        chg << "#{pluralize(a, 'group')} added (#{added_names.join(', ')})" if a > 0
+        chg << "#{pluralize(d, a == 0 ? 'group' : nil)} deleted (#{deleted_names.join(', ')})" if d > 0
+        chg << "#{pluralize(nc, a + d == 0 ? 'group' : nil)} already created (#{ nc_names.join(', ') })" if nc > 0
 
         msg = if chg.size == 1
           "   -> #{chg[0]}"
