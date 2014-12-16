@@ -113,7 +113,7 @@ module LdapSync::EntityManager
 
     def groups_changes(user)
       return unless setting.active?
-      changes = { :added => Set.new, :deleted => Set.new }
+      changes = { :added => SortedSet.new, :deleted => SortedSet.new }
 
       user_groups = user.groups.map {|g| g.lastname.downcase }
       groupname_regexp = setting.groupname_regexp
