@@ -139,7 +139,7 @@ module LdapSync::EntityManager
           end
 
           if setting.user_memberid == setting.login || entry.present?
-            # Find the groups to which the user belongs to
+            # Find the static groups to which the user belongs to (groupOfNames)
             member_filter = Net::LDAP::Filter.eq( setting.member, memberid )
             find_all_groups(ldap, member_filter, n(:groupname)) do |group|
               changes[:added] << group.first
@@ -165,6 +165,7 @@ module LdapSync::EntityManager
           end
         end if setting.nested_groups_enabled?
 
+        # Find the dynamic groups to which the user belongs to (groupOfURLs)
         if setting.sync_dyngroups?
           user_dn ||= find_user(ldap, user.login, :dn).try(:first)
           changes[:added] += get_dynamic_groups(user_dn) unless user_dn.nil?
