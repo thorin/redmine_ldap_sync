@@ -9,7 +9,7 @@
   <p><%= f.text_field :groupname_pattern, :size => 50 %></p>
   <p><%= f.text_field :group_search_filter, :size => 50  %></p>
 
-  <p><%= f.text_field :account_disabled_test, :size => 15 %></p>
+  <p><%= f.text_field :account_disabled_test, :size => 50 %></p>
   <p><%= f.select :group_membership, options_for_group_membeship %></p>
   <p><%= f.select :nested_groups, options_for_nested_groups %></p>
 
@@ -17,7 +17,7 @@
     <legend><%=l(:label_attribute_plural)%></legend>
 
     <p><%= f.text_field :groupname, :required => true, :size => 15 %></p>
-    <p><%= f.text_field :account_flags, :size => 15 %></p>
+    <p><%= f.text_field :account_flags, :size => 50 %></p>
     <p><%= f.text_field :primary_group, :size => 15 %></p>
 
     <div class="membership on_groups" style="display:none;">
