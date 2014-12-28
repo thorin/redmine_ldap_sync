@@ -96,7 +96,7 @@ bundle_install()
   setenv
 
   if [ -n "${RUBYGEMS}" ]; then
-    rvm rubygems ${RUBYGEMS}
+    rvm rubygems ${RUBYGEMS} --force
   fi
   pushd $REDMINE_DIR 1> /dev/null
   for i in {1..3}; do
