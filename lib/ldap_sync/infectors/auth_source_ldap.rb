@@ -88,7 +88,7 @@ module LdapSync::Infectors::AuthSourceLdap
 
     def sync_user(user, is_new_user = false, options = {})
       with_ldap_connection(options[:login], options[:password]) do |ldap|
-        trace "-- #{is_new_user ? 'Creating' : 'Updating'} user '#{user.login}' (#{user.name}) ...",
+        trace "-- #{is_new_user ? 'Creating' : 'Updating'} user '#{user.login}' (#{user.name})...",
           :level => is_new_user ? :change : :debug,
           :obj => user.login
 
@@ -336,10 +336,11 @@ module LdapSync::Infectors::AuthSourceLdap
       end
 
       def update_dyngroups_cache!(mem_cache)
-        trace "   update_dyngroups_cache"
-        mem_cache.sort_by{ |u, m| u }.each{|u, m|
-          trace "      #{u} #{m.join(', ')}"
-        }
+        trace do
+          mem_cache.sort_by {|u, m| u}.reduce("   update_dyngroups_cache\n") do |t, (u, m)|
+            t << "      #{u} #{m.join(', ')}\n"
+          end
+        end
 
         opts = {}
         if setting.dyngroups_enabled_with_ttl?
@@ -368,15 +369,15 @@ module LdapSync::Infectors::AuthSourceLdap
         return unless running_rake?
 
         a = added.size; d = deleted.size; nc = groups[:added].size - a
-        added_names = added.collect(&:lastname)
-        deleted_names = deleted.collect(&:lastname)
+        added_names = added.map {|g| g.lastname.mb_chars.downcase.to_s }
+        deleted_names = deleted.map {|g| g.lastname.mb_chars.downcase.to_s }
 
-        nc_names = groups[:added] - added_names
+        nc_names = groups[:added].map {|g| g.mb_chars.downcase.to_s } - added_names
 
         chg = []
         chg << "#{pluralize(a, 'group')} added (#{added_names.join(', ')})" if a > 0
         chg << "#{pluralize(d, a == 0 ? 'group' : nil)} deleted (#{deleted_names.join(', ')})" if d > 0
-        chg << "#{pluralize(nc, a + d == 0 ? 'group' : nil)} already created (#{ nc_names.join(', ') })" if nc > 0
+        chg << "#{pluralize(nc, a + d == 0 ? 'group' : nil)} already created (#{ nc_names.to_a.join(', ') })" if nc > 0
 
         msg = if chg.size == 1
           "   -> #{chg[0]}"
@@ -388,18 +389,20 @@ module LdapSync::Infectors::AuthSourceLdap
         trace msg, :level => level, :obj => user.login
       end
 
-      def trace(msg, options = {})
+      def trace(msg = nil, options = {}, &block)
         return if trace_level == :silent || msg.nil?
-        logger.error msg if options[:level] == :error && !running_rake?
-
-        return if !running_rake?
+        if !running_rake?
+          logger.error(block_given? ? yield : msg) if options[:level] == :error
+          return
+        end
 
         options.reverse_merge!(:level => :debug)
 
+        msg = block_given? ? yield : msg
         case options[:level]
-        when :error;  puts "-- #{msg}"
-        when :debug;  puts msg unless [:change, :error].include? trace_level
-        when :info;   puts msg unless [:error].include? trace_level
+        when :error; puts "-- #{msg}"
+        when :debug; puts msg unless [:change, :error].include? trace_level
+        when :info;  puts msg unless [:error].include? trace_level
         when :change
           if trace_level == :change && !options[:obj].nil?
             obj = options[:obj]

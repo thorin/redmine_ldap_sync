@@ -319,7 +319,7 @@ class AuthSourceLdapTest < ActiveSupport::TestCase
 
     actual, $stdout = $stdout.string, old_stdout
 
-    assert_include '-- Updating user \'loadgeek\'...', actual
+    assert_include '-- Updating user \'loadgeek\' (User Misc)...', actual
     assert_include '-> 6 groups added', actual
   end
 
@@ -351,7 +351,9 @@ class AuthSourceLdapTest < ActiveSupport::TestCase
     actual, $stdout = $stdout.string, old_stdout
 
     assert_not_include '-- Updating user \'loadgeek\'...', actual
-    assert_include '[loadgeek] 5 groups added, 1 deleted and 1 not created', actual
+    assert_include '[loadgeek] 5 groups added', actual
+    assert_include '1 deleted', actual
+    assert_include 'and 1 already created', actual
   end
 
   test "#sync_users should sync with dynamic groups" do
