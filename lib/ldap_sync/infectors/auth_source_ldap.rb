@@ -169,7 +169,7 @@ module LdapSync::Infectors::AuthSourceLdap
         if user.save
           user
         else
-          error_message = if user.errors.added? :mail, :taken
+          error_message = if user.email_is_taken
             mail_owner = User.find_by_mail(user.mail)
             fmt = User.name_formatter[:firstname_lastname]
             "email already taken by #{mail_owner.name(fmt)} (#{mail_owner.login})"
@@ -267,7 +267,7 @@ module LdapSync::Infectors::AuthSourceLdap
         if user.save
           return user, true
         else
-          error_message = if user.errors.added? :mail, :taken
+          error_message = if user.email_address.errors.added? :address, :taken
             mail_owner = User.find_by_mail(user.mail)
             fmt = User.name_formatter[:firstname_lastname]
             "email already taken by #{mail_owner.name(fmt)} (#{mail_owner.login})"

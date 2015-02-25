@@ -19,6 +19,7 @@ require File.expand_path('../../test_helper', __FILE__)
 
 class AuthSourceLdapTest < ActiveSupport::TestCase
   fixtures :auth_sources, :users, :groups_users, :settings, :custom_fields, :roles, :projects, :members, :member_roles
+  fixtures :email_addresses if Redmine::VERSION::MAJOR >= 3
 
   setup do
     clear_ldap_cache!

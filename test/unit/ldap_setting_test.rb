@@ -21,6 +21,7 @@ class LdapSettingTest < ActiveSupport::TestCase
   include ActiveModel::Lint::Tests
 
   fixtures :auth_sources, :users, :settings, :custom_fields
+  fixtures :email_addresses if Redmine::VERSION::MAJOR >= 3
 
   def setup
     @auth_source = auth_sources(:auth_sources_001)

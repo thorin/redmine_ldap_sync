@@ -20,6 +20,7 @@ require 'rails/performance_test_help'
 
 class AuthSourceLdapPerformanceTest < ActionDispatch::PerformanceTest
   fixtures :auth_sources, :users, :groups_users, :settings, :custom_fields
+  fixtures :email_addresses if Redmine::VERSION::MAJOR >= 3
 
   setup do
     clear_ldap_cache!

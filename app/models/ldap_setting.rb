@@ -57,7 +57,7 @@ class LdapSetting
 
   before_validation :strip_names, :set_ldap_attrs, :set_fields_to_sync
 
-  delegate :base_dn, :account, :account_password, :filter, :ldap_filter, :to => :auth_source_ldap
+  delegate :base_dn, :account, :account_password, :filter, :to => :auth_source_ldap
 
   attribute_method_affix :prefix => 'has_', :suffix => '?'
   attribute_method_suffix '?', '='
@@ -182,6 +182,10 @@ class LdapSetting
 
   def test
     @ldap_test ||= LdapTest.new(self)
+  end
+
+  def ldap_filter
+    auth_source.send :ldap_filter
   end
 
   # Creates a new ldap setting for the given ldap authentication source

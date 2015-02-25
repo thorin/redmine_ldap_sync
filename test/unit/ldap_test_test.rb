@@ -21,6 +21,7 @@ class LdapTestTest < ActiveSupport::TestCase
   include ActiveModel::Lint::Tests
 
   fixtures :auth_sources, :users, :groups_users, :settings, :custom_fields
+  fixtures :email_addresses if Redmine::VERSION::MAJOR >= 3
 
   setup do
     Setting.clear_cache

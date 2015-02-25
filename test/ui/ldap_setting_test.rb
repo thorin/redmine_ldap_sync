@@ -23,6 +23,7 @@ SimpleCov.command_name 'UI Tests'
 
 class Redmine::UiTest::LdapSettingTest < Redmine::UiTest::Base
   fixtures :auth_sources, :users, :settings, :custom_fields
+  fixtures :email_addresses if Redmine::VERSION::MAJOR >= 3
 
   setup do
     log_user('admin', 'admin')

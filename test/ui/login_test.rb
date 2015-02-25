@@ -23,6 +23,7 @@ SimpleCov.command_name 'UI Tests'
 
 class Redmine::UiTest::LoginTest < Redmine::UiTest::Base
   fixtures :auth_sources, :users, :settings, :custom_fields, :roles, :projects, :members, :member_roles
+  fixtures :email_addresses if Redmine::VERSION::MAJOR >= 3
 
   setup do
     visit '/login'

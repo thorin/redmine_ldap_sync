@@ -60,6 +60,17 @@ module LdapSync::Infectors::User
 
     def sync_on_create!; @sync_on_create = true; end
     def sync_on_create?; @sync_on_create == true; end
+
+    # Compatibility with redmine 2.x
+    def email_is_taken
+      if respond_to?(:email_address)
+        # Redmine > 3.x
+        email_address.errors.added? :address, :taken
+      else
+        # Redmine < 3.x
+        errors.added? :mail, :taken
+      end
+    end
   end
 
   module ClassMethods

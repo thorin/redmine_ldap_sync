@@ -1,22 +1,4 @@
 ---
-rhill:
-  id: 2
-  created_on: 2006-07-19 19:34:07 +02:00
-  status: 1
-  last_login_on:
-  language: en
-  # password = foo
-  salt: 3126f764c3c5ac61cbfc103f25f934cf
-  hashed_password: 9e4dd7eeb172c12a0691a6d9d3a269f7e9fe671b
-  updated_on: 2006-07-19 19:34:07 +02:00
-  admin: false
-  mail: rhill@somenet.foo
-  lastname: Hill
-  firstname: Robert
-  auth_source_id:
-  mail_notification: all
-  login: rhill
-  type: User
 admin:
   id: 1
   created_on: 2006-07-19 19:12:21 +02:00
@@ -28,14 +10,37 @@ admin:
   hashed_password: b5b6ff9543bf1387374cdfa27a54c96d236a7150
   updated_on: 2006-07-19 22:57:52 +02:00
   admin: true
+  <% if Redmine::VERSION::MAJOR < 3 %>
   mail: admin@somenet.foo
+  <% end %>
   lastname: Admin
   firstname: redMine
   auth_source_id:
   mail_notification: all
   login: admin
   type: User
+rhill:
+  id: 2
+  created_on: 2006-07-19 19:34:07 +02:00
+  status: 1
+  last_login_on:
+  language: en
+  # password = foo
+  salt: 3126f764c3c5ac61cbfc103f25f934cf
+  hashed_password: 9e4dd7eeb172c12a0691a6d9d3a269f7e9fe671b
+  updated_on: 2006-07-19 19:34:07 +02:00
+  admin: false
+  <% if Redmine::VERSION::MAJOR < 3 %>
+  mail: rhill@somenet.foo
+  <% end %>
+  lastname: Hill
+  firstname: Robert
+  auth_source_id:
+  mail_notification: all
+  login: rhill
+  type: User
 users_002:
+  id: 3
   created_on: 2006-07-19 19:32:09 +02:00
   status: 1
   last_login_on: 2006-07-19 22:42:15 +02:00
@@ -45,7 +50,9 @@ users_002:
   hashed_password: bfbe06043353a677d0215b26a5800d128d5413bc
   updated_on: 2006-07-19 22:42:15 +02:00
   admin: false
+  <% if Redmine::VERSION::MAJOR < 3 %>
   mail: jsmith@somenet.foo
+  <% end %>
   lastname: Smith
   firstname: John
   auth_source_id:
@@ -53,6 +60,7 @@ users_002:
   login: jsmith
   type: User
 users_003:
+  id: 4
   created_on: 2006-07-19 19:33:19 +02:00
   status: 1
   last_login_on:
@@ -62,7 +70,9 @@ users_003:
   hashed_password: 8f659c8d7c072f189374edacfa90d6abbc26d8ed
   updated_on: 2006-07-19 19:33:19 +02:00
   admin: false
+  <% if Redmine::VERSION::MAJOR < 3 %>
   mail: dlopper@somenet.foo
+  <% end %>
   lastname: Lopper
   firstname: Dave
   auth_source_id:
@@ -70,6 +80,7 @@ users_003:
   login: dlopper
   type: User
 users_005:
+  id: 5
   created_on: 2006-07-19 19:33:19 +02:00
   # Locked
   status: 3
@@ -78,7 +89,9 @@ users_005:
   hashed_password: 1
   updated_on: 2006-07-19 19:33:19 +02:00
   admin: false
+  <% if Redmine::VERSION::MAJOR < 3 %>
   mail: dlopper2@somenet.foo
+  <% end %>
   lastname: Lopper2
   firstname: Dave2
   auth_source_id:
@@ -86,6 +99,7 @@ users_005:
   login: dlopper2
   type: User
 users_006:
+  id: 6
   created_on: 2006-07-19 19:33:19 +02:00
   status: 0
   last_login_on:
@@ -93,7 +107,9 @@ users_006:
   hashed_password: 1
   updated_on: 2006-07-19 19:33:19 +02:00
   admin: false
+  <% if Redmine::VERSION::MAJOR < 3 %>
   mail: ''
+  <% end %>
   lastname: Anonymous
   firstname: ''
   auth_source_id:
@@ -101,6 +117,7 @@ users_006:
   login: ''
   type: AnonymousUser
 someone:
+  id: 7
   created_on: 2006-07-19 19:33:19 +02:00
   status: 1
   last_login_on:
@@ -108,7 +125,9 @@ someone:
   hashed_password: 1
   updated_on: 2006-07-19 19:33:19 +02:00
   admin: false
+  <% if Redmine::VERSION::MAJOR < 3 %>
   mail: someone@foo.bar
+  <% end %>
   lastname: One
   firstname: Some
   auth_source_id: 1
@@ -126,7 +145,9 @@ loadgeek:
   hashed_password: 8f659c8d7c072f189374edacfa90d6abbc26d8ed
   updated_on: 2006-07-19 19:33:19 +02:00
   admin: false
+  <% if Redmine::VERSION::MAJOR < 3 %>
   mail: miscuser8@foo.bar
+  <% end %>
   lastname: Misc
   firstname: User
   auth_source_id: 1
@@ -134,6 +155,7 @@ loadgeek:
   login: loadgeek
   type: User
 users_009:
+  id: 9
   created_on: 2006-07-19 19:33:19 +02:00
   status: 1
   last_login_on:
@@ -141,7 +163,9 @@ users_009:
   hashed_password: 1
   updated_on: 2006-07-19 19:33:19 +02:00
   admin: false
+  <% if Redmine::VERSION::MAJOR < 3 %>
   mail: miscuser9@foo.bar
+  <% end %>
   lastname: Misc
   firstname: User
   auth_source_id:
