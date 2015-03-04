@@ -308,11 +308,11 @@ class LdapSettingTest < ActiveSupport::TestCase
     @ldap_setting.save
     @ldap_setting = LdapSetting.find_by_auth_source_ldap_id(@auth_source.id)
 
-    assert_equal @ldap_setting.user_field(:mail), 'mail'
-    assert_equal @ldap_setting.user_field(:givenname), 'firstname'
-    assert_equal @ldap_setting.user_field(:sn), 'lastname'
-    assert_equal @ldap_setting.user_field(:preferredlanguage), '1'
-    assert_equal @ldap_setting.user_field(:uidnumber), '2'
+    assert_equal 'mail', @ldap_setting.user_field(:mail)
+    assert_equal 'firstname', @ldap_setting.user_field(:givenname)
+    assert_equal 'lastname', @ldap_setting.user_field(:sn)
+    assert_equal '1', @ldap_setting.user_field(:preferredlanguage)
+    assert_equal '2', @ldap_setting.user_field(:uidnumber)
     assert_nil @ldap_setting.user_field(:missing)
   end
 
@@ -321,27 +321,27 @@ class LdapSettingTest < ActiveSupport::TestCase
     @ldap_setting.save
     @ldap_setting = LdapSetting.find_by_auth_source_ldap_id(@auth_source.id)
 
-    assert_equal @ldap_setting.group_field(:description), '3'
+    assert_equal '3', @ldap_setting.group_field(:description)
     assert_nil @ldap_setting.group_field(:missing)
   end
 
   def test_should_return_ldap_attribute_for_field
-    assert_equal @ldap_setting.ldap_attributes(:login, :firstname, :lastname, :mail, :groupname, :account_flags, :member_group),
-      %w( uid givenName sn mail cn description member )
+    assert_equal %w( uid givenName sn mail cn description member ),
+      @ldap_setting.ldap_attributes(:login, :firstname, :lastname, :mail, :groupname, :account_flags, :member_group)
 
-    assert_equal @ldap_setting.ldap_attributes(), []
+    assert_equal [], @ldap_setting.ldap_attributes()
 
-    assert_equal @ldap_setting.ldap_attributes(:member_group), ['member']
+    assert_equal ['member'], @ldap_setting.ldap_attributes(:member_group)
   end
 
   def test_should_return_user_ldap_attrs_to_sync
-    assert_equal Set.new(@ldap_setting.user_ldap_attrs_to_sync),
-      Set.new(%w( givenName sn mail preferredLanguage uidNumber ))
+    assert_equal Set.new(%w( givenName sn mail preferredLanguage uidNumber )),
+      Set.new(@ldap_setting.user_ldap_attrs_to_sync)
   end
 
   def test_should_return_group_ldap_attrs_to_sync
-    assert_equal @ldap_setting.group_ldap_attrs_to_sync,
-      %w( description )
+    assert_equal %w( description ),
+      @ldap_setting.group_ldap_attrs_to_sync
   end
 
   def test_groups_base_dn_should_not_be_required
