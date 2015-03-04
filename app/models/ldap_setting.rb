@@ -185,7 +185,7 @@ class LdapSetting
   end
 
   def ldap_filter
-    auth_source.send :ldap_filter
+    auth_source_ldap.send :ldap_filter
   end
 
   # Creates a new ldap setting for the given ldap authentication source
