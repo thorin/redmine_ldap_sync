@@ -2,13 +2,13 @@ module LdapSync
   module VERSION #:nodoc:
     MAJOR = 2
     MINOR = 0
-    TINY  = 4
+    TINY  = 5
 
     # Branch values:
     # * official release: nil
     # * stable branch:    stable
     # * trunk:            devel
-    BRANCH = nil
+    BRANCH = 'devel'
 
     # Retrieves the revision from the working copy
     def self.revision
