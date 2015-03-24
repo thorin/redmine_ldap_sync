@@ -189,6 +189,7 @@ sn: Stemm
 userPassword: {SSHA}Si9/UcgqKWBlN/+SQb+X1IHZnokzaicm
 loginShell: /bin/sh
 o: 4001
+o: 4016
 
 dn: cn=Smuaddan,ou=Group,dc=redmine,dc=org
 objectClass: groupOfNames
@@ -361,6 +362,17 @@ cn: IT отдел Системные
 description: Issue #93
 member: uid=LoadGeek,ou=Person,dc=redmine,dc=org
 member: uid=microunit,ou=Person,dc=redmine,dc=org
+
+dn: cn=Příliš žluťoučký kůň úpěl ďábelské ódy,ou=Group,dc=redmine,dc=org
+objectClass: groupOfNames
+objectClass: posixAccount
+homeDirectory: /nonexistent
+gidNumber: 4016
+uidNumber: 4016
+uid: Příliš žluťoučký kůň úpěl ďábelské ódy
+cn: Příliš žluťoučký kůň úpěl ďábelské ódy
+description: Issue #149
+member: uid=rubycalm,ou=Person,dc=redmine,dc=org
 
 dn: cn=MicroUsers,ou=Group,dc=redmine,dc=org
 objectclass: groupOfURLs

@@ -148,11 +148,7 @@ module LdapSync::Infectors::AuthSourceLdap
 
         changes = groups_changes(user)
         added = changes[:added].map {|g| find_or_create_group(g).first }.compact
-
-        # Fix : if already member of group (this should not be necessary)
-        if added.present?
-          user.groups << added.reject {|g| user.groups.include?(g) }
-        end
+        user.groups << added unless added.empty?
 
         deleted_groups = changes[:deleted].map {|g| g.mb_chars.downcase }
         deleted = deleted_groups.any? ? ::Group.where("LOWER(lastname) in (?)", deleted_groups).all : []
@@ -244,7 +240,7 @@ module LdapSync::Infectors::AuthSourceLdap
       end
 
       def find_local_user(username)
-        user = ::User.where("LOWER(#{User.table_name}.login) = ?", username.mb_chars.downcase).includes(:groups).first
+        user = ::User.where("LOWER(#{User.table_name}.login) = ?", username.mb_chars.downcase).first
         if user.present? && user.auth_source_id != self.id
           trace "-- Skipping user '#{user.login}': it already exists on a different auth_source"
           return nil, true

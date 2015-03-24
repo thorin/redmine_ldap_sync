@@ -55,3 +55,10 @@ email_address_009:
   is_default: true
   created_on: 2006-07-19 19:34:07 +02:00
   updated_on: 2006-07-19 19:34:07 +02:00
+email_address_010:
+  id: 10
+  user_id: 12
+  address: rubycalm@fakemail.com
+  is_default: true
+  created_on: 2006-07-19 19:34:07 +02:00
+  updated_on: 2006-07-19 19:34:07 +02:00

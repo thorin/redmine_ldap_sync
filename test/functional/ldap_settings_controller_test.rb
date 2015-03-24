@@ -62,7 +62,7 @@ class LdapSettingsControllerTest < ActionController::TestCase
   def test_should_disable_ldap_setting
     # Given that
     assert @ldap_setting.active?, "LdapSetting must be enabled"
-    assert_equal @ldap_setting.member_group, 'member'
+    assert_equal 'member', @ldap_setting.member_group
 
     # When we do
     get :disable, :id => @ldap_setting.id
@@ -71,7 +71,7 @@ class LdapSettingsControllerTest < ActionController::TestCase
 
     # We should have
     ldap_setting = LdapSetting.find_by_auth_source_ldap_id(@ldap_setting.id)
-    assert_equal 'member', ldap_setting.member_group, "LdapSetting is not the same"
+    assert_equal 'member', ldap_setting.member_group, 'LdapSetting is not the same'
     assert !ldap_setting.active?, "LdapSetting must be disabled"
   end
 
@@ -87,7 +87,7 @@ class LdapSettingsControllerTest < ActionController::TestCase
 
     # We should have
     ldap_setting = LdapSetting.find_by_auth_source_ldap_id(2)
-    assert_equal nil, ldap_setting.member_group, "LdapSetting is not the same"
+    assert_equal nil, ldap_setting.member_group, 'LdapSetting is not the same'
     assert !ldap_setting.active?, "LdapSetting must be disabled"
   end
 
@@ -96,7 +96,7 @@ class LdapSettingsControllerTest < ActionController::TestCase
     @ldap_setting.active = false; @ldap_setting.save
     @ldap_setting = LdapSetting.find_by_auth_source_ldap_id(@ldap_setting.id)
     assert !@ldap_setting.active?, "LdapSetting must be disabled"
-    assert_equal @ldap_setting.member_group, 'member'
+    assert_equal 'member', @ldap_setting.member_group
 
     # When we do
     get :enable, :id => @ldap_setting.id
@@ -105,7 +105,7 @@ class LdapSettingsControllerTest < ActionController::TestCase
 
     # We should have
     ldap_setting = LdapSetting.find_by_auth_source_ldap_id(@ldap_setting.id)
-    assert_equal ldap_setting.member_group, 'member', "LdapSetting is not the same"
+    assert_equal 'member', ldap_setting.member_group, 'LdapSetting is not the same'
     assert ldap_setting.active?, "LdapSetting must be enabled"
   end
 
@@ -116,8 +116,8 @@ class LdapSettingsControllerTest < ActionController::TestCase
     @ldap_setting.send(:settings=, @ldap_setting.send(:attributes))
 
     @ldap_setting = LdapSetting.find_by_auth_source_ldap_id(@ldap_setting.id)
-    assert !@ldap_setting.active?, "LdapSetting must be disabled"
-    assert_equal @ldap_setting.member_group, 'member'
+    assert !@ldap_setting.active?, 'LdapSetting must be disabled'
+    assert_equal 'member', @ldap_setting.member_group
 
     # When we do
     get :enable, :id => @ldap_setting.id
@@ -126,7 +126,7 @@ class LdapSettingsControllerTest < ActionController::TestCase
 
     # We should have
     ldap_setting = LdapSetting.find_by_auth_source_ldap_id(@ldap_setting.id)
-    assert_equal ldap_setting.member_group, 'member', "LdapSetting is not the same"
+    assert_equal 'member', ldap_setting.member_group, 'LdapSetting is not the same'
     assert !ldap_setting.active?, "LdapSetting must be disabled"
   end
 
@@ -145,7 +145,7 @@ class LdapSettingsControllerTest < ActionController::TestCase
       :sync_on_login => '',
       :dyngroups => ''
     }
-    assert assigns(:ldap_setting).errors.added?(:class_user, :blank), "An error must be reported for :class_user"
+    assert assigns(:ldap_setting).errors.added?(:class_user, :blank), 'An error must be reported for :class_user'
     assert_response :success
   end
 
@@ -205,7 +205,7 @@ class LdapSettingsControllerTest < ActionController::TestCase
     assert_match /LDAP attributes on a user:/,  response.body
     assert_match /LDAP attributes on a group:/, response.body
 
-    assert_no_match /ldap_test\.rb/, response.body, "Should not throw an error"
+    assert_no_match /ldap_test\.rb/, response.body, 'Should not throw an error'
   end
 
   def test_should_validate_on_test
@@ -220,6 +220,6 @@ class LdapSettingsControllerTest < ActionController::TestCase
 
     assert_match /Validation errors .* Dynamic groups/m,   response.body
 
-    assert_no_match /ldap_test\.rb/, response.body, "Should not throw an error"
+    assert_no_match /ldap_test\.rb/, response.body, 'Should not throw an error'
   end
 end

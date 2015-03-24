@@ -115,7 +115,7 @@ module LdapSync::EntityManager
       return unless setting.active?
       changes = { :added => SortedSet.new, :deleted => SortedSet.new }
 
-      user_groups = user.groups.map {|g| g.lastname.downcase }
+      user_groups = user.groups.map {|g| g.name.downcase }
       groupname_regexp = setting.groupname_regexp
 
       with_ldap_connection do |ldap|

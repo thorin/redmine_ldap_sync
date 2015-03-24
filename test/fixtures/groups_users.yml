@@ -5,6 +5,12 @@ rynever_loadgeek:
 rynever_someone:
   group_id: 11
   user_id: 7
+rynever_rubycalm:
+  group_id: 11
+  user_id: 12
 therb_someone:
   group_id: 10
   user_id: 7
+issue_149_someone:
+  group_id: 13
+  user_id: 12

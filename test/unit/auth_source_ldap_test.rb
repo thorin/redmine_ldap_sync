@@ -37,7 +37,7 @@ class AuthSourceLdapTest < ActiveSupport::TestCase
     @auth_source.sync_groups
 
     assert_equal group_count + 11, Group.count, "Group.count"
-    assert_equal custom_value_count + 13, CustomValue.count, "CustomValue.count"
+    assert_equal custom_value_count + 14, CustomValue.count, "CustomValue.count"
 
     group = Group.find_by_lastname('therß')
     assert_equal 'Therß Team Group', group.custom_field_values[0].value
@@ -117,7 +117,7 @@ class AuthSourceLdapTest < ActiveSupport::TestCase
 
     @auth_source.sync_users
 
-    assert_equal user_count + 6, User.count, "User.count"
+    assert_equal user_count + 5, User.count, "User.count"
     assert_equal group_count + 10, Group.count, "Group.count"
     assert_equal custom_value_count + 26, CustomValue.count, "CustomValue.count"
   end
@@ -139,7 +139,7 @@ class AuthSourceLdapTest < ActiveSupport::TestCase
 
     @auth_source.sync_users
 
-    assert_equal user_count + 6, User.count, "User.count"
+    assert_equal user_count + 5, User.count, "User.count"
     assert_equal group_count + 10, Group.count, "Group.count"
   end
 
