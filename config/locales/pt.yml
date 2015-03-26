@@ -43,6 +43,7 @@ pt:
   field_groups_base_dn: "Base DN dos grupos"
   field_group_membership: "Relação grupo-membro"
   field_class_user: "Objectclass de utilizadores"
+  field_users_search_scope: "Âmbito da pesquisa de utilizadores"
   field_class_group: "Objectclass de grupos"
   field_account_disabled_test: "Teste de conta desactivada"
 
@@ -72,6 +73,9 @@ pt:
 
   field_test_users: "Utilizadores"
   field_test_groups: "Grupos"
+
+  option_users_search_subtree: "Toda a subarvore"
+  option_users_search_onelevel: "Um nível"
 
   option_group_membership_on_groups: "No grupo"
   option_group_membership_on_members: "No utilizador"

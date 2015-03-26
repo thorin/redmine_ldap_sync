@@ -7,6 +7,7 @@ redmine_ldap_setting:
       active: true
       groups_base_dn: OU=Group,DC=redmine,DC=org
       class_user: posixAccount
+      users_search_scope: subtree
       class_group: groupOfNames
       groupname_pattern: ''
       group_search_filter: ''

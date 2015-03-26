@@ -43,6 +43,7 @@ es:
   field_groups_base_dn: "Base DN de grupos"
   field_group_membership: "Pertenencia al grupo"
   field_class_user: "Objectclass de usuarios"
+  field_users_search_scope: "Ámbito de búsqueda de usuarios"
   field_class_group: "Objectclass de grupos"
   field_account_disabled_test: "Prueba de cuenta inhabilitada"
 
@@ -72,6 +73,9 @@ es:
 
   field_test_users: "Usuarios"
   field_test_groups: "Grupos"
+
+  option_users_search_subtree: "Toda subárbol"
+  option_users_search_onelevel: "Un nivel"
 
   option_group_membership_on_groups: "En la clase grupo"
   option_group_membership_on_members: "En la clase usuario"

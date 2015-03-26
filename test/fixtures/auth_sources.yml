@@ -5,7 +5,7 @@ auth_sources_001:
   name: 'LDAP test server'
   host: '127.0.0.1'
   port: 3389
-  base_dn: 'OU=Person,DC=redmine,DC=org'
+  base_dn: 'DC=redmine,DC=org'
   account: 'cn=admin,dc=redmine,dc=org'
   account_password: password
   attr_login: uid

@@ -93,6 +93,9 @@ configuration:
   `ou=people,dc=smokeyjoe,dc=com`.
 + **Groups objectclass** - The groups object class.
 + **Users objectclass** - The users object class.
++ **Users search scope** - One level or whole subtree.
+  - **One level**: searches one level below the user base DN, i.e. all its immediate children only.
+  - **Whole subtree**: searches the whole subtree rooted at user base DN.
 + **Group name pattern** - (optional) An RegExp that should match up with the
   name of the groups that should be imported. Eg, `\.team$`.
 + **Group search filter** - (optional) An LDAP search filter to be applied

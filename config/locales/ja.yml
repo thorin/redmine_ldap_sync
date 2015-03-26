@@ -43,6 +43,7 @@ ja:
   field_groups_base_dn: "グループベースDN" # "Groups base DN"
   field_group_membership: "グループ メンバーシップ" # "Group membership"
   field_class_user: "ユーザー オブジェクトクラス" # "Users objectclass"
+  field_users_search_scope: "Users search scope"
   field_class_group: "グループ オブジェクトクラス" # "Groups objectclass"
   field_account_disabled_test: "無効アカウントの判別方法" # "Account disabled test"
 
@@ -72,6 +73,9 @@ ja:
 
   field_test_users: "ユーザー" # "Users"
   field_test_groups: "グループ" # "Groups"
+
+  option_users_search_subtree: "Whole subtree"
+  option_users_search_onelevel: "One level"
 
   option_group_membership_on_groups: "グループ情報中" # "On the group class"
   option_group_membership_on_members: "ユーザー情報中" # "On the user class"

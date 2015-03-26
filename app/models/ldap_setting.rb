@@ -29,7 +29,7 @@ class LdapSetting
   LDAP_ATTRIBUTES = %w( groupname member user_memberid user_groups groupid parent_group primary_group group_parentid member_group group_memberid account_flags )
   CLASS_NAMES = %w( class_user class_group )
   FLAGS = %w( create_groups create_users active )
-  COMBOS = %w( group_membership nested_groups sync_on_login dyngroups )
+  COMBOS = %w( group_membership nested_groups sync_on_login dyngroups users_search_scope )
   OTHERS = %w( account_disabled_test user_fields_to_sync group_fields_to_sync user_ldap_attrs group_ldap_attrs fixed_group admin_group required_group group_search_filter groupname_pattern groups_base_dn dyngroups_cache_ttl )
 
   validates_presence_of :auth_source_ldap_id
@@ -44,6 +44,7 @@ class LdapSetting
   validates_inclusion_of :group_membership, :in => ['on_groups', 'on_members']
   validates_inclusion_of :sync_on_login, :in => ['user_fields', 'user_fields_and_groups', '']
   validates_inclusion_of :dyngroups, :in => ['enabled', 'enabled_with_ttl', '']
+  validates_inclusion_of :users_search_scope, :in => ['onelevel', 'subtree']
 
   validates_format_of *(LDAP_ATTRIBUTES + [{ :with => /\A[a-z][a-z0-9-]*\z/i, :allow_blank => true }])
 
@@ -186,6 +187,10 @@ class LdapSetting
 
   def ldap_filter
     auth_source_ldap.send :ldap_filter
+  end
+
+  def users_search_onelevel?
+    users_search_scope == 'onelevel'
   end
 
   # Creates a new ldap setting for the given ldap authentication source

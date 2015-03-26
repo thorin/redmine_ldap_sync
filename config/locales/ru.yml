@@ -43,6 +43,7 @@ ru:
   field_groups_base_dn: "Базовый DN для групп"
   field_group_membership: "Членство в группах"
   field_class_user: "objectclass пользователей"
+  field_users_search_scope: "Users search scope"
   field_class_group: "objectclass групп"
   field_account_disabled_test: "Проверка заблокированности учетной записи"
 
@@ -73,6 +74,9 @@ ru:
 
   field_test_users: "Пользователи"
   field_test_groups: "Группы"
+
+  option_users_search_subtree: "Whole subtree"
+  option_users_search_onelevel: "One level"
 
   option_group_membership_on_groups: "Список пользователей содержится в группе "
   option_group_membership_on_members: "Список групп содержится в пользователе"

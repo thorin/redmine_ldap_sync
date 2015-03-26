@@ -287,7 +287,7 @@ module LdapSync::EntityManager
 
       ldap_search(ldap, {:base => setting.base_dn,
                    :filter => user_filter,
-                   :scope => Net::LDAP::SearchScope_SingleLevel,
+                   :scope => (Net::LDAP::SearchScope_SingleLevel if setting.users_search_onelevel?),
                    :attributes => attrs,
                    :return_result => block_given? ? false : true},
                   &block)

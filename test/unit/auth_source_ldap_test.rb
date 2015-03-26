@@ -46,7 +46,7 @@ class AuthSourceLdapTest < ActiveSupport::TestCase
   test "#sync_groups should not sync groups without fields_to_sync and create_groups" do
     @ldap_setting.group_fields_to_sync = []
     @ldap_setting.create_groups = false
-    assert @ldap_setting.save
+    assert @ldap_setting.save,  @ldap_setting.errors.full_messages.join(', ')
 
     assert_no_difference ['Group.count', 'CustomValue.count'] do
       @auth_source.sync_groups
@@ -64,7 +64,7 @@ class AuthSourceLdapTest < ActiveSupport::TestCase
 
   test "#sync_groups should not sync groups with connect as user" do
     @auth_source.account = 'uid=$login,ou=Person,dc=redmine,dc=org'
-    assert @auth_source.save, @ldap_setting.errors.full_messages.join(', ')
+    assert @auth_source.save, @auth_source.errors.full_messages.join(', ')
 
     assert_no_difference ['Group.count', 'CustomValue.count'] do
       @auth_source.sync_groups
@@ -90,8 +90,8 @@ class AuthSourceLdapTest < ActiveSupport::TestCase
 
     @auth_source.sync_groups
 
-    assert @auth_source.send(:dyngroups_fresh?)
-    assert @auth_source.send(:dyngroups_cache).fetch('uid=microunit')
+    assert @auth_source.send(:dyngroups_fresh?), 'Cache is fresh'
+    assert @auth_source.send(:dyngroups_cache).fetch('uid=microunit,ou=Person'), 'Find microunit cached groups'
   end
 
   test "#sync_groups should dynamic groups cache should expire" do
@@ -422,6 +422,17 @@ class AuthSourceLdapTest < ActiveSupport::TestCase
 
     user = User.find_by_login('tweetsave')
     assert_include 'Smuaddan', user.groups.map(&:lastname)
+  end
+
+  test "#sync_users should not find any users with one level scope user search" do
+    @ldap_setting.users_search_scope = 'onelevel'
+    assert @ldap_setting.save, @ldap_setting.errors.full_messages.join(', ')
+
+    user_count = User.count
+
+    @auth_source.sync_users
+
+    assert_equal user_count, User.count, "User.count"
   end
 
   test "#sync_user should not sync fields with no attrs to sync" do

@@ -5,7 +5,8 @@
     <%=  select_tag :base_settings, options_for_base_settings %></p>
   <p><%= f.text_field :groups_base_dn, :size => 50 %></p>
   <p><%= f.text_field :class_user, :required => true, :size => 15 %></p>
-  <p><%= f.text_field :class_group, :required => true, :size => 50 %></p>
+  <p><%= f.select :users_search_scope, options_for_users_search_scope %></p>
+  <p><%= f.text_field :class_group, :required => true, :size => 15 %></p>
   <p><%= f.text_field :groupname_pattern, :size => 50 %></p>
   <p><%= f.text_field :group_search_filter, :size => 50  %></p>
 

@@ -43,6 +43,7 @@ en:
   field_groups_base_dn: "Groups base DN"
   field_group_membership: "Group membership"
   field_class_user: "Users objectclass"
+  field_users_search_scope: "Users search scope"
   field_class_group: "Groups objectclass"
   field_account_disabled_test: "Account disabled test"
 
@@ -72,6 +73,9 @@ en:
 
   field_test_users: "Users"
   field_test_groups: "Groups"
+
+  option_users_search_subtree: "Whole subtree"
+  option_users_search_onelevel: "One level"
 
   option_group_membership_on_groups: "On the group class"
   option_group_membership_on_members: "On the user class"

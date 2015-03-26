@@ -39,6 +39,7 @@ class LdapSettingTest < ActiveSupport::TestCase
       'groupname' => 'cn',
       'groups_base_dn' => 'groups_base_dn',
       'class_group' => 'group',
+      'users_search_scope' => 'subtree',
       'class_user' => 'user',
       'group_membership' => 'on_members',
       'groupid' => 'groupid',

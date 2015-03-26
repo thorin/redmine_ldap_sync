@@ -43,6 +43,7 @@ de:
   field_groups_base_dn: "Gruppen DN"
   field_group_membership: "Group membership"
   field_class_user: "Benutzerobjektklasse"
+  field_users_search_scope: "Users search scope"
   field_class_group: "Gruppenobjektklasse"
   field_account_disabled_test: "Account Deaktivierungsbedingung"
 
@@ -72,6 +73,9 @@ de:
 
   field_test_users: "Benutzer"
   field_test_groups: "Gruppen"
+
+  option_users_search_subtree: "Whole subtree"
+  option_users_search_onelevel: "One level"
 
   option_group_membership_on_groups: "On the group class"
   option_group_membership_on_members: "On the user class"

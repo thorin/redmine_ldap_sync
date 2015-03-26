@@ -67,6 +67,13 @@ module LdapSettingsHelper
     ]
   end
 
+  def options_for_users_search_scope
+    [
+      [l(:option_users_search_subtree), :subtree],
+      [l(:option_users_search_onelevel), :onelevel]
+    ]
+  end
+
   def group_fields
     has_group_ldap_attrs = @ldap_setting.has_group_ldap_attrs?
 
