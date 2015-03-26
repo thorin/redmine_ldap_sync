@@ -1,4 +1,4 @@
-Redmine LDAP Sync [![Build Status](https://travis-ci.org/thorin/redmine_ldap_sync.png)](https://travis-ci.org/thorin/redmine_ldap_sync) [![Coverage Status](https://coveralls.io/repos/thorin/redmine_ldap_sync/badge.png?branch=master)](https://coveralls.io/r/thorin/redmine_ldap_sync?branch=master) [![Code Climate](https://codeclimate.com/github/thorin/redmine_ldap_sync.png)](https://codeclimate.com/github/thorin/redmine_ldap_sync)
+Redmine LDAP Sync [![Build Status](https://travis-ci.org/thorin/redmine_ldap_sync.svg?branch=master)](https://travis-ci.org/thorin/redmine_ldap_sync) [![Coverage Status](https://coveralls.io/repos/thorin/redmine_ldap_sync/badge.svg?branch=master)](https://coveralls.io/r/thorin/redmine_ldap_sync?branch=master) [![Code Climate](https://codeclimate.com/github/thorin/redmine_ldap_sync/badges/gpa.svg)](https://codeclimate.com/github/thorin/redmine_ldap_sync)
 =================
 
 This redmine plugin extends the ldap authentication with user/group
