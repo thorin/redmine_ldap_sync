@@ -869,10 +869,10 @@ class AuthSourceLdapTest < ActiveSupport::TestCase
     @auth_source.save!
 
     users = @auth_source.send(:ldap_users)
-    assert users[:enabled].all? {|u| /^e.*$/i =~ u[0] },
+    assert users[:enabled].all? {|u| /^e.*$/i =~ u },
       "enabled_users = #{users[:enabled]}"
 
-    assert users[:disabled].none? {|u| /^e.*$/i =~ u[0] },
+    assert users[:disabled].none? {|u| /^e.*$/i =~ u },
       "disabled_users = #{users[:disabled]}"
   end
 end
