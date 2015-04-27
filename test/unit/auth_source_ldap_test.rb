@@ -308,7 +308,7 @@ class AuthSourceLdapTest < ActiveSupport::TestCase
 
   test "#sync_users should not activate locked users if activate_users flag is set" do
     @ldap_setting.fixed_group = nil
-    @ldap_setting.account_flags = 'uid'
+    @ldap_setting.account_flags = 'description'
     @ldap_setting.account_disabled_test = 'true'
     assert @ldap_setting.save, @ldap_setting.errors.full_messages.join(', ')
 
@@ -624,7 +624,7 @@ class AuthSourceLdapTest < ActiveSupport::TestCase
 
   test "#sync_user should synchronize groups of users locked on ldap" do
     @user = users(:loadgeek)
-    @ldap_setting.account_flags = 'uid'
+    @ldap_setting.account_flags = 'description'
     @ldap_setting.account_disabled_test = 'true'
     assert @ldap_setting.save, @ldap_setting.errors.full_messages.join(', ')
 
