@@ -45,6 +45,27 @@ class LdapSettingsHelperTest < ActionView::TestCase
     assert_equal ['', '', 'givenName', 'mail', 'sn'], user_fields.map(&:ldap_attribute).sort
   end
 
+  def test_users_fields_list
+    fields = [
+      ["3", "Test Group"]
+    ]
+
+    assert_equal "    Description = Test Group\n", group_fields_list(fields)
+  end
+
+  def test_groups_fields_list
+    fields = [
+      ["1", "de"],
+      ["2", "67123"]
+    ]
+    group_changes = {:added => ["group1", "group2"]}
+
+    assert_equal "    Preferred Language = de\n" +
+      "    Uid Number = 67123\n" +
+      "    Groups = [\"group1\", \"group2\"]\n",
+      user_fields_list(fields, group_changes)
+  end
+
   def test_options_for_base_settings
     assert_not_equal 0, options_for_base_settings.size
   end
@@ -55,5 +76,13 @@ class LdapSettingsHelperTest < ActionView::TestCase
 
   def test_group_field_name
     assert_equal 'Description', group_field_name("3")
+  end
+
+  def test_change_status_link
+    @ldap_setting.active = true
+    assert_match /Disable/, change_status_link(@ldap_setting)
+
+    @ldap_setting.active = false
+    assert_match /Enable/, change_status_link(@ldap_setting)
   end
 end

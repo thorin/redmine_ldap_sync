@@ -107,6 +107,19 @@ class AuthSourceLdapTest < ActiveSupport::TestCase
     assert !@auth_source.send(:dyngroups_fresh?)
   end
 
+  test "#create_and_sync_group should fill in mandatory fields with the default value if their not present" do
+    cf = GroupCustomField.create!(
+        :name => 'email', :field_format => 'string',
+        :is_required => true, :default_value => 'no email'
+    )
+    @ldap_setting.group_fields_to_sync << cf.id.to_s
+    @ldap_setting.group_ldap_attrs[cf.id.to_s] = 'email'
+    assert @ldap_setting.save, @ldap_setting.errors.full_messages.join(', ')
+
+    @auth_source.send(:create_and_sync_group, {:cn => ['Smuaddan']}, :cn)
+    assert_equal 'no email', Group.find_by_lastname('Smuaddan').custom_field_value(cf)
+  end
+
   test "#sync_users should create users and groups" do
     @ldap_setting.fixed_group = nil
     assert @ldap_setting.save, @ldap_setting.errors.full_messages.join(', ')
@@ -442,11 +455,11 @@ class AuthSourceLdapTest < ActiveSupport::TestCase
 
     @auth_source.sync_user(@user)
     @user.reload
-    assert_equal @user.mail, 'miscuser8@foo.bar'
-    assert_equal @user.firstname, 'User'
-    assert_equal @user.lastname, 'Misc'
-    assert_equal @user.custom_field_values[0].value, nil
-    assert_equal @user.custom_field_values[1].value, nil
+    assert_equal 'miscuser8@foo.bar', @user.mail
+    assert_equal 'User', @user.firstname
+    assert_equal 'Misc', @user.lastname
+    assert_equal nil, @user.custom_field_values[0].value
+    assert_equal nil, @user.custom_field_values[1].value
   end
 
   test "#sync_user should delete groups" do
@@ -849,5 +862,17 @@ class AuthSourceLdapTest < ActiveSupport::TestCase
         assert_operator a, :<=, b
       end
     end
+  end
+
+  test "#ldap_users should filter the users if the filter is enabled" do
+    @auth_source.filter = '(uid=e*)'
+    @auth_source.save!
+
+    users = @auth_source.send(:ldap_users)
+    assert users[:enabled].all? {|u| /^e.*$/i =~ u[0] },
+      "enabled_users = #{users[:enabled]}"
+
+    assert users[:disabled].none? {|u| /^e.*$/i =~ u[0] },
+      "disabled_users = #{users[:disabled]}"
   end
 end

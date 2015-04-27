@@ -78,10 +78,10 @@ class LdapSettingsControllerTest < ActionController::TestCase
   def test_should_disable_an_invalid_ldap_setting
     # Given that
     ldap_setting = LdapSetting.find_by_auth_source_ldap_id(2)
-    assert @ldap_setting.active?
+    assert ldap_setting.active?
 
     # When we do
-    get :disable, :id => 2
+    get :disable, :id => ldap_setting.id
     assert_redirected_to ldap_settings_path
     assert_match /success/, flash[:notice]
 
@@ -94,17 +94,17 @@ class LdapSettingsControllerTest < ActionController::TestCase
   def test_should_enable_ldap_setting
     # Given that
     @ldap_setting.active = false; @ldap_setting.save
-    @ldap_setting = LdapSetting.find_by_auth_source_ldap_id(@ldap_setting.id)
-    assert !@ldap_setting.active?, "LdapSetting must be disabled"
-    assert_equal 'member', @ldap_setting.member_group
+    ldap_setting = LdapSetting.find_by_auth_source_ldap_id(@ldap_setting.id)
+    assert !ldap_setting.active?, "LdapSetting must be disabled"
+    assert_equal 'member', ldap_setting.member_group
 
     # When we do
-    get :enable, :id => @ldap_setting.id
+    get :enable, :id => ldap_setting.id
     assert_redirected_to ldap_settings_path
     assert_match /success/, flash[:notice]
 
     # We should have
-    ldap_setting = LdapSetting.find_by_auth_source_ldap_id(@ldap_setting.id)
+    ldap_setting = LdapSetting.find_by_auth_source_ldap_id(ldap_setting.id)
     assert_equal 'member', ldap_setting.member_group, 'LdapSetting is not the same'
     assert ldap_setting.active?, "LdapSetting must be enabled"
   end

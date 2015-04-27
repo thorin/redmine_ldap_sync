@@ -59,7 +59,7 @@ class Redmine::UiTest::LoginTest < Redmine::UiTest::Base
     fill_in 'First name', :with => 'Incomplete'
     fill_in 'Last name', :with => 'User'
     fill_in 'Email', :with => 'incomplete@fakemail.com'
-    select 'Deutsch', :from => 'Language'
+    select 'Nederlands', :from => 'Language'
 
     click_on 'Submit'
 

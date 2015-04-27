@@ -307,10 +307,6 @@ class LdapSetting
     end
 
     def validate_ldap_attrs(ldap_attrs, fields)
-      if ldap_attrs.nil?
-        errors.add :user_group_fields, :invalid; return
-      end
-
       field_ids = fields.map {|f| f.id.to_s }
       ldap_attrs.each do |k, v|
         if !field_ids.include?(k)
@@ -324,10 +320,6 @@ class LdapSetting
     end
 
     def validate_fields(fields_to_sync, fields, attrs)
-      if fields_to_sync.nil?
-        errors.add :user_group_fields, :invalid; return
-      end
-
       fields_ids = fields.map {|f| f.is_a?(String) ? f : f.id.to_s }
       if (fields_to_sync - fields_ids).present?
         errors.add :user_group_fields, :invalid unless errors.added? :user_group_fields, :invalid

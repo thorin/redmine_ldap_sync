@@ -6,7 +6,7 @@ redmine_ldap_setting:
     1: !ruby/hash:ActiveSupport::HashWithIndifferentAccess
       active: true
       groups_base_dn: OU=Group,DC=redmine,DC=org
-      class_user: posixAccount
+      class_user: person
       users_search_scope: subtree
       class_group: groupOfNames
       groupname_pattern: ''

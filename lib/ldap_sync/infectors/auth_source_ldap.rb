@@ -92,18 +92,21 @@ module LdapSync::Infectors::AuthSourceLdap
           :level => is_new_user ? :change : :debug,
           :obj => user.login
 
-        user_data, flags = if options[:try_to_login] && setting.has_account_flags? && setting.sync_fields_on_login?
+        sync_groups = !options[:try_to_login] || setting.sync_groups_on_login?
+        sync_fields = !is_new_user && (!options[:try_to_login] || setting.sync_fields_on_login?)
+
+        user_data, flags = if options[:try_to_login] && setting.has_account_flags? && sync_fields
           user_data = find_user(ldap, user.login, setting.user_ldap_attrs_to_sync + ns(:account_flags))
           [user_data, user_data.present? ? user_data[n(:account_flags)].first : :deleted]
         end
 
-        sync_user_groups(user) unless options[:try_to_login] && !setting.sync_groups_on_login?
+        sync_user_groups(user) if sync_groups
         sync_user_status(user, flags, options[:disabled] || false)
 
         return if user.locked?
 
         sync_admin_privilege(user)
-        sync_user_fields(user, user_data) unless is_new_user || (options[:try_to_login] && !setting.sync_fields_on_login?)
+        sync_user_fields(user, user_data) if sync_fields
       end
     end
 
@@ -151,7 +154,7 @@ module LdapSync::Infectors::AuthSourceLdap
         user.groups << added unless added.empty?
 
         deleted_groups = changes[:deleted].map {|g| g.mb_chars.downcase }
-        deleted = deleted_groups.any? ? ::Group.where("LOWER(lastname) in (?)", deleted_groups).all : []
+        deleted = deleted_groups.any? ? ::Group.where("LOWER(lastname) in (?)", deleted_groups).to_a : []
         user.groups.delete(*deleted) unless deleted.empty?
 
         trace_groups_changes_summary(user, changes, added, deleted)
