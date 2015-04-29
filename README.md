@@ -9,11 +9,10 @@ __Features__:
  * Synchronization of user fields and groups on login.
  * Detects and disables users that have been removed from LDAP.
  * Detects and disables users that have been marked as disabled on Active
-   Directory (see [MS KB Article 305144][uacf] for more details).
+   Directory (see [MS KB Article 305144][uacf] for details).
  * Can detect and include nested groups. Upon login the nested groups are
-   retrieve from disk cache. This cache will only be updated by running the
-   rake task.
- * Rake task available for manual or periodic synchronization of groups and
+   retrieved from disk cache. This cache can only be updated with the rake task.
+ * A rake task is available for manual or periodic synchronization of groups and
    users.
 
 __Remarks__:
