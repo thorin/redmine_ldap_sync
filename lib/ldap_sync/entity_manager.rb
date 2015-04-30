@@ -18,15 +18,24 @@
 module LdapSync::EntityManager
 
   private
-    def get_user_fields(username, user_data = nil)
+    def get_user_fields(username, user_data = nil, options)
+      if options.try(:fetch, :include_required)
+        custom_fields = user_required_custom_fields.map {|cf| cf.id.to_s }
+        fields_to_sync = User::STANDARD_FIELDS + custom_fields
+        ldap_attrs_to_sync = setting.user_ldap_attrs_to_sync(fields_to_sync)
+      else
+        ldap_attrs_to_sync = setting.user_ldap_attrs_to_sync
+        fields_to_sync = setting.user_fields_to_sync
+      end
+
       user_data ||= with_ldap_connection do |ldap|
-        find_user(ldap, username, setting.user_ldap_attrs_to_sync)
+        find_user(ldap, username, ldap_attrs_to_sync)
       end
       return {} if user_data.nil?
 
       user_fields = user_data.inject({}) do |fields, (attr, value)|
         f = setting.user_field(attr)
-        if f && (User::STANDARD_FIELDS.include?(f) || setting.user_fields_to_sync.include?(f))
+        if f && fields_to_sync.include?(f)
           fields[f] = value.first unless value.nil? || value.first.blank?
         end
         fields

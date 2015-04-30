@@ -1,5 +1,5 @@
 ---
-custom_fields_001:
+preferred_language:
   name: Preferred Language
   min_length: 0
   regexp: ""
@@ -13,7 +13,7 @@ custom_fields_001:
   default_value: "en"
   editable: true
   position: 1
-custom_fields_002:
+uid_number:
   name: Uid Number
   min_length: 0
   regexp: ""

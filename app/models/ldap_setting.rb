@@ -153,8 +153,8 @@ class LdapSetting
   end
 
   # Returns an array of ldap attributes to used when syncing the user fields
-  def user_ldap_attrs_to_sync
-    (user_fields_to_sync||[]).map {|f| user_ldap_attrs[f] || send(f) }
+  def user_ldap_attrs_to_sync(fields = user_fields_to_sync)
+    (fields||[]).map {|f| user_ldap_attrs[f] || try(f.to_sym) }
   end
 
   # Returns an array of ldap attributes to used when syncing the group fields

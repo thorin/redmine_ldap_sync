@@ -608,7 +608,7 @@ class AuthSourceLdapTest < ActiveSupport::TestCase
     assert @user.active?
   end
 
-  test "#sync_user should fill in mandatory fields with the default value if their not present" do
+  test "#sync_user should fill in mandatory fields with the default value if their not present if set to sync" do
     @user = users(:loadgeek)
     cf = UserCustomField.create!(
         :name => 'group', :field_format => 'string',
@@ -874,5 +874,24 @@ class AuthSourceLdapTest < ActiveSupport::TestCase
 
     assert users[:disabled].none? {|u| /^e.*$/i =~ u },
       "disabled_users = #{users[:disabled]}"
+  end
+
+  test "#find_or_create_user should sync mandatory fields on create even if not set to sync" do
+    @ldap_setting.user_fields_to_sync = [ 'firstname' ]
+    assert @ldap_setting.save, @ldap_setting.errors.full_messages.join(', ')
+
+    assert_nil User.find_by_login('tweetmicro')
+    assert_not_nil @auth_source.send(:find_or_create_user, 'tweetmicro'), 'Find or create'
+
+    user = User.find_by_login('tweetmicro')
+    assert_equal 'tweetmicro@fakemail.com', user.mail
+    assert_equal 'Rae Croll', user.name
+    assert_equal '302', user.custom_field_value(custom_fields(:uid_number))
+
+    user.mail = 'tweetmicro@example.com'
+    assert user.save, user.errors.full_messages.join(', ')
+    @auth_source.sync_user(user)
+
+    assert_equal 'tweetmicro@example.com', user.mail
   end
 end
