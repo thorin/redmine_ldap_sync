@@ -19,7 +19,7 @@ module LdapSync::EntityManager
 
   private
     def get_user_fields(username, user_data=nil, options={})
-      if options.try(:fetch, :include_required)
+      if options.try(:fetch, :include_required, false)
         custom_fields = user_required_custom_fields.map {|cf| cf.id.to_s }
         fields_to_sync = User::STANDARD_FIELDS + custom_fields
         ldap_attrs_to_sync = setting.user_ldap_attrs_to_sync(fields_to_sync)
