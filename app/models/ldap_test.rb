@@ -53,7 +53,7 @@ class LdapTest
         if user_data
           @user_attrs ||= user_data
           users_at_ldap[login] = {
-            :fields => get_user_fields(login, user_data),
+            :fields => get_user_fields(login, user_data, :include_required => true),
             :groups => groups_changes(User.new {|u| u.login = login })
           }
         else

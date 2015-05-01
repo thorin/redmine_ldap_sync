@@ -54,7 +54,7 @@ class LdapTestTest < ActiveSupport::TestCase
     assert_equal :not_found, @ldap_test.users_at_ldap['MissingUser']
     assert_include 'tweetmicro', @ldap_test.users_at_ldap.keys
     assert_not_equal 0, @ldap_test.users_at_ldap['tweetmicro'][:groups][:added].size
-    assert_equal 5, @ldap_test.users_at_ldap['tweetmicro'][:fields].size
+    assert_equal 5, @ldap_test.users_at_ldap['tweetmicro'][:fields].size, "#{@ldap_test.users_at_ldap['tweetmicro'][:fields]}"
     assert_equal 0, @ldap_test.groups_at_ldap.size
 
     assert_no_match /ldap_test\.rb/, @ldap_test.messages, "Should not throw an error"
@@ -93,7 +93,7 @@ class LdapTestTest < ActiveSupport::TestCase
     assert_equal 0, @ldap_test.groups_at_ldap['Therß'][:fields].size
 
     # uid is required and should be set with the default value
-    assert_equal 4, @ldap_test.users_at_ldap['tweetsave'][:fields].size
+    assert_equal 4, @ldap_test.users_at_ldap['tweetsave'][:fields].size, "#{@ldap_test.users_at_ldap['tweetsave'][:fields]}"
 
     assert_no_match /ldap_test\.rb/, @ldap_test.messages, "Should not throw an error"
   end
