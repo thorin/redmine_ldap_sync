@@ -259,7 +259,7 @@ module LdapSync::Infectors::AuthSourceLdap
         user = ::User.new do |u|
           u.login = username
           u.set_default_values
-          u.synced_fields = get_user_fields(username, :include_required => true)
+          u.synced_fields = get_user_fields(username, nil, :include_required => true)
           u.auth_source_id = self.id
         end
 
