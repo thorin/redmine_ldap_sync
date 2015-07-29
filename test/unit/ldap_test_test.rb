@@ -168,6 +168,21 @@ class LdapTestTest < ActiveSupport::TestCase
     assert_match /ldap_test\.rb/, @ldap_test.messages, "Should throw an error"
   end
 
+  def test_run_with_dynamic_bind_should_not_fail
+    @auth_source.account = 'uid=$login,ou=Person,dc=redmine,dc=org'
+    assert @auth_source.save, @auth_source.errors.full_messages.join(', ')
+    ldap_setting = LdapSetting.find_by_auth_source_ldap_id(@auth_source.id)
+    ldap_test    = LdapTest.new(ldap_setting)
+
+    ldap_test.bind_user = 'admin'
+    ldap_test.bind_password = 'password'
+    ldap_test.run_with_users_and_groups([], [])
+    assert_not_equal 15, ldap_test.messages.size
+    assert_equal 15, ldap_test.non_dynamic_groups.size
+
+    assert_no_match /ldap_test\.rb/, ldap_test.messages, "Should no throw an error"
+  end
+
   def test_log_messages
     @ldap_test.run_with_users_and_groups([], [])
     assert_match /active, .* locked .* deleted/, @ldap_test.messages
@@ -190,4 +205,5 @@ class LdapTestTest < ActiveSupport::TestCase
     assert_equal 3, @ldap_test.non_dynamic_groups.size + @ldap_test.dynamic_groups.size
     assert_include 'Säyeldas', @ldap_test.non_dynamic_groups
   end
+
 end

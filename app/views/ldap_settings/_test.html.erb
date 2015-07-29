@@ -4,6 +4,12 @@
   <%= labelled_fields_for f.object.test do |t| -%>
   <p><%= t.label :test_users %><%= t.text_field :test_users %></p>
   <p><%= t.label :test_groups %><%= t.text_field :test_groups %></p>
+
+  <% if t.object.connect_as_user? -%>
+    <p><%= t.label :bind_user %><%= t.text_field :bind_user %></p>
+    <p><%= t.label :bind_password %><%= t.text_field :bind_password %></p>
+  <% end -%>
+
   <p><%= link_to l(:button_execute), { :action => 'test', :format => 'text' },
           :remote => true, :method => 'put', :id => 'commit-test' %></p>
   <div class="autoscroll">

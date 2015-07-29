@@ -17,6 +17,9 @@
 # along with Redmine LDAP Sync.  If not, see <http://www.gnu.org/licenses/>.
 module LdapSync::EntityManager
 
+  public
+    def connect_as_user?; setting.account.include?('$login'); end
+
   private
     def get_user_fields(username, user_data=nil, options={})
       fields_to_sync = setting.user_fields_to_sync
@@ -333,8 +336,6 @@ module LdapSync::EntityManager
 
       !!setting.account_disabled_proc.try(:call, flags)
     end
-
-    def connect_as_user?; setting.account.include?('$login'); end
 
     def cacheable_ber(result)
       result.map do |h|

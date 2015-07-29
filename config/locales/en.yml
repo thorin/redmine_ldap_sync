@@ -73,6 +73,8 @@ en:
 
   field_test_users: "Users"
   field_test_groups: "Groups"
+  field_bind_user: "Bind user"
+  field_bind_password: "Bind password"
 
   option_users_search_subtree: "Whole subtree"
   option_users_search_onelevel: "One level"

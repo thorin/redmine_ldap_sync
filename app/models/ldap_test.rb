@@ -22,10 +22,12 @@ class LdapTest
   include ActiveModel::Validations
   extend ActiveModel::Naming
 
-  attr_accessor :setting, :test_users, :test_groups, :messages, :user_attrs, :group_attrs, :users_at_ldap, :groups_at_ldap, :non_dynamic_groups, :dynamic_groups, :users_disabled_by_group, :admin_users, :user_changes
+  attr_accessor :setting, :bind_user, :bind_password, :test_users, :test_groups, :messages, :user_attrs, :group_attrs, :users_at_ldap, :groups_at_ldap, :non_dynamic_groups, :dynamic_groups, :users_disabled_by_group, :admin_users, :user_changes
 
   delegate :auth_source_ldap, :to => :setting
   delegate :users, :to => :auth_source_ldap
+
+  validates_presence_of :bind_user, :bind_password, :if => :connect_as_user?
 
   def initialize(setting)
     setting.active = true
@@ -46,7 +48,7 @@ class LdapTest
   end
 
   def run_with_users_and_groups(users, groups)
-    with_ldap_connection do |ldap|
+    with_ldap_connection(@bind_user, @bind_password) do |ldap|
       @user_changes = ldap_users
       users.each do |login|
         user_data = find_user(ldap, login, nil)
