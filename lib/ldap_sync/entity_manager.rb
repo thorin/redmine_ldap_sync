@@ -21,6 +21,8 @@ module LdapSync::EntityManager
     def connect_as_user?; setting.account.include?('$login'); end
 
   private
+    LdapError = (Gem.loaded_specs['net-ldap'].version.to_s >= '0.12.0' ? Net::LDAP::Error : Net::LDAP::LdapError)
+
     def get_user_fields(username, user_data=nil, options={})
       fields_to_sync = setting.user_fields_to_sync
       if options.try(:fetch, :include_required, false)
@@ -314,9 +316,9 @@ module LdapSync::EntityManager
       block = Proc.new {|e| yield e[attrs] } if block_given?
       result = ldap.search(options, &block) or fail
       result.map {|e| e[attrs] } unless block_given? || result.nil?
-    rescue
+    rescue => exception
       os = ldap.get_operation_result
-      raise Net::LDAP::LdapError, "LDAP Error(#{os.code}): #{os.message}"
+      raise LdapError, "LDAP Error(#{os.code}): #{os.message}"
     end
 
     def n(field)

@@ -68,6 +68,8 @@ class LdapSetting
 
   [:login, *User::STANDARD_FIELDS].each {|f| module_eval("def #{f}; auth_source_ldap.attr_#{f}; end") }
 
+  LdapError = (Gem.loaded_specs['net-ldap'].version.to_s >= '0.12.0' ? Net::LDAP::Error : Net::LDAP::LdapError)
+
   def id
     @auth_source_ldap_id
   end
@@ -286,7 +288,7 @@ class LdapSetting
 
     def validate_group_filter
       Net::LDAP::Filter.construct(group_search_filter) if group_search_filter.present?
-    rescue Net::LDAP::LdapError
+    rescue LdapError
       errors.add :group_search_filter, :invalid
     end
 

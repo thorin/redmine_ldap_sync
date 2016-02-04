@@ -458,8 +458,8 @@ class AuthSourceLdapTest < ActiveSupport::TestCase
     assert_equal 'miscuser8@foo.bar', @user.mail
     assert_equal 'User', @user.firstname
     assert_equal 'Misc', @user.lastname
-    assert_equal nil, @user.custom_field_values[0].value
-    assert_equal nil, @user.custom_field_values[1].value
+    assert_equal 'en', @user.custom_field_values[0].value
+    assert_equal '0', @user.custom_field_values[1].value
   end
 
   test "#sync_user should delete groups" do

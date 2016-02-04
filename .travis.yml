@@ -1,5 +1,11 @@
 ---
 language: ruby
+sudo: false
+addons:
+  apt:
+    packages:
+      - ldap-utils
+      - slapd
 timeouts:
   bundle: 600
 rvm:
@@ -41,7 +47,6 @@ matrix:
    - env: REDMINE=v3.8.0
 gemfile: workspace/redmine/Gemfile
 before_install:
- - sudo apt-get update -qq && sudo apt-get install -qq slapd ldap-utils
  - ./script/ci.sh clone_redmine --target $REDMINE_DIR
  - cp ./config/database.yml.travis $REDMINE_DIR/config/database.yml
  - ./script/ci.sh install_plugin_gemfile
