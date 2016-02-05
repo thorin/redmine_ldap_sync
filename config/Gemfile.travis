@@ -1,9 +1,9 @@
 group :test do
-  gem 'coveralls', :require => false
-  if RUBY_VERSION < "1.9.3"
-    gem "rest-client", "~> 1.6.8"
-    gem "simplecov", "~> 0.8.2"
-    gem "rcov", "= 0.9.11"
-    gem "i18n", "~> 0.6.11"
+  if RUBY_VERSION >= "2.0"
+    gem 'coveralls', :require => false
+  end
+  if RUBY_VERSION < "1.9"
+    gem 'i18n', '~> 0.6.11'
+    gem 'rack-cache', '= 1.2'
   end
 end

@@ -18,8 +18,10 @@
 require File.expand_path('../../../../../test/ui/base', __FILE__)
 require File.expand_path('../../test_helper', __FILE__)
 
-require 'simplecov'
-SimpleCov.command_name 'UI Tests'
+if RUBY_VERSION >= '2.0.0'
+  require 'simplecov'
+  SimpleCov.command_name 'UI Tests'
+end
 
 class Redmine::UiTest::LoginTest < Redmine::UiTest::Base
   fixtures :auth_sources, :users, :settings, :custom_fields, :roles, :projects, :members, :member_roles

@@ -16,17 +16,19 @@
 # You should have received a copy of the GNU General Public License
 # along with Redmine LDAP Sync.  If not, see <http://www.gnu.org/licenses/>.
 
-require 'simplecov'
+if RUBY_VERSION >= '2.0.0'
+  require 'simplecov'
 
-SimpleCov.start do
-  add_group 'Controllers', 'app/controllers'
-  add_group 'Models', 'app/models'
-  add_group 'Helpers', 'app/helpers'
-  add_group 'Libraries', 'lib'
-  add_filter '/test/'
-  add_filter 'init.rb'
-  root File.expand_path(File.dirname(__FILE__) + '/../')
-end if RUBY_VERSION >= '1.9.0'
+  SimpleCov.start do
+    add_group 'Controllers', 'app/controllers'
+    add_group 'Models', 'app/models'
+    add_group 'Helpers', 'app/helpers'
+    add_group 'Libraries', 'lib'
+    add_filter '/test/'
+    add_filter 'init.rb'
+    root File.expand_path(File.dirname(__FILE__) + '/../')
+  end
+end
 
 require File.expand_path(File.dirname(__FILE__) + '/../../../test/test_helper')
 

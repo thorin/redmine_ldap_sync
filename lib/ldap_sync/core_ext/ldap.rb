@@ -18,7 +18,7 @@
 require 'net/ldap'
 
 class Net::LDAP
-  class Entry
-    include Enumerable
+  if Gem.loaded_specs['net-ldap'].version < Gem::Version.new('0.12.0')
+    Error = LdapError
   end
 end
