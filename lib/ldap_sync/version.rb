@@ -8,7 +8,7 @@ module LdapSync
     # * official release: nil
     # * stable branch:    stable
     # * trunk:            devel
-    BRANCH = 'devel'
+    BRANCH = nil 
 
     # Retrieves the revision from the working copy
     def self.revision
