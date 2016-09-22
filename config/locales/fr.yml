@@ -16,7 +16,7 @@
   label_users_enabled: "Utilisateurs activés"
   label_a_total_of: "un total de %{count}"
   label_users_disabled_by_flag: "Utilisateurs désactivés par statut"
-  label_users_disabled_by_group: "Utiloisateurs désactivés par groupes"
+  label_users_disabled_by_group: "Utilisateurs désactivés par groupes"
   label_admin_users: "Administrateurs"
   label_dynamic_groups: "Groupes Dynamiques"
   label_ldap_attributes_on_a_user: "Attributs LDAP sur un utilisateur"
@@ -43,7 +43,7 @@
   field_groups_base_dn: "Groupes base DN"
   field_group_membership: "Adhésion au groupe"
   field_class_user: "Utilisateurs objectclass"
-  field_users_search_scope: "Users search scope"
+  field_users_search_scope: "Profondeur de la recherche des utilisateurs"
   field_class_group: "Groupes objectclass"
   field_account_disabled_test: "Compte désactivé test"
 
@@ -63,7 +63,7 @@
   field_primary_group: "Groupe principal (utilisateur)"
 
   field_required_group: "L'utilisateur doit être membre de"
-  field_admin_group: "Groupe des administrateur"
+  field_admin_group: "Groupe des administrateurs"
   field_fixed_group: "Ajouter des utilisateurs aux groupes"
 
   field_user_group_fields: "Champs utilisateur/groupe"
@@ -74,8 +74,8 @@
   field_test_users: "Utilisateurs"
   field_test_groups: "Groupes"
 
-  option_users_search_subtree: "Whole subtree"
-  option_users_search_onelevel: "One level"
+  option_users_search_subtree: "Tout le sous-arbre"
+  option_users_search_onelevel: "Un niveau en dessous"
 
   option_group_membership_on_groups: "Sur la classe Groupe"
   option_group_membership_on_members: "Sur la classe Utilisateur"
