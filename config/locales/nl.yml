@@ -1,0 +1,110 @@
+nl:
+  label_ldap_synchronization: "LDAP synchronisatie"
+  label_ldap_settings: "LDAP instellingen"
+  label_ldap_servers: "LDAP servers"
+  label_synchronization_actions: "Synchronisatie-acties"
+  label_synchronize: "Synchroniseren"
+  label_ldap_attribute: "LDAP-attribuut"
+  label_default_value: "Standaardwaarde"
+  label_test: "Test"
+  label_result: "Resultaat"
+  label_minutes: "minuten"
+
+  label_not_executed: "Niet uitgevoerd"
+  label_no_fields: "Geen velden"
+  label_not_found: "Niet gevonden"
+  label_users_enabled: "Ingeschakelde gebruikers"
+  label_a_total_of: "een totaal van %{count}"
+  label_users_disabled_by_flag: "Gebruikers uitgeschakeld door vlag"
+  label_users_disabled_by_group: "Gebruikers uitgeschakeld door groep"
+  label_admin_users: "Beheerders"
+  label_dynamic_groups: "Dynamische groepen"
+  label_ldap_attributes_on_a_user: "LDAP-attributen voor een gebruiker"
+  label_ldap_attributes_on_a_group: "LDAP-attributen voor een groep"
+  label_log_messages: "Logberichten"
+
+  button_test: "Test"
+  button_execute: "Uitvoeren"
+  button_enable: "Inschakelen"
+  button_disable: "Uitschakelen"
+
+  header_create_groups: "Groepen aanmaken"
+  header_create_users: "Gebruikers aanmaken"
+  header_sync_user_fields: "Sync gebruikersvelden"
+  header_sync_group_fields: "Sync groepsvelden"
+
+  field_nested_groups: "Geneste groepen"
+  field_create_groups: "Groepen aanmaken"
+  field_create_users: "Gebruikers aanmaken"
+  field_sync_on_login: "Synchroniseren bij aanmelden"
+  field_dyngroups: "Dynamische groepen"
+  field_dyngroups_cache_ttl: "Cache TTL"
+
+  field_groups_base_dn: "Base-DN voor groepen"
+  field_group_membership: "Groep-lidmaatschap"
+  field_class_user: "ObjectClass gebruikers"
+  field_users_search_scope: "Zoekbereik gebruikers"
+  field_class_group: "ObjectClass groepen"
+  field_account_disabled_test: "Gebruikersaccount uitgeschakeld test"
+
+  field_groupname_pattern: "Groepsnaam-patroon"
+  field_group_search_filter: "Zoekfilter groepen"
+
+  field_groupname: "Groepsnaam (groep)"
+  field_member: "Groepslid (groep)"
+  field_member_group: "Ledengroepen (groep)"
+  field_parent_group: "Oudergroepen (groep)"
+  field_user_memberid: "Groepslid-ID (gebruiker)"
+  field_group_memberid: "Groepslid-ID (groep)"
+  field_group_parentid: "Ouder-id (groep)"
+  field_user_groups: "Groepen (gebruiker)"
+  field_groupid: "Groeps-id (groep)"
+  field_account_flags: "Gebruikersaccount vlag (gebruiker)"
+  field_primary_group: "Hoofdgroep (gebruiker)"
+
+  field_required_group: "Gebruikers moeten lid zijn van"
+  field_admin_group: "Beheerders-groep"
+  field_fixed_group: "Gebruikers toevoegen aan groep"
+
+  field_user_group_fields: "Gebruiker/Groepsvelden"
+  field_firstname: "Voornaam"
+  field_lastname: "Achternaam"
+  field_mail: "E-mailadres"
+
+  field_test_users: "Gebruikers"
+  field_test_groups: "Groepen"
+
+  field_bind_user: "Bind gebruiker"
+  field_bind_password: "Bind wachtwoord"
+
+  option_users_search_subtree: "Volledige vertakking (subtree)"
+  option_users_search_onelevel: "Enkel niveau"
+
+  option_group_membership_on_groups: "Van de groepsklasse"
+  option_group_membership_on_members: "Van de gebruikersklasse"
+
+  option_nested_groups_disabled: "Uitgeschakeld"
+  option_nested_groups_on_parents: "Lidmaatschap van de ouderklasse"
+  option_nested_groups_on_members: "Lidmaatschap van de ledenklasse"
+
+  option_dyngroups_disabled:  "Uitgeschakeld"
+  option_dyngroups_enabled: "Ingeschakeld"
+  option_dyngroups_enabled_with_ttl: "Ingeschakeld met TTL"
+
+  option_sync_on_login_disabled: "Uitgeschakeld"
+  option_sync_on_login_user_fields: "Gebruikersvelden"
+  option_sync_on_login_user_fields_and_groups: "Gebruikersvelden en -groepen"
+
+  text_ldap_setting_successfully_updated: "LDAP configuratie is succesvol aangepast."
+
+  field_base_settings: "Basisinstellingen"
+  option_custom: "Gepersonaliseerd"
+
+  error_cannot_enable_with_invalid_settings: "Synchronisatie kan niet worden ingeschakeld door ongeldige instellingen. Controleer de configuratie-instellingen."
+
+  errors:
+    messages:
+      invalid_ldap_attribute: "%{field} heeft een ongeldig LDAP-attribuut"
+      must_have_ldap_attribute: "%{field} moet een LDAP-attribuut hebben dat kan worden gesynchroniseerd"
+      invalid_expression: "bevat een ongeldige expressie: %{error_message}"
+      invalid_regexp: "bevat een ongeldige reguliere expressie: %{error_message}"
