@@ -1,0 +1,109 @@
+pl:
+  label_ldap_synchronization: "Synchronizacja LDAP"
+  label_ldap_settings: "Ustawienia LDAP"
+  label_ldap_servers: "Serwery LDAP"
+  label_synchronization_actions: "Akcje synchronizacji"
+  label_synchronize: "Synchronizuj"
+  label_ldap_attribute: "Atrybuty LDAP"
+  label_default_value: "Domyślna wartość"
+  label_test: "Test"
+  label_result: "Wynik"
+  label_minutes: "minuty"
+
+  label_not_executed: "Nie uruchomione"
+  label_no_fields: "Brak pól"
+  label_not_found: "Nie znaleziono"
+  label_users_enabled: "Włączeni użytkownicy"
+  label_a_total_of: "łącznie %{count}"
+  label_users_disabled_by_flag: "Użytkownicy wyłączeni poprzez flagi"
+  label_users_disabled_by_group: "Użytkownicy wyłączeni przez grupy"
+  label_admin_users: "Administratorzy"
+  label_dynamic_groups: "Dynamiczne grupy"
+  label_ldap_attributes_on_a_user: "Atrybuty LDAP użytkownika"
+  label_ldap_attributes_on_a_group: "Atrybuty LDAP grupy"
+  label_log_messages: "Wiadomości z Logów"
+
+  button_test: "Test"
+  button_execute: "Uruchom"
+  button_enable: "Włącz"
+  button_disable: "Wyłącz"
+
+  header_create_groups: "Utwórz grupy"
+  header_create_users: "Utwórz użytkowników"
+  header_sync_user_fields: "Synchronizuj pola użytkowników"
+  header_sync_group_fields: "Synchronizuj pola grup"
+
+  field_nested_groups: "Grupy zagnieżdżone"
+  field_create_groups: "Utwórz grupy"
+  field_create_users: "Utwórz użytkowników"
+  field_sync_on_login: "Synchronizuj przy logowaniu"
+  field_dyngroups: "Dynamiczne grupy"
+  field_dyngroups_cache_ttl: "Cache TTL"
+
+  field_groups_base_dn: "Bazowy DN grup"
+  field_group_membership: "Członkowstwo grupy"
+  field_class_user: "ObjectClass użytkowników"
+  field_users_search_scope: "Ścieżka szukania użytkowników"
+  field_class_group: "ObjectClass grup"
+  field_account_disabled_test: "Test na konto wyłączone"
+
+  field_groupname_pattern: "Wzór nazwy grup"
+  field_group_search_filter: "Filtr szukania grup"
+
+  field_groupname: "Nazwa grupy"
+  field_member: "Członek (użytkownik)"
+  field_member_group: "Grupy członka (grupa)"
+  field_parent_group: "Grupy rodzica (grupa)"
+  field_user_memberid: "ID członka (użytkownik)"
+  field_group_memberid: "ID członka grupy"
+  field_group_parentid: "ID rodzica grupy"
+  field_user_groups: "Grupy użytkownika"
+  field_groupid: "ID grupy"
+  field_account_flags: "Flagi konta użytkownika"
+  field_primary_group: "Podstawowa grupa użytkownika"
+
+  field_required_group: "Użytkownicy muszą być członkami"
+  field_admin_group: "Administratorzy grupy"
+  field_fixed_group: "Dodaj użytkowników do grupy"
+
+  field_user_group_fields: "Pola użytkownik/grupa"
+  field_firstname: "Imię"
+  field_lastname: "Nazwisko"
+  field_mail: "Email"
+
+  field_test_users: "Użytkownicy"
+  field_test_groups: "Grupy"
+  field_bind_user: "Binduj użytkownika"
+  field_bind_password: "Binduj hasło"
+
+  option_users_search_subtree: "Całe drzewo"
+  option_users_search_onelevel: "Jeden poziom"
+
+  option_group_membership_on_groups: "W klasie grupy"
+  option_group_membership_on_members: "W klasie użytkownika"
+
+  option_nested_groups_disabled: "Wyłączone"
+  option_nested_groups_on_parents: "Członkowstwo w klasie nadrzędnej"
+  option_nested_groups_on_members: "Członkowstwo w klasie członka"
+
+  option_dyngroups_disabled:  "Wyłączone"
+  option_dyngroups_enabled: "Włączone"
+  option_dyngroups_enabled_with_ttl: "Włączone z TTL"
+
+  option_sync_on_login_disabled: "Wyłączone"
+  option_sync_on_login_user_fields: "Pola użytkownika"
+  option_sync_on_login_user_fields_and_groups: "Pola użytkowników i grup"
+
+  text_ldap_setting_successfully_updated: "Konfiguracja LDAP zapisana pomyślnie."
+
+  field_base_settings: "Ustawienia podstawowe"
+  option_custom: "Dostosowane"
+
+  error_cannot_enable_with_invalid_settings: "Nie można włączyć synchronizacji z nieprawidłowymi ustawieniami. Proszę poprawić konfigurację."
+
+  errors:
+    messages:
+      invalid_ldap_attribute: "%{field} posiada nieprawidłowy atrybut LDAP"
+      must_have_ldap_attribute: "%{field} musi posiadać atrybut LDAP, aby można było synchronizować"
+      invalid_expression: "zawiera nieprawidłowe wyrażenie: %{error_message}"
+      invalid_regexp: "zawiera nieprawidłowe wyrażenie regularne: %{error_message}"
