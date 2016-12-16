@@ -10,7 +10,8 @@ Redmine::Plugin.register :redmine_ldap_sync do
   requires_redmine :version_or_higher => '2.1.0'
 
   settings :default => HashWithIndifferentAccess.new()
-  menu :admin_menu, :ldap_sync, { :controller => 'ldap_settings', :action => 'index' }, :caption => :label_ldap_synchronization
+  menu :admin_menu, :ldap_sync, { :controller => 'ldap_settings', :action => 'index' }, :caption => :label_ldap_synchronization,
+                    :html => {:class => 'icon icon-ldap-sync'}
 end
 
 RedmineApp::Application.config.after_initialize do
