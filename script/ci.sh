@@ -73,6 +73,10 @@ install_plugin_gemfile()
 
   mkdir $REDMINE_DIR/$PATH_TO_PLUGINS/redmine_ldap_sync
   ln -s "$PATH_TO_LDAPSYNC/config/Gemfile.travis" "$REDMINE_DIR/$PATH_TO_PLUGINS/redmine_ldap_sync/Gemfile"
+
+  if [ "$RUBY_VERSION"  == "1.8.7" ]; then
+    sed -i.bak '/test-unit/d' "$REDMINE_DIR/Gemfile"
+  fi
 }
 
 prepare_redmine()
