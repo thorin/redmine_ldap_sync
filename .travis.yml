@@ -24,6 +24,9 @@ matrix:
      env: REDMINE=3.3-stable
    - rvm: 2.3.1
      env: REDMINE=master
+  exclude:
+   - rvm: 1.9.3
+     env: REDMINE=2.6-stable
 gemfile: workspace/redmine/Gemfile
 bundler_args: "--gemfile workspace/redmine/Gemfile --path workspace/redmine/vendor/bundle --without development rmagick"
 before_install:
