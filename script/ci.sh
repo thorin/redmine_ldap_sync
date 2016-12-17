@@ -76,6 +76,9 @@ install_plugin_gemfile()
   if [ "$RUBY_VERSION"  == "1.8.7" ]; then
     sed -i.bak '/test-unit/d' "$REDMINE_DIR/Gemfile"
   fi
+  if [ "$RUBY_VERSION" == "1.9.3" ]; then
+    sed -i.bak '/selenium-webdriver/d' "$REDMINE_DIR/Gemfile"
+  fi
 }
 
 prepare_redmine()
