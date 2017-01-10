@@ -101,7 +101,7 @@ configuration:
   whenever search for groups.
 + **Account disabled test** - A ruby boolean expression that should evaluate an
   account's flags (the variable `flags`) and return `true` if the account is
-  disabled. Eg., `flags.to**i & 2 != 0` or `flags.include? 'D'`.
+  disabled. Eg., `flags.to_i & 2 != 0` or `flags.include? 'D'`.
 + **Group membership** - Specifies how to determine the user's group
   membership.
   The possible values are:
