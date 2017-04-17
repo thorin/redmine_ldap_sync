@@ -312,7 +312,7 @@ module LdapSync::Infectors::AuthSourceLdap
 
       def cache_root
         root_path = Rails.root.join("tmp/ldap_cache/#{self.id}")
-        FileUtils.mkdir_p root_path unless File.exists? root_path
+        FileUtils.mkdir_p root_path unless File.exist? root_path
 
         root_path
       end
