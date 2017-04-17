@@ -266,7 +266,7 @@ class LdapSetting
   def self.all(options = {})
     AuthSourceLdap.where(options)
       .map {|source| find_by_auth_source_ldap_id(source.id) }
-      .compact! 
+      .compact
   end
 
   protected
