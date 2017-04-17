@@ -264,7 +264,9 @@ class LdapSetting
 
   # Find all the available ldap settings
   def self.all(options = {})
-    AuthSourceLdap.where(options).map {|source| find_by_auth_source_ldap_id(source.id) }
+    AuthSourceLdap.where(options)
+      .map {|source| find_by_auth_source_ldap_id(source.id) }
+      .compact! 
   end
 
   protected
