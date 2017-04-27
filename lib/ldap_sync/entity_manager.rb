@@ -259,7 +259,7 @@ module LdapSync::EntityManager
     end
 
     def find_all_dyngroups(ldap, options = {})
-      options = options.reverse_merge(:attrs => [:cn, :member], :update_cache => false)
+      options = options.reverse_merge(:attrs => [n(:groupname)), :member], :update_cache => false)
       users_base_dn = setting.base_dn.downcase
 
       dyngroups = Hash.new{|h,k| h[k] = []}
@@ -271,7 +271,7 @@ module LdapSync::EntityManager
           entry[:member].each do |member|
             next unless (member.downcase.ends_with?(users_base_dn))
 
-            dyngroups[member_key(member)] << entry[:cn].first
+            dyngroups[member_key(member)] << entry[n(:groupname))].first
           end
         end
       end
