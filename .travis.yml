@@ -9,7 +9,7 @@ addons:
       - slapd
 rvm:
  - 1.9.3
- - 2.2
+ - 2.2.7
 env:
   global: REDMINE_DIR=./workspace/redmine
   matrix:
