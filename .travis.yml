@@ -9,17 +9,15 @@ addons:
       - slapd
 rvm:
  - 1.9.3
- - 2.2.7
+ - 2.3.1
 env:
   global: REDMINE_DIR=./workspace/redmine
   matrix:
-   - REDMINE=2.6-stable
    - REDMINE=3.2-stable
+   - REDMINE=3.3-stable
    - REDMINE=master
 matrix:
   include:
-   - rvm: 1.8.7
-     env: REDMINE=2.6-stable
    - rvm: 2.3.1
      env: REDMINE=3.3-stable
    - rvm: 2.4.1
@@ -27,8 +25,6 @@ matrix:
    - rvm: 2.4.1
      env: REDMINE=master
   exclude:
-   - rvm: 1.9.3
-     env: REDMINE=2.6-stable
    - rvm: 1.9.3
      env: REDMINE=master
 gemfile: workspace/redmine/Gemfile
