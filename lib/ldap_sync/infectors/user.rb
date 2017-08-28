@@ -103,7 +103,8 @@ module LdapSync::Infectors::User
     end
     receiver.class_eval do
       class << self
-        alias_method_chain :try_to_login, :ldap_sync
+        alias_method :try_to_login_without_ldap_sync, :try_to_login
+        alias_method :try_to_login, :try_to_login_with_ldap_sync
       end
     end
   end
