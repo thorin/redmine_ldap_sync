@@ -23,6 +23,8 @@ matrix:
    - rvm: 2.3.1
      env: REDMINE=3.3-stable
    - rvm: 2.4.1
+     env: REDMINE=3.4-stable
+   - rvm: 2.4.1
      env: REDMINE=master
   exclude:
    - rvm: 1.9.3
