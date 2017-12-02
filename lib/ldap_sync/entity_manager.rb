@@ -313,7 +313,8 @@ module LdapSync::EntityManager
 
       block = Proc.new {|e| yield e[attrs] } if block_given?
       result = ldap.search(options, &block) or fail
-      result.map {|e| e[attrs] } unless block_given? || result.nil?
+      result ||= [] unless block_given?
+      result.map {|e| e[attrs] } unless block_given?
     rescue => exception
       os = ldap.get_operation_result
       raise Net::LDAP::Error, "LDAP Error(#{os.code}): #{os.message}"
