@@ -1,4 +1,4 @@
-class CreateLdapCacheDir < ActiveRecord::Migration
+class CreateLdapCacheDir < ActiveRecord::Migration[4.2]
 
   def self.up
     cache_dir = Rails.root.join("tmp/ldap_cache")

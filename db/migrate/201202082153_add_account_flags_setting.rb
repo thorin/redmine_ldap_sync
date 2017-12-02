@@ -1,4 +1,4 @@
-class AddAccountFlagsSetting < ActiveRecord::Migration
+class AddAccountFlagsSetting < ActiveRecord::Migration[4.2]
 
   def self.up
     all_settings = Setting.plugin_redmine_ldap_sync
