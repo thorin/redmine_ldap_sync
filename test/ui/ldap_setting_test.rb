@@ -15,8 +15,7 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with Redmine LDAP Sync.  If not, see <http://www.gnu.org/licenses/>.
-require File.expand_path('../../../../../test/ui/base', __FILE__)
-require File.expand_path('../../test_helper', __FILE__)
+require File.expand_path('../base', __FILE__)
 
 if RUBY_VERSION >= '2.0.0'
   require 'simplecov'

@@ -45,17 +45,17 @@ class LdapSettingsControllerTest < ActionController::TestCase
   end
 
   def test_should_redirect_to_get_edit_on_get_show
-    get :show, :id => 1
+    get :show, params: { id: 1 }
     assert_redirected_to edit_ldap_setting_path(1)
   end
 
   def test_should_get_edit
-    get :edit, :id => @auth_source.id
+    get :edit, params: { id: @auth_source.id }
     assert_response :success
   end
 
   def test_should_get_404
-    get :edit, :id => 999
+    get :edit, params: { id: 999 }
     assert_response :not_found
   end
 
@@ -65,7 +65,7 @@ class LdapSettingsControllerTest < ActionController::TestCase
     assert_equal 'member', @ldap_setting.member_group
 
     # When we do
-    get :disable, :id => @ldap_setting.id
+    get :disable, params: { id: @ldap_setting.id }
     assert_redirected_to ldap_settings_path
     assert_match /success/, flash[:notice]
 
@@ -81,13 +81,13 @@ class LdapSettingsControllerTest < ActionController::TestCase
     assert ldap_setting.active?
 
     # When we do
-    get :disable, :id => ldap_setting.id
+    get :disable, params: { id: ldap_setting.id }
     assert_redirected_to ldap_settings_path
     assert_match /success/, flash[:notice]
 
     # We should have
     ldap_setting = LdapSetting.find_by_auth_source_ldap_id(2)
-    assert_equal nil, ldap_setting.member_group, 'LdapSetting is not the same'
+    assert_nil ldap_setting.member_group, 'LdapSetting is not the same'
     assert !ldap_setting.active?, "LdapSetting must be disabled"
   end
 
@@ -99,7 +99,7 @@ class LdapSettingsControllerTest < ActionController::TestCase
     assert_equal 'member', ldap_setting.member_group
 
     # When we do
-    get :enable, :id => ldap_setting.id
+    get :enable, params: { id: ldap_setting.id }
     assert_redirected_to ldap_settings_path
     assert_match /success/, flash[:notice]
 
@@ -120,7 +120,7 @@ class LdapSettingsControllerTest < ActionController::TestCase
     assert_equal 'member', @ldap_setting.member_group
 
     # When we do
-    get :enable, :id => @ldap_setting.id
+    get :enable, params: { id: @ldap_setting.id }
     assert_redirected_to ldap_settings_path
     assert_match /invalid settings/, flash[:error]
 
@@ -131,57 +131,63 @@ class LdapSettingsControllerTest < ActionController::TestCase
   end
 
   def test_should_fail_with_error
-    put :update, :id => @ldap_setting.id, :ldap_setting => {
-      :auth_source_ldap_id => @auth_source_id,
-      :active => true,
-      :groupname => 'cn',
-      :groups_base_dn => 'groups_base_dn',
-      :class_group => 'group',
-      :class_user => nil,                     # Missing required field
-      :group_membership => 'on_members',
-      :groupid => 'groupid',
-      :nested_groups => '',
-      :user_groups => 'memberof',
-      :sync_on_login => '',
-      :dyngroups => ''
+    put :update, params: { 
+      id: @ldap_setting.id, 
+      ldap_setting: {
+        auth_source_ldap_id: @auth_source_id,
+        active: true,
+        groupname: 'cn',
+        groups_base_dn: 'groups_base_dn',
+        class_group: 'group',
+        class_user: nil,                     # Missing required field
+        group_membership: 'on_members',
+        groupid: 'groupid',
+        nested_groups: '',
+        user_groups: 'memberof',
+        sync_on_login: '',
+        dyngroups: ''
+      } 
     }
     assert assigns(:ldap_setting).errors.added?(:class_user, :blank), 'An error must be reported for :class_user'
     assert_response :success
   end
 
   def test_should_update_ldap_setting
-    put :update, :id => @ldap_setting.id, :ldap_setting => {
-      :auth_source_ldap_id => @auth_source_id,
-      :active => true,
-      :account_disabled_test => '',
-      :account_flags => '',
-      :attributes_to_sync => '',
-      :class_group => 'group',
-      :class_user => 'user',
-      :create_groups => '',
-      :create_users => '',
-      :fixed_group => '',
-      :group_memberid => '',
-      :group_membership => 'on_members',
-      :group_parentid => '',
-      :group_search_filter => '',
-      :groupid => 'groupid',
-      :groupname => 'cn',
-      :groupname_pattern => '',
-      :groups_base_dn => 'groups_base_dn',
-      :member => '',
-      :member_group => '',
-      :nested_groups => '',
-      :parent_group => '',
-      :required_group => '',
-      :user_fields_to_sync => [],
-      :group_fields_to_sync => [],
-      :user_ldap_attrs => {},
-      :group_ldap_attrs => {},
-      :user_groups => 'memberof',
-      :user_memberid => '',
-      :sync_on_login => '',
-      :dyngroups => ''
+    put :update, params: { 
+      id: @ldap_setting.id, 
+      ldap_setting: {
+        auth_source_ldap_id: @auth_source_id,
+        active: true,
+        account_disabled_test: '',
+        account_flags: '',
+        attributes_to_sync: '',
+        class_group: 'group',
+        class_user: 'user',
+        create_groups: '',
+        create_users: '',
+        fixed_group: '',
+        group_memberid: '',
+        group_membership: 'on_members',
+        group_parentid: '',
+        group_search_filter: '',
+        groupid: 'groupid',
+        groupname: 'cn',
+        groupname_pattern: '',
+        groups_base_dn: 'groups_base_dn',
+        member: '',
+        member_group: '',
+        nested_groups: '',
+        parent_group: '',
+        required_group: '',
+        user_fields_to_sync: [],
+        group_fields_to_sync: [],
+        user_ldap_attrs: {},
+        group_ldap_attrs: {},
+        user_groups: 'memberof',
+        user_memberid: '',
+        sync_on_login: '',
+        dyngroups: ''
+      }
     }
     assert_redirected_to ldap_settings_path
     assert assigns(:ldap_setting).valid?
@@ -189,9 +195,12 @@ class LdapSettingsControllerTest < ActionController::TestCase
   end
 
   def test_should_test
-    put :test, :id => @ldap_setting.id, :format => 'text',
-      :ldap_setting => @ldap_setting.send(:attributes),
-      :ldap_test => { :test_users => 'example1', :test_groups => 'Therß' }
+    put :test, params: { 
+      id: @ldap_setting.id,
+      format: 'text', 
+      ldap_setting: @ldap_setting.send(:attributes),
+      ldap_test: { test_users: 'example1', test_groups: 'Therß' }
+    }
 
     assert_response :success
     assert_equal 'text/plain', response.content_type
@@ -211,9 +220,12 @@ class LdapSettingsControllerTest < ActionController::TestCase
   def test_should_validate_on_test
     @ldap_setting.dyngroups = 'invalid'
 
-    put :test, :id => @ldap_setting.id, :format => 'text',
-      :ldap_setting => @ldap_setting.send(:attributes),
-      :ldap_test => { :test_users => 'example1', :test_groups => 'Therß' }
+    put :test, params: { 
+      id: @ldap_setting.id, 
+      format: 'text',
+      ldap_setting: @ldap_setting.send(:attributes),
+      ldap_test: { :test_users => 'example1', :test_groups => 'Therß' }
+    }
 
     assert_response :success
     assert_equal 'text/plain', response.content_type
