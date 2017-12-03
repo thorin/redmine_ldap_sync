@@ -19,9 +19,9 @@ class LdapSettingsController < ApplicationController
   layout 'admin'
   menu_item :ldap_sync
 
-  before_filter :require_admin
-  before_filter :find_ldap_setting, :only => [:show, :edit, :update, :test, :enable, :disable]
-  before_filter :update_ldap_setting_from_params, :only => [:edit, :update, :test]
+  before_action :require_admin
+  before_action :find_ldap_setting, :only => [:show, :edit, :update, :test, :enable, :disable]
+  before_action :update_ldap_setting_from_params, :only => [:edit, :update, :test]
 
   if respond_to? :skip_before_action
     skip_before_action :verify_authenticity_token, :if => :js_request?
