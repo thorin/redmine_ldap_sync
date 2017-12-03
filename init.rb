@@ -6,7 +6,7 @@ Redmine::Plugin.register :redmine_ldap_sync do
   author_url 'https://github.com/thorin'
   description 'Syncs users and groups with ldap'
   url 'https://github.com/thorin/redmine_ldap_sync'
-  version '2.0.8.devel'
+  version '2.0.8'
   requires_redmine :version_or_higher => '2.1.0'
 
   settings :default => HashWithIndifferentAccess.new()
