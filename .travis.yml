@@ -27,7 +27,8 @@ matrix:
   exclude:
    - rvm: 1.9.3
      env: REDMINE=master
-gemfile: workspace/redmine/Gemfile
+gemfile: 
+ - ./workspace/redmine/Gemfile
 bundler_args: --without development rmagick
 before_install:
  - ./script/ci.sh clone_redmine --target $REDMINE_DIR
