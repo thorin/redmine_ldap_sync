@@ -28,7 +28,7 @@ matrix:
    - rvm: 1.9.3
      env: REDMINE=master
 gemfile: workspace/redmine/Gemfile
-bundler_args: --path workspace/redmine/vendor/bundle --gemfile workspace/redmine/Gemfile --without development rmagick
+bundler_args: --path workspace/redmine/vendor/bundle --without development rmagick
 before_install:
  - ./script/ci.sh clone_redmine --target $REDMINE_DIR
  - cp ./config/database.yml.travis $REDMINE_DIR/config/database.yml
