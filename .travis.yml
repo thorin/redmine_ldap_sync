@@ -1,7 +1,9 @@
 ---
 language: ruby
 sudo: false
-cache: bundler
+cache:
+  directories:
+    - workspace/redmine/vendor/bundle
 addons:
   apt:
     packages:
@@ -28,7 +30,7 @@ matrix:
    - rvm: 1.9.3
      env: REDMINE=master
 gemfile: workspace/redmine/Gemfile
-bundler_args: --without development rmagick --gemfile workspace/redmine/Gemfile
+bundler_args: --path workspace/redmine/vendor/bundle --gemfile workspace/redmine/Gemfile --without development rmagick
 before_install:
  - ./script/ci.sh clone_redmine --target $REDMINE_DIR
  - cp ./config/database.yml.travis $REDMINE_DIR/config/database.yml
