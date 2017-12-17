@@ -30,7 +30,7 @@ class LdapSetting
   CLASS_NAMES = %w( class_user class_group )
   FLAGS = %w( create_groups create_users active )
   COMBOS = %w( group_membership nested_groups sync_on_login dyngroups users_search_scope )
-  OTHERS = %w( account_disabled_test user_fields_to_sync group_fields_to_sync user_ldap_attrs group_ldap_attrs fixed_group admin_group required_group group_search_filter groupname_pattern groups_base_dn dyngroups_cache_ttl )
+  OTHERS = %w( account_locked_test user_fields_to_sync group_fields_to_sync user_ldap_attrs group_ldap_attrs fixed_group admin_group required_group group_search_filter groupname_pattern groups_base_dn dyngroups_cache_ttl )
 
   validates_presence_of :auth_source_ldap_id
   validates_presence_of :class_user, :class_group, :groupname
@@ -51,7 +51,7 @@ class LdapSetting
   validates_numericality_of :dyngroups_cache_ttl, :only_integer => true, :allow_blank => true
 
   validate :validate_groupname_pattern
-  validate :validate_account_disabled_test
+  validate :validate_account_locked_test
   validate :validate_group_filter
   validate :validate_user_fields_to_sync, :validate_user_ldap_attrs
   validate :validate_group_fields_to_sync, :validate_group_ldap_attrs
@@ -141,9 +141,9 @@ class LdapSetting
   end
 
   # Returns the evaluated proc of the account disabled test
-  def account_disabled_proc
-    @account_disabled_proc ||= if has_account_disabled_test?
-      eval("lambda { |flags| #{account_disabled_test} }")
+  def account_locked_proc
+    @account_locked_proc ||= if has_account_locked_test?
+      eval("lambda { |flags| #{account_locked_test} }")
     end
   end
 
@@ -274,12 +274,12 @@ class LdapSetting
 
   protected
 
-    def validate_account_disabled_test
-      if account_disabled_test.present?
-        eval "lambda { |flags| #{account_disabled_test} }"
+    def validate_account_locked_test
+      if account_locked_test.present?
+        eval "lambda { |flags| #{account_locked_test} }"
       end
     rescue Exception => e
-      errors.add :account_disabled_test, :invalid_expression, :error_message => e.message.gsub(/^(\(eval\):1: )?(.*?)(lambda.*|$)/m, '\2')
+      errors.add :account_locked_test, :invalid_expression, :error_message => e.message.gsub(/^(\(eval\):1: )?(.*?)(lambda.*|$)/m, '\2')
       Rails.logger.error "#{e.message}\n #{e.backtrace.join("\n ")}"
     end
 

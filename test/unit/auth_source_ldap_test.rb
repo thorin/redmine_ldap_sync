@@ -239,12 +239,28 @@ class AuthSourceLdapTest < ActiveSupport::TestCase
     assert user.active?
 
     @ldap_setting.account_flags = 'description'
-    @ldap_setting.account_disabled_test = "flags.include? 'Earheart'"
+    @ldap_setting.account_locked_test = "flags.include? 'Earheart'"
     assert @ldap_setting.save, @ldap_setting.errors.full_messages.join(', ')
 
     @auth_source.sync_users
 
     assert user.reload.locked?
+  end
+
+  test "#sync_users should remove deleted users from all groups and projects" do
+    user = User.find_by_login 'someone'
+    assert_not_nil user
+    assert user.active?
+
+    refute user.groups.empty?
+    refute user.memberships.empty?
+
+    @auth_source.sync_users
+
+    assert user.reload.locked?
+
+    assert user.memberships.empty?
+    assert user.groups.empty?
   end
 
   test "#sync_users should not lock users when there's no account_flags" do
@@ -311,7 +327,7 @@ class AuthSourceLdapTest < ActiveSupport::TestCase
   test "#sync_users should not activate locked users if activate_users flag is set" do
     @ldap_setting.fixed_group = nil
     @ldap_setting.account_flags = 'description'
-    @ldap_setting.account_disabled_test = 'true'
+    @ldap_setting.account_locked_test = 'true'
     assert @ldap_setting.save, @ldap_setting.errors.full_messages.join(', ')
 
     user1 = User.find_by_login 'loadgeek'
@@ -586,7 +602,7 @@ class AuthSourceLdapTest < ActiveSupport::TestCase
     assert @user.reload.active?
   end
 
-  test "#sync_user should not failed with an user that doesn't exist on ldap and remove all groups" do
+  test "#sync_user should not fail with an user that doesn't exist on ldap and should remove all groups" do
     @user = users(:loadgeek)
     @ldap_setting.sync_on_login  = 'user_fields_and_groups'
     assert @ldap_setting.save, @ldap_setting.errors.full_messages.join(', ')
@@ -595,7 +611,7 @@ class AuthSourceLdapTest < ActiveSupport::TestCase
     @auth_source.sync_user(user, nil, :try_to_login => true)
 
     assert user.locked?, "User 'someone' should be locked"
-    assert_equal ['ldap.users'], user.groups.map(&:name)
+    assert_equal [], user.groups.map(&:name)
     assert_equal 'Some', user.firstname
     assert_equal 'One', user.lastname
     assert_equal 'someone@foo.bar', user.mail
@@ -627,7 +643,7 @@ class AuthSourceLdapTest < ActiveSupport::TestCase
   test "#sync_user should synchronize groups of users locked on ldap" do
     @user = users(:loadgeek)
     @ldap_setting.account_flags = 'description'
-    @ldap_setting.account_disabled_test = 'true'
+    @ldap_setting.account_locked_test = 'true'
     assert @ldap_setting.save, @ldap_setting.errors.full_messages.join(', ')
 
     assert @user.active?, 'User should be active'
@@ -680,7 +696,7 @@ class AuthSourceLdapTest < ActiveSupport::TestCase
 
   test "#try_login should deny access to incomplete users with a locked status" do
     @ldap_setting.account_flags = 'description'
-    @ldap_setting.account_disabled_test = "flags.include? 'without'"
+    @ldap_setting.account_locked_test = "flags.include? 'without'"
     assert @ldap_setting.save, @ldap_setting.errors.full_messages.join(', ')
 
     assert_nil User.find_by_login 'incomplete'
@@ -732,7 +748,7 @@ class AuthSourceLdapTest < ActiveSupport::TestCase
     @auth_source.save
 
     @ldap_setting.account_flags = 'description'
-    @ldap_setting.account_disabled_test = "flags.include? 'without'"
+    @ldap_setting.account_locked_test = "flags.include? 'without'"
     assert @ldap_setting.save, @ldap_setting.errors.full_messages.join(', ')
 
     assert_nil User.find_by_login 'incomplete'
@@ -859,6 +875,7 @@ class AuthSourceLdapTest < ActiveSupport::TestCase
 
   test "#ldap_users should return the users sorted" do
     @auth_source.send(:ldap_users).values.each do |users|
+      next if users.empty?
       users = users.to_a
       users[0..-2].zip(users[1..-1]).each do |a, b|
         assert_operator a, :<=, b
@@ -874,8 +891,11 @@ class AuthSourceLdapTest < ActiveSupport::TestCase
     assert users[:enabled].all? {|u| /^e.*$/i =~ u },
       "enabled_users = #{users[:enabled]}"
 
-    assert users[:disabled].none? {|u| /^e.*$/i =~ u },
-      "disabled_users = #{users[:disabled]}"
+    assert users[:locked].none? {|u| /^e.*$/i =~ u },
+      "locked_users = #{users[:locked]}"
+
+    assert users[:deleted].none? {|u| /^e.*$/i =~ u },
+      "locked_users = #{users[:deleted]}"
   end
 
   test "#find_or_create_user should sync mandatory fields on create even if not set to sync" do

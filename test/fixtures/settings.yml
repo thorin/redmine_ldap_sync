@@ -11,7 +11,7 @@ redmine_ldap_setting:
       class_group: groupOfNames
       groupname_pattern: ''
       group_search_filter: ''
-      account_disabled_test: flags.include? '[disabled]'
+      account_locked_test: flags.include? '[disabled]'
       group_membership: on_groups
       nested_groups: on_parents
       groupname: cn

@@ -98,9 +98,10 @@ class LdapTestTest < ActiveSupport::TestCase
     assert_no_match /ldap_test\.rb/, @ldap_test.messages, "Should not throw an error"
   end
 
-  def test_run_with_disabled_users
+  def test_run_with_deleted_users
     @ldap_test.run_with_users_and_groups(['tweetsave'], ['Briklør'])
-    assert_not_equal 0, @ldap_test.user_changes[:disabled].size
+    assert_not_equal 0, @ldap_test.user_changes[:locked].size
+    assert_not_equal 0, @ldap_test.user_changes[:deleted].size
 
     assert_no_match /ldap_test\.rb/, @ldap_test.messages, "Should not throw an error"
   end
@@ -118,7 +119,7 @@ class LdapTestTest < ActiveSupport::TestCase
     @ldap_setting.required_group = 'Bluil'
 
     @ldap_test.run_with_users_and_groups(['tweetsave'], ['Therß'])
-    assert_not_equal 0, @ldap_test.users_disabled_by_group.size
+    assert_not_equal 0, @ldap_test.users_locked_by_group.size
 
     assert_no_match /ldap_test\.rb/, @ldap_test.messages, "Should not throw an error"
   end
@@ -146,12 +147,13 @@ class LdapTestTest < ActiveSupport::TestCase
     @ldap_test.run_with_users_and_groups([], [])
     assert_not_equal 0, @ldap_test.messages.size
     assert_not_equal 0, @ldap_test.user_changes[:enabled].size
-    assert_equal 1, @ldap_test.user_changes[:disabled].size
+    assert_equal 0, @ldap_test.user_changes[:locked].size
+    assert_equal 1, @ldap_test.user_changes[:deleted].size
     assert_equal 0, @ldap_test.users_at_ldap.size
     assert_equal 0, @ldap_test.groups_at_ldap.size
     assert_not_equal 0, @ldap_test.non_dynamic_groups.size
     assert_equal 0, @ldap_test.dynamic_groups.size
-    assert_equal 0, @ldap_test.users_disabled_by_group.size
+    assert_equal 0, @ldap_test.users_locked_by_group.size
     assert_equal 0, @ldap_test.admin_users.size
 
     assert_no_match /ldap_test\.rb/, @ldap_test.messages, "Should not throw an error"
@@ -189,7 +191,7 @@ class LdapTestTest < ActiveSupport::TestCase
   end
 
   def test_error_case
-    @ldap_setting.account_disabled_test = "flags.include? [disabled]'"
+    @ldap_setting.account_locked_test = "flags.include? [disabled]'"
 
     @ldap_test.run_with_users_and_groups([], [])
 

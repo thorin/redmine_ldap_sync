@@ -83,17 +83,17 @@ module LdapSync::EntityManager
     end
 
     def ldap_users
-      return @ldap_users if @ldap_users
+      return @ldap_users if defined? @ldap_users
 
       with_ldap_connection do |ldap|
-        changes = { :enabled => SortedSet.new, :disabled => SortedSet.new }
+        changes = { enabled: SortedSet.new, locked: SortedSet.new, deleted: SortedSet.new }
 
         unless setting.has_account_flags?
           changes[:enabled] += find_all_users(ldap, n(:login)).map(&:first)
         else
           find_all_users(ldap, ns(:login, :account_flags)) do |entry|
-            if account_disabled?(entry[n(:account_flags)].first)
-              changes[:disabled] << entry[n(:login)].first
+            if account_locked?(entry[n(:account_flags)].first)
+              changes[:locked] << entry[n(:login)].first
             else
               changes[:enabled] << entry[n(:login)].first
             end
@@ -101,21 +101,22 @@ module LdapSync::EntityManager
         end
 
         changes[:enabled].delete(nil)
-        changes[:disabled].delete(nil)
+        changes[:locked].delete(nil)
 
         users_on_local = self.users.active.map {|u| u.login.downcase }
         users_on_ldap = changes.values.sum.map(&:downcase)
         deleted_users = users_on_local - users_on_ldap
-        changes[:disabled] += deleted_users
+        changes[:deleted] = deleted_users
 
         trace "-- Found #{changes[:enabled].size} users active" \
-          ", #{changes[:disabled].size - deleted_users.size} locked" \
-          " and #{deleted_users.size} deleted on ldap"
+          ", #{changes[:locked].size} locked" \
+          " and #{changes[:deleted].size} deleted on ldap"
 
         # Sort users, clearer for the rake task
         # TODO user Array instead of Set at the beginning ?
         changes[:enabled] = changes[:enabled].to_a.sort
-        changes[:disabled] = changes[:disabled].to_a.sort
+        changes[:locked] = changes[:locked].to_a.sort
+        changes[:deleted] = changes[:deleted].to_a.sort
 
         @ldap_users = changes
       end
@@ -124,7 +125,7 @@ module LdapSync::EntityManager
 
     def groups_changes(user)
       return unless setting.active?
-      changes = { :added => SortedSet.new, :deleted => SortedSet.new }
+      changes = { added: SortedSet.new, deleted: SortedSet.new }
 
       user_groups = user.groups.map {|g| g.name.downcase }
       groupname_regexp = setting.groupname_regexp
@@ -208,7 +209,7 @@ module LdapSync::EntityManager
     end
 
     def reload_dyngroups!
-      with_ldap_connection {|c| find_all_dyngroups(c, :update_cache => true) }
+      with_ldap_connection {|c| find_all_dyngroups(c, update_cache: true) }
     end
 
     def get_group_closure(ldap, group, closure=Set.new)
@@ -251,20 +252,20 @@ module LdapSync::EntityManager
       group_filter &= Net::LDAP::Filter.construct( setting.group_search_filter ) if setting.group_search_filter.present?
       group_filter &= extra_filter if extra_filter
 
-      ldap_search(ldap, {:base =>  groups_base_dn,
-                   :filter => group_filter,
-                   :attributes => attrs,
-                   :return_result => block_given? ? false : true},
+      ldap_search(ldap, {base:  groups_base_dn,
+                   filter: group_filter,
+                   attributes: attrs,
+                   return_result: block_given? ? false : true},
                   &block)
     end
 
     def find_all_dyngroups(ldap, options = {})
-      options = options.reverse_merge(:attrs => [n(:groupname), :member], :update_cache => false)
+      options = options.reverse_merge(attrs: [n(:groupname), :member], update_cache: false)
       users_base_dn = setting.base_dn.downcase
 
       dyngroups = Hash.new{|h,k| h[k] = []}
 
-      find_all_groups(ldap, nil, options[:attrs], :class => 'groupOfURLs') do |entry|
+      find_all_groups(ldap, nil, options[:attrs], class: 'groupOfURLs') do |entry|
         yield entry if block_given?
 
         if options[:update_cache]
@@ -284,10 +285,10 @@ module LdapSync::EntityManager
       user_filter &= setting.ldap_filter if setting.filter.present?
       login_filter = Net::LDAP::Filter.eq( setting.login, login )
 
-      result = ldap_search(ldap, {:base => setting.base_dn,
-                            :filter => user_filter & login_filter,
-                            :attributes => attrs,
-                            :return_result => block_given? ? false : true},
+      result = ldap_search(ldap, {base: setting.base_dn,
+                            filter: user_filter & login_filter,
+                            attributes: attrs,
+                            return_result: block_given? ? false : true},
                            &block)
       result.first if !block_given? && result.present?
     end
@@ -296,11 +297,11 @@ module LdapSync::EntityManager
       user_filter = Net::LDAP::Filter.eq( :objectclass, setting.class_user )
       user_filter &= setting.ldap_filter if setting.filter.present?
 
-      ldap_search(ldap, {:base => setting.base_dn,
-                   :filter => user_filter,
-                   :scope => (Net::LDAP::SearchScope_SingleLevel if setting.users_search_onelevel?),
-                   :attributes => attrs,
-                   :return_result => block_given? ? false : true},
+      ldap_search(ldap, {base: setting.base_dn,
+                   filter: user_filter,
+                   scope: (Net::LDAP::SearchScope_SingleLevel if setting.users_search_onelevel?),
+                   attributes: attrs,
+                   return_result: block_given? ? false : true},
                   &block)
     end
 
@@ -332,10 +333,10 @@ module LdapSync::EntityManager
       member[0...-setting.base_dn.length-1]
     end
 
-    def account_disabled?(flags)
+    def account_locked?(flags)
       return false if flags.blank?
 
-      !!setting.account_disabled_proc.try(:call, flags)
+      !!setting.account_locked_proc.try(:call, flags)
     end
 
     def cacheable_ber(result)
@@ -365,7 +366,7 @@ module LdapSync::EntityManager
       end
     end
 
-    def info(msg = ""); trace msg, :level => :change; end
-    def change(obj = "", msg = ""); trace msg, :level => :change, :obj => obj; end
-    def error(msg); trace msg, :level => :error; end
+    def info(msg = ""); trace msg, level: :change; end
+    def change(obj = "", msg = ""); trace msg, level: :change, obj: obj; end
+    def error(msg); trace msg, level: :error; end
 end

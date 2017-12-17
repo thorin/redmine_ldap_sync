@@ -208,7 +208,7 @@ class LdapSettingsControllerTest < ActionController::TestCase
     assert_match /User \"example1\":/,          response.body
     assert_match /Group \"Therß\":/,            response.body
     assert_match /Users enabled:/,              response.body
-    assert_match /Users disabled by flag:/,     response.body
+    assert_match /Users locked by flag:/,       response.body
     assert_match /Admin users:/,                response.body
     assert_match /Groups:/,                     response.body
     assert_match /LDAP attributes on a user:/,  response.body

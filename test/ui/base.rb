@@ -33,6 +33,13 @@ Capybara.register_driver :selenium do |app|
   Capybara::Selenium::Driver.new(app, browser: :remote, desired_capabilities: Selenium::WebDriver::Remote::Capabilities.phantomjs)
 end
 
+Capybara.register_driver :chrome_headless do |app|
+  capabilities = Selenium::WebDriver::Remote::Capabilities.chrome(
+    chromeOptions: { args: %w(headless disable-popup-blocking no-sandbox disable-gpu window-size=1024,900 lang=en) }
+  )
+  Capybara::Selenium::Driver.new(app, browser: :chrome, desired_capabilities: capabilities )
+end
+
 # default: 2
 Capybara.default_wait_time = 2
 

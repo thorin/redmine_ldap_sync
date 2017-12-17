@@ -22,7 +22,7 @@ class LdapTest
   include ActiveModel::Validations
   extend ActiveModel::Naming
 
-  attr_accessor :setting, :bind_user, :bind_password, :test_users, :test_groups, :messages, :user_attrs, :group_attrs, :users_at_ldap, :groups_at_ldap, :non_dynamic_groups, :dynamic_groups, :users_disabled_by_group, :admin_users, :user_changes
+  attr_accessor :setting, :bind_user, :bind_password, :test_users, :test_groups, :messages, :user_attrs, :group_attrs, :users_at_ldap, :groups_at_ldap, :non_dynamic_groups, :dynamic_groups, :users_locked_by_group, :admin_users, :user_changes
 
   delegate :auth_source_ldap, :to => :setting
   delegate :users, :to => :auth_source_ldap
@@ -34,12 +34,12 @@ class LdapTest
 
     @setting = setting
     @messages = ''
-    @user_changes = {:enabled => [], :disabled => []}
+    @user_changes = {:enabled => [], :locked => [], :deleted => []}
     @users_at_ldap = {}
     @groups_at_ldap = {}
     @non_dynamic_groups = []
     @dynamic_groups = {}
-    @users_disabled_by_group = []
+    @users_locked_by_group = []
     @admin_users = []
   end
 
@@ -72,7 +72,7 @@ class LdapTest
         end
 
         if setting.has_required_group?
-          users_disabled_by_group << login unless enabled_groups.include? setting.required_group.downcase
+          users_locked_by_group << login unless enabled_groups.include? setting.required_group.downcase
         end
       end if setting.has_admin_group? || setting.has_required_group?
 
