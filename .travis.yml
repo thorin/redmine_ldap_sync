@@ -1,4 +1,3 @@
----
 language: ruby
 sudo: false
 cache:
@@ -9,9 +8,10 @@ addons:
     packages:
       - ldap-utils
       - slapd
+  chrome: stable
 rvm:
  - 1.9.3
- - 2.3.1
+ - 2.3.4
 env:
   global: REDMINE_DIR=./workspace/redmine
   matrix:
@@ -20,8 +20,6 @@ env:
    - REDMINE=master
 matrix:
   include:
-   - rvm: 2.3.1
-     env: REDMINE=3.3-stable
    - rvm: 2.4.1
      env: REDMINE=3.4-stable
    - rvm: 2.4.1

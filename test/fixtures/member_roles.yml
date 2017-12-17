@@ -1,5 +1,14 @@
---- 
-member_roles_001: 
+---
+member_roles_001:
   id: 300
   role_id: 1
   member_id: 300
+member_roles_002:
+  id: 302
+  role_id: 1
+  member_id: 301
+  inherited_from: 300
+member_roles_003:
+  id: 303
+  role_id: 2
+  member_id: 302

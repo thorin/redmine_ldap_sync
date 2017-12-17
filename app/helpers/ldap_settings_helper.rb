@@ -158,7 +158,7 @@ module LdapSettingsHelper
     end
 
     def base_settings
-      @base_settings if @base_settings
+      @base_settings if defined? @base_settings
 
       config_dir = File.join(Redmine::Plugin.find(:redmine_ldap_sync).directory, 'config')
       default = baseable_fields.inject({}) {|h, k| h[k] = ''; h }

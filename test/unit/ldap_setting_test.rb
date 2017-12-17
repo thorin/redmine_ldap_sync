@@ -282,14 +282,14 @@ class LdapSettingTest < ActiveSupport::TestCase
     assert !@ldap_setting.valid?, @ldap_setting.errors.full_messages.join(', ')
   end
 
-  def test_should_validate_account_disabled_test
-    @ldap_setting.account_disabled_test = ''
+  def test_should_validate_account_locked_test
+    @ldap_setting.account_locked_test = ''
     assert @ldap_setting.valid?, @ldap_setting.errors.full_messages.join(', ')
 
-    @ldap_setting.account_disabled_test = 'flags.include? "'
+    @ldap_setting.account_locked_test = 'flags.include? "'
     assert !@ldap_setting.valid?, @ldap_setting.errors.full_messages.join(', ')
 
-    @ldap_setting.account_disabled_test = 'flags.include? "D"'
+    @ldap_setting.account_locked_test = 'flags.include? "D"'
     assert @ldap_setting.valid?, @ldap_setting.errors.full_messages.join(', ')
   end
 

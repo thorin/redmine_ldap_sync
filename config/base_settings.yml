@@ -2,7 +2,7 @@ active_directory:
   name: Active Directory
   class_user: user
   class_group: group
-  account_disabled_test: "flags.to_i & 2 != 0"
+  account_locked_test: "flags.to_i & 2 != 0"
   group_membership: on_members
   nested_groups: ""
   groupname: samaccountname
@@ -13,7 +13,7 @@ active_directory_nested:
   name: Active Directory (with nested groups)
   class_user: user
   class_group: group
-  account_disabled_test: "flags.to_i & 2 != 0"
+  account_locked_test: "flags.to_i & 2 != 0"
   group_membership: on_members
   nested_groups: on_parents
   groupname: samaccountname
@@ -51,7 +51,7 @@ samba_ldap:
   name: Samba LDAP
   class_user: sambaSamAccount
   class_group: sambaGroupMapping
-  account_disabled_test: "flags.include? 'D'"
+  account_locked_test: "flags.include? 'D'"
   group_membership: on_groups
   groupname: cn
   account_flags: sambaAcctFlags

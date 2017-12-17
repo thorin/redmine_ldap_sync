@@ -58,6 +58,12 @@ module LdapSync::Infectors::User
       self.update_attribute(:admin, false)
     end
 
+    def archive!
+      self.groups.destroy_all
+      self.memberships.each {|m| m.member_roles.destroy_all}
+      self.lock!
+    end
+
     def sync_on_create!; @sync_on_create = true; end
     def sync_on_create?; @sync_on_create == true; end
 

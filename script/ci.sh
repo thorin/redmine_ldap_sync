@@ -3,6 +3,7 @@ set -e # exit if any command fails
 
 setenv() {
   export RAILS_ENV=test
+  export RUBYOPT=-W1
   export IN_RBL_TESTENV=true
   export PATH_TO_LDAPSYNC=$(pwd)
   export RUBY_VERSION=$(ruby -e 'print RUBY_VERSION')

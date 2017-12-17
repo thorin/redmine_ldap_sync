@@ -56,7 +56,7 @@ class Redmine::UiTest::LdapSettingTest < Redmine::UiTest::Base
     assert_selector '#test-result', :text => /Group "MissingGroup": Not found/
 
     assert_selector '#test-result', :text => /Users enabled: a total of \d+\s+\[[^\]]*"microunit"[^\]]*\]/
-    assert_selector '#test-result', :text => /Users disabled by flag: a total of \d+\s+\[[^\]]*"tweetmicro"[^\]]*\]/
+    assert_selector '#test-result', :text => /Users locked by flag: a total of \d+\s+\[[^\]]*"tweetmicro"[^\]]*\]/
     assert_selector '#test-result', :text => /Groups: a total of \d+\s+\[[^\]]*\]/
     assert_selector '#test-result', :text => /Dynamic groups: a total of \d+\s+.*MicroUsers:\s+\[[^\]]*microunit[^\]]*\]/
   end

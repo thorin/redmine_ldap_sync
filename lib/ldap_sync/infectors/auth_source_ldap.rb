@@ -61,7 +61,7 @@ module LdapSync::Infectors::AuthSourceLdap
       @closure_cache = new_memory_cache if setting.nested_groups_enabled?
 
       with_ldap_connection do |_|
-        ldap_users[:disabled].each do |login|
+        ldap_users[:locked].each do |login|
           user = self.users.where("LOWER(login) = ?", login.mb_chars.downcase).first
 
           if user.try(:active?)
@@ -74,7 +74,21 @@ module LdapSync::Infectors::AuthSourceLdap
             trace "-- Not locking locked user '#{user.login}'"
           end
           user, = find_local_user(login)
-          sync_user(user, false, :disabled => true) if user.present?
+          sync_user(user, false, :locked => true) if user.present?
+        end
+
+        ldap_users[:deleted].each do |login|
+          user = self.users.where("LOWER(login) = ?", login.mb_chars.downcase).first
+
+          if user.try(:active?)
+            if user.archive!
+              change user.login, "-- Archived active user '#{user.login}' (#{user.name})"
+            else
+              change user.login, "-- Failed to archive active user '#{user.login}'"
+            end
+          elsif user.present?
+            trace "-- Not archiving locked user '#{user.login}'"
+          end
         end
 
         ldap_users[:enabled].each do |login|
@@ -101,7 +115,7 @@ module LdapSync::Infectors::AuthSourceLdap
         end
 
         sync_user_groups(user) if sync_groups
-        sync_user_status(user, flags, options[:disabled] || false)
+        sync_user_status(user, flags, options[:locked] || false)
 
         return if user.locked?
 
@@ -114,7 +128,7 @@ module LdapSync::Infectors::AuthSourceLdap
       with_ldap_connection(options[:login], options[:password]) do |ldap|
         locked = if setting.has_account_flags? && setting.sync_fields_on_login?
           flags = find_user(ldap, user.login, n(:account_flags)).first
-          account_disabled?(flags)
+          account_locked?(flags)
         end
 
         locked ||= if setting.has_required_group? && setting.sync_groups_on_login?
@@ -179,24 +193,35 @@ module LdapSync::Infectors::AuthSourceLdap
         end
       end
 
-      def sync_user_status(user, flags, disabled)
-        if flags && (flags == :deleted || account_disabled?(flags))
-          user.lock!
-          change user.login, "   -> locked: user disabled on ldap with flags '#{flags}'"
-        elsif setting.has_required_group?
-          if user.member_of_group?(setting.required_group)
-            if user.locked?
-              user.activate!
-              change user.login, "   -> activated: member of group '#{setting.required_group}'"
-            end
-          elsif user.active?
+      def sync_user_status(user, flags, locked)
+        locked ||= flags && flags != :deleted && account_locked?(flags)
+        deleted = flags == :deleted
+
+        message = if user.active?
+          if deleted
+            user.archive!
+            "   -> archived: user deleted on ldap"
+          elsif locked
             user.lock!
-            change user.login, "   -> locked: not member of group '#{setting.required_group}'"
+            "   -> locked: user locked on ldap with flags '#{flags}'"
+          elsif setting.has_required_group?
+            unless user.member_of_group?(setting.required_group)
+              user.lock!
+              "   -> locked: not member of group '#{setting.required_group}'"
+            end
           end
-        elsif activate_users? && user.locked? && !disabled
-          user.activate!
-          change user.login, "   -> activated: ACTIVATE_USERS flag is on"
+        elsif user.locked?
+          unless setting.has_required_group? && !user.member_of_group?(setting.required_group) || flags && (deleted || locked)
+            if setting.has_required_group?
+              user.activate!
+              "   -> activated: member of group '#{setting.required_group}'"
+            elsif activate_users? && (!flags || !(deleted || locked))
+              user.activate!
+              "   -> activated: ACTIVATE_USERS flag is on"
+            end
+          end
         end
+        change user.login, message if message
       end
 
       def sync_admin_privilege(user)
@@ -355,9 +380,7 @@ module LdapSync::Infectors::AuthSourceLdap
       end
 
       def setting
-        return @setting if @setting
-
-        @setting = LdapSetting.find_by_auth_source_ldap_id(self.id)
+        @setting ||= LdapSetting.find_by_auth_source_ldap_id(self.id)
       end
 
       def pluralize(n, word)

@@ -8,11 +8,11 @@ the tests.
 Creating a test ldap database
 =============================
 
-Install slapd and make sure the server can be access at 127.0.0.1 on port 389.
+Install slapd and make sure the server can be reached at 127.0.0.1 on port 389.
 
 Initialize the config database with:
- `slaptest -f redmine_ldap_sync/test/fixtures/ldap/redmine.conf -F /etc/ldap/slapd.d/`
- `chown -R openldap:openldap /etc/ldap/slapd.d/*`
+ `slaptest -f redmine_ldap_sync/test/fixtures/ldap/slapd.conf -F /etc/ldap/slapd.d/`
+ `chown -R openldap:openldap /etc/ldap/slapd.d /var/lib/ldap`
 
 Restart slapd and load the sample data with:
  `ldapadd -Dcn=admin,dc=redmine,dc=org -w password -f redmine_ldap_sync/test/fixtures/ldap/test-ldap.ldif -c`

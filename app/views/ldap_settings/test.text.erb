@@ -12,13 +12,13 @@
     <%= @test.user_changes[:enabled].to_a.inspect %>
 <% if @ldap_setting.has_account_flags? -%>
 
-<%=l :label_users_disabled_by_flag %>: <%=l :label_a_total_of, @test.user_changes[:disabled].size %>
-    <%= @test.user_changes[:disabled].to_a.inspect %>
+<%=l :label_users_locked_by_flag %>: <%=l :label_a_total_of, @test.user_changes[:locked].size %>
+    <%= @test.user_changes[:locked].to_a.inspect %>
 <% end -%>
 <% if @ldap_setting.has_required_group? -%>
 
-<%=l :label_users_disabled_by_group %>: <%=l :label_a_total_of, @test.users_disabled_by_group.size %>
-    <%= @test.users_disabled_by_group.inspect %>
+<%=l :label_users_locked_by_group %>: <%=l :label_a_total_of, @test.users_locked_by_group.size %>
+    <%= @test.users_locked_by_group.inspect %>
 <% end -%>
 <% if @ldap_setting.has_admin_group? -%>
 

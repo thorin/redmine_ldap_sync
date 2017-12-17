@@ -4,4 +4,16 @@ ldap_sync_members:
   project_id: 201
   id: 300
   user_id: 10
+  mail_notification: false
+ldap_sync_members_1:
+  id: 301
+  created_on: 2010-07-19 19:35:33 +02:00
+  project_id: 201
+  user_id: 7
+  mail_notification: true
+ldap_sync_members_2:
+  id: 302
+  created_on: 2010-07-19 19:35:33 +02:00
+  project_id: 202
+  user_id: 7
   mail_notification: true
