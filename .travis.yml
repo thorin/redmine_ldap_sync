@@ -11,7 +11,7 @@ addons:
   chrome: stable
 rvm:
  - 1.9.3
- - 2.3.4
+ - 2.3.6
 env:
   global: REDMINE_DIR=./workspace/redmine
   matrix:
@@ -20,15 +20,15 @@ env:
    - REDMINE=master
 matrix:
   include:
-   - rvm: 2.4.1
+   - rvm: 2.4.3
      env: REDMINE=3.4-stable
-   - rvm: 2.4.1
+   - rvm: 2.4.3
      env: REDMINE=master
   exclude:
    - rvm: 1.9.3
      env: REDMINE=master
 gemfile: workspace/redmine/Gemfile
-bundler_args: --path workspace/redmine/vendor/bundle --gemfile workspace/redmine/Gemfile --without development rmagick
+bundler_args: --path vendor/bundle --gemfile workspace/redmine/Gemfile --without development rmagick
 before_install:
  - ./script/ci.sh clone_redmine --target $REDMINE_DIR
  - cp ./config/database.yml.travis $REDMINE_DIR/config/database.yml
