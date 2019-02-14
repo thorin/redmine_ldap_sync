@@ -228,6 +228,13 @@ License
 This plugin is released under the GPL v3 license. See LICENSE for more
 information.
 
+Unmaintained
+------------
+
+I created this plugin to solve a need we had on my previous job. 
+Things changed and now I no longer have the time or the need necessary to maintain it. 
+Sorry for this. Please consider forking or using one of the existing forks.
+In a best scenario, an official fork might already exist.
 
 ---
 1. For details about dynamic groups see
